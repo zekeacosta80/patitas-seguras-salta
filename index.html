@@ -1,57 +1,342 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patitas Seguras Salta - ¡Mascota Perdida!</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; text-align: center; padding: 20px; margin: 0; }
-        .card { background: #fff; max-width: 400px; margin: auto; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .alert { background: #ff4d4d; color: white; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; font-size: 14px; }
-        img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #ffcc00; margin-bottom: 15px; }
-        h1 { margin: 10px 0 5px; font-size: 24px; color: #111; }
-        p { color: #666; font-size: 14px; margin-bottom: 20px; }
-        .btn { display: block; width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; font-weight: bold; text-decoration: sans-serif; font-size: 16px; text-align: center; box-sizing: border-box; }
-        .btn-call { background-color: #28a745; color: white; }
-        .btn-wa { background-color: #25d366; color: white; }
-        .info-box { background: #e9ecef; padding: 12px; border-radius: 8px; margin-top: 20px; font-size: 13px; text-align: left; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patitas Seguras Salta - Identificación Inteligente</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #f3f4f6; color: #1f2937; display: flex; justify-content: center; padding: 16px; }
+    .card { background: #ffffff; width: 100%; max-width: 430px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; padding: 24px; }
+    .badge { display: inline-block; background: #fee2e2; color: #dc2626; font-weight: 700; font-size: 13px; padding: 6px 12px; border-radius: 999px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-ok { background: #dcfce7; color: #15803d; }
+    .pet-photo { width: 170px; height: 170px; object-fit: cover; border-radius: 50%; border: 4px solid #f97316; display: block; margin: 8px auto 16px; background: #e5e7eb; }
+    h1 { margin: 0; font-size: 28px; text-align: center; color: #111827; }
+    .subtitle { text-align: center; color: #6b7280; margin: 4px 0 16px; font-size: 15px; }
+    .notes-box { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 14px; border-radius: 8px; margin-bottom: 20px; font-size: 15px; line-height: 1.4; }
+    .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; margin-bottom: 12px; transition: transform 0.1s; }
+    .btn:active { transform: scale(0.98); }
+    .btn-gps { background: #2563eb; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+    .btn-wpp { background: #16a34a; color: #fff; }
+    .btn-call { background: #111827; color: #fff; }
+    .btn-secondary { background: #e5e7eb; color: #374151; font-size: 14px; padding: 12px; margin-top: 8px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #374151; }
+    input, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
+    textarea { resize: vertical; min-height: 75px; }
+    .footer-brand { text-align: center; font-size: 12px; color: #9ca3af; margin-top: 18px; }
+    .hidden { display: none; }
+    #loader { text-align: center; padding: 40px 0; font-weight: 600; color: #6b7280; }
+  </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="alert">🚨 ¡ESTOY PERDIDO! AYÚDAME A VOLVER A CASA</div>
-        
-        <!-- Foto de la mascota -->
-        <img id="mascota-img" src="https://via.placeholder.com/150" alt="Mascota">
-        
-        <h1 id="mascota-nombre">Cargando...</h1>
-        <p id="mascota-ubicacion">Zona: Salta Capital</p>
+<div class="card">
+  <!-- PANTALLA DE CARGA -->
+  <div id="loader">Cargando ficha de la chapita...</div>
 
-        <!-- Botones de contacto directo -->
-        <a id="btn-llamar" href="#" class="btn btn-call">📞 LLAMAR AL DUEÑO</a>
-        <a id="btn-whatsapp" href="#" class="btn btn-wa">💬 ENVIAR UBICACIÓN POR WHASTAPP</a>
+  <!-- PANTALLA SIN ID EN EL LINK -->
+  <div id="view-no-id" class="hidden" style="text-align:center;">
+    <span class="badge badge-ok">Patitas Seguras Salta</span>
+    <h1 style="font-size:22px; margin-top:10px;">Sistema de Chapitas NFC</h1>
+    <p class="subtitle">Esta es la página principal del sistema. Para ver o activar una mascota, acercá el celular a una chapita grabada con su número de serie (ej: <code>?id=001</code>).</p>
+    <a href="?id=001" class="btn btn-gps">Probar Chapita Demo (#001)</a>
+  </div>
 
-        <div class="info-box">
-            <strong>Nota de la familia:</strong> <span id="mascota-notas">Cargando datos...</span>
-        </div>
+  <!-- VISTA PÚBLICA (CUANDO ENCUENTRAN AL ANIMAL) -->
+  <div id="view-public" class="hidden">
+    <div style="text-align:center;">
+      <span class="badge">¡Hola! Me perdí, ayudame a volver</span>
+    </div>
+    <img id="pub-photo" class="pet-photo" src="" alt="Foto de mascota" />
+    <h1 id="pub-name">Nombre</h1>
+    <p class="subtitle">Si me encontraste, por favor avisale a mi familia:</p>
+
+    <div id="pub-notes-container" class="notes-box">
+      <strong>Datos importantes:</strong><br/>
+      <span id="pub-notes"></span>
     </div>
 
-    <script>
-        // Simulación de lectura de la chapita por ID (Aquí luego lo conectamos a tu planilla)
-        const urlParams = new URLSearchParams(window.location.search);
-        const idMascota = urlParams.get('id') || 'patita-ejemplo';
+    <button id="btn-send-gps" class="btn btn-gps">📍 Enviar mi ubicación actual (GPS)</button>
+    <a id="btn-wpp" href="#" target="_blank" class="btn btn-wpp">💬 Mandar WhatsApp al dueño</a>
+    <a id="btn-call" href="#" class="btn btn-call">📞 Llamar directamente</a>
 
-        // Datos de prueba (Esto después lo lee directo de tu base de datos o Google Sheets)
-        document.getElementById('mascota-nombre').innerText = "Bruno";
-        document.getElementById('mascota-ubicacion').innerText = "Zona: Tres Cerritos, Salta";
-        document.getElementById('mascota-notas').innerText = "Soy muy miedoso con los ruidos fuertes, por favor hablen suave.";
-        document.getElementById('btn-llamar').href = "tel:3874123456";
-        
-        // Mensaje automático prearmado para enviar la ubicación GPS por WhatsApp
-        let mensajeWp = encodeURIComponent("¡Hola! Encontré a Bruno de Patitas Seguras Salta en esta ubicación:");
-        document.getElementById('btn-whatsapp').href = `https://wa.me/5493874123456?text=${mensajeWp}`;
-    </script>
+    <button id="btn-open-edit" class="btn btn-secondary">🔑 Soy el dueño / Editar datos</button>
+    <div class="footer-brand">Patitas Seguras Salta • Chapita #<span id="pub-id"></span></div>
+  </div>
 
+  <!-- VISTA ACTIVACIÓN O EDICIÓN (DUEÑO) -->
+  <div id="view-form" class="hidden">
+    <div style="text-align:center;">
+      <span id="form-badge" class="badge badge-ok">Activar Chapita Nueva</span>
+    </div>
+    <h1 id="form-title" style="font-size:22px;">Configurá tu mascota</h1>
+    <p id="form-subtitle" class="subtitle">Completá los datos para vincular esta chapita #<span id="form-id"></span></p>
+
+    <div class="form-group">
+      <label>Foto de tu mascota</label>
+      <input type="file" id="inp-photo" accept="image/*" />
+      <img id="preview-photo" class="pet-photo hidden" src="" alt="Vista previa" />
+    </div>
+
+    <div class="form-group">
+      <label>Nombre de la mascota *</label>
+      <input type="text" id="inp-name" placeholder="Ej: Toby" required />
+    </div>
+
+    <div class="form-group">
+      <label>Tu WhatsApp (con código de área, sin 0 ni 15) *</label>
+      <input type="tel" id="inp-phone" placeholder="Ej: 3874123456" required />
+    </div>
+
+    <div class="form-group">
+      <label>Notas importantes (carácter, remedios, dirección)</label>
+      <textarea id="inp-notes" placeholder="Ej: Es muy bueno pero asustadizo. Toma medicación para la alergia."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label id="pin-label">Creá un PIN de 4 números (para editar en el futuro) *</label>
+      <input type="password" id="inp-pin" maxlength="4" inputmode="numeric" placeholder="Ej: 1234" required />
+    </div>
+
+    <button id="btn-save" class="btn btn-wpp">💾 Guardar Ficha</button>
+    <button id="btn-cancel-edit" class="btn btn-secondary hidden">Cancelar y volver</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
+    authDomain: "patitas-seguras-salta.firebaseapp.com",
+    projectId: "patitas-seguras-salta",
+    storageBucket: "patitas-seguras-salta.firebasestorage.app",
+    messagingSenderId: "311814224464",
+    appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // PIN MAESTRO DE ADMINISTRADOR (Cambialo por el que vos quieras)
+  const MASTER_PIN = "9999";
+
+  // Leer el ID desde la URL (?id=001)
+  const params = new URLSearchParams(window.location.search);
+  const tagId = params.get("id");
+
+  const loader = document.getElementById("loader");
+  const viewNoId = document.getElementById("view-no-id");
+  const viewPublic = document.getElementById("view-public");
+  const viewForm = document.getElementById("view-form");
+
+  let currentPetData = null;
+  let compressedBase64 = "";
+
+  // Función para achicar la foto en el celular antes de guardar
+  function compressImage(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxSize = 500;
+          let width = img.width;
+          let height = img.height;
+          if (width > height && width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          } else if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.72));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById("inp-photo").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    compressedBase64 = await compressImage(file);
+    const preview = document.getElementById("preview-photo");
+    preview.src = compressedBase64;
+    preview.classList.remove("hidden");
+  });
+
+  function formatArgentinaPhone(raw) {
+    let clean = raw.replace(/\D/g, "");
+    if (clean.startsWith("0")) clean = clean.substring(1);
+    if (!clean.startsWith("54")) clean = "549" + clean;
+    else if (!clean.startsWith("549")) clean = "549" + clean.substring(2);
+    return clean;
+  }
+
+  function showPublicView(data) {
+    loader.classList.add("hidden");
+    viewForm.classList.add("hidden");
+    viewPublic.classList.remove("hidden");
+
+    document.getElementById("pub-id").textContent = tagId;
+    document.getElementById("pub-name").textContent = data.name;
+    document.getElementById("pub-photo").src = data.photo || "https://via.placeholder.com/200?text=Sin+Foto";
+
+    const notesContainer = document.getElementById("pub-notes-container");
+    if (data.notes && data.notes.trim() !== "") {
+      document.getElementById("pub-notes").textContent = data.notes;
+      notesContainer.classList.remove("hidden");
+    } else {
+      notesContainer.classList.add("hidden");
+    }
+
+    const fullPhone = formatArgentinaPhone(data.phone);
+    const baseMsg = encodeURIComponent(`¡Hola! Encontré a ${data.name}. Me comunico desde su chapita inteligente.`);
+
+    document.getElementById("btn-wpp").href = `https://wa.me/${fullPhone}?text=${baseMsg}`;
+    document.getElementById("btn-call").href = `tel:+${fullPhone}`;
+
+    // Botón GPS
+    document.getElementById("btn-send-gps").onclick = () => {
+      const btn = document.getElementById("btn-send-gps");
+      btn.textContent = "Obteniendo tu ubicación...";
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+            const gpsMsg = encodeURIComponent(`¡Hola! Encontré a ${data.name}. Estoy en esta ubicación ahora: ${mapsUrl}`);
+            btn.textContent = "📍 Enviar mi ubicación actual (GPS)";
+            window.location.href = `https://wa.me/${fullPhone}?text=${gpsMsg}`;
+          },
+          () => {
+            btn.textContent = "📍 Enviar mi ubicación actual (GPS)";
+            alert("No se pudo obtener el GPS automático. Te abrimos WhatsApp para que envíes tu ubicación desde el clip.");
+            window.location.href = `https://wa.me/${fullPhone}?text=${baseMsg}`;
+          },
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      } else {
+        window.location.href = `https://wa.me/${fullPhone}?text=${baseMsg}`;
+      }
+    };
+  }
+
+  function showFormView(isEdit) {
+    loader.classList.add("hidden");
+    viewPublic.classList.add("hidden");
+    viewForm.classList.remove("hidden");
+    document.getElementById("form-id").textContent = tagId;
+
+    if (isEdit && currentPetData) {
+      document.getElementById("form-badge").textContent = "Modo Edición";
+      document.getElementById("form-title").textContent = "Editar ficha de " + currentPetData.name;
+      document.getElementById("form-subtitle").textContent = "Actualizá los datos y guardá los cambios";
+      document.getElementById("inp-name").value = currentPetData.name;
+      document.getElementById("inp-phone").value = currentPetData.phone;
+      document.getElementById("inp-notes").value = currentPetData.notes || "";
+      document.getElementById("inp-pin").value = currentPetData.pin;
+      document.getElementById("pin-label").textContent = "PIN de 4 números (podés cambiarlo si querés)";
+      if (currentPetData.photo) {
+        const preview = document.getElementById("preview-photo");
+        preview.src = currentPetData.photo;
+        preview.classList.remove("hidden");
+        compressedBase64 = currentPetData.photo;
+      }
+      document.getElementById("btn-cancel-edit").classList.remove("hidden");
+    }
+  }
+
+  // Iniciar carga
+  async function init() {
+    if (!tagId) {
+      loader.classList.add("hidden");
+      viewNoId.classList.remove("hidden");
+      return;
+    }
+
+    try {
+      const docRef = doc(db, "chapitas", tagId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        currentPetData = docSnap.data();
+        showPublicView(currentPetData);
+      } else {
+        showFormView(false);
+      }
+    } catch (err) {
+      loader.textContent = "Error al conectar con la base de datos. Revisá tu conexión.";
+      console.error(err);
+    }
+  }
+
+  // Botón Editar (pide PIN)
+  document.getElementById("btn-open-edit").addEventListener("click", () => {
+    const enteredPin = prompt("Ingresá tu PIN de 4 números para editar esta ficha:");
+    if (!enteredPin) return;
+    if (enteredPin === currentPetData.pin || enteredPin === MASTER_PIN) {
+      showFormView(true);
+    } else {
+      alert("PIN incorrecto. Si lo olvidaste, contactá a Patitas Seguras Salta.");
+    }
+  });
+
+  document.getElementById("btn-cancel-edit").addEventListener("click", () => {
+    showPublicView(currentPetData);
+  });
+
+  // Guardar datos en Firebase
+  document.getElementById("btn-save").addEventListener("click", async () => {
+    const name = document.getElementById("inp-name").value.trim();
+    const phone = document.getElementById("inp-phone").value.trim();
+    const notes = document.getElementById("inp-notes").value.trim();
+    const pin = document.getElementById("inp-pin").value.trim();
+
+    if (!name || !phone || pin.length !== 4 || isNaN(pin)) {
+      alert("Por favor completá el nombre, el teléfono y un PIN de exactamente 4 números.");
+      return;
+    }
+
+    const btnSave = document.getElementById("btn-save");
+    btnSave.textContent = "Guardando...";
+    btnSave.disabled = true;
+
+    const payload = {
+      name,
+      phone,
+      notes,
+      pin,
+      photo: compressedBase64 || "",
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      await setDoc(doc(db, "chapitas", tagId), payload);
+      currentPetData = payload;
+      btnSave.textContent = "💾 Guardar Ficha";
+      btnSave.disabled = false;
+      alert("¡Ficha guardada con éxito!");
+      showPublicView(payload);
+    } catch (err) {
+      btnSave.textContent = "💾 Guardar Ficha";
+      btnSave.disabled = false;
+      alert("Error al guardar. Verificá que Firestore esté en modo de prueba.");
+      console.error(err);
+    }
+  });
+
+  init();
+</script>
 </body>
 </html>
