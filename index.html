@@ -10,7 +10,7 @@
     .card { background: #ffffff; width: 100%; max-width: 430px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; padding: 24px; }
     .badge { display: inline-block; background: #fee2e2; color: #dc2626; font-weight: 700; font-size: 13px; padding: 6px 12px; border-radius: 999px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
     .badge-ok { background: #dcfce7; color: #15803d; }
-    .pet-photo { width: 170px; height: 170px; object-fit: cover; border-radius: 50%; border: 4px solid #f97316; display: block; margin: 8px auto 16px; background: #e5e7eb; }
+    .pet-photo { width: 170px; height: 170px; object-fit: cover; border-radius: 50%; border: 4px solid #f97316; display: block; margin: 8px auto 16px; background: #fff7ed; }
     h1 { margin: 0; font-size: 28px; text-align: center; color: #111827; }
     .subtitle { text-align: center; color: #6b7280; margin: 4px 0 16px; font-size: 15px; }
     .notes-box { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 14px; border-radius: 8px; margin-bottom: 20px; font-size: 15px; line-height: 1.4; }
@@ -20,6 +20,10 @@
     .btn-wpp { background: #16a34a; color: #fff; }
     .btn-call { background: #111827; color: #fff; }
     .btn-secondary { background: #e5e7eb; color: #374151; font-size: 14px; padding: 12px; margin-top: 8px; }
+    .pin-box { background: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; padding: 14px; margin-top: 12px; }
+    .pin-row { display: flex; gap: 8px; margin-top: 8px; }
+    .pin-row input { flex: 1; text-align: center; font-size: 18px; letter-spacing: 4px; font-weight: 700; }
+    .pin-row button { width: auto; margin-bottom: 0; padding: 12px 18px; }
     .form-group { margin-bottom: 14px; }
     label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #374151; }
     input, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
@@ -34,6 +38,14 @@
 <div class="card">
   <!-- PANTALLA DE CARGA -->
   <div id="loader">Cargando ficha de la chapita...</div>
+
+  <!-- PANTALLA ERROR DE CONEXIÓN -->
+  <div id="view-error" class="hidden" style="text-align:center; padding: 20px 0;">
+    <span class="badge">Sin conexión</span>
+    <h1 style="font-size:20px; margin-top:8px;">No se pudo cargar la ficha</h1>
+    <p class="subtitle">Revisá tu señal de internet e intentá de nuevo.</p>
+    <button onclick="location.reload()" class="btn btn-gps">🔄 Reintentar</button>
+  </div>
 
   <!-- PANTALLA SIN ID EN EL LINK -->
   <div id="view-no-id" class="hidden" style="text-align:center;">
@@ -62,6 +74,17 @@
     <a id="btn-call" href="#" class="btn btn-call">📞 Llamar directamente</a>
 
     <button id="btn-open-edit" class="btn btn-secondary">🔑 Soy el dueño / Editar datos</button>
+
+    <!-- CAJA INTERNA DE PIN (Compatible con todos los iPhone y navegadores) -->
+    <div id="pin-prompt-box" class="pin-box hidden">
+      <label for="inp-check-pin" style="margin-bottom:0;">Ingresá tu PIN de 4 números:</label>
+      <div class="pin-row">
+        <input type="password" id="inp-check-pin" maxlength="4" inputmode="numeric" placeholder="••••" />
+        <button id="btn-verify-pin" class="btn btn-call">Entrar</button>
+      </div>
+      <div id="pin-error-msg" style="color:#dc2626; font-size:13px; margin-top:6px;" class="hidden">PIN incorrecto.</div>
+    </div>
+
     <div class="footer-brand">Patitas Seguras Salta • Chapita #<span id="pub-id"></span></div>
   </div>
 
@@ -120,14 +143,28 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // PIN MAESTRO DE ADMINISTRADOR (Cambialo por el que vos quieras)
+  // PIN MAESTRO DE ADMINISTRADOR
   const MASTER_PIN = "9999";
 
-  // Leer el ID desde la URL (?id=001)
+  // Huellita SVG integrada (nunca falla ni depende de links externos)
+  const DEFAULT_PAW_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="#ffedd5"/>
+      <g fill="#f97316">
+        <ellipse cx="100" cy="122" rx="34" ry="28"/>
+        <circle cx="62" cy="84" r="14"/>
+        <circle cx="88" cy="66" r="14"/>
+        <circle cx="116" cy="66" r="14"/>
+        <circle cx="140" cy="86" r="14"/>
+      </g>
+    </svg>
+  `);
+
   const params = new URLSearchParams(window.location.search);
   const tagId = params.get("id");
 
   const loader = document.getElementById("loader");
+  const viewError = document.getElementById("view-error");
   const viewNoId = document.getElementById("view-no-id");
   const viewPublic = document.getElementById("view-public");
   const viewForm = document.getElementById("view-form");
@@ -135,7 +172,6 @@
   let currentPetData = null;
   let compressedBase64 = "";
 
-  // Función para achicar la foto en el celular antes de guardar
   function compressImage(file) {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -174,22 +210,38 @@
     preview.classList.remove("hidden");
   });
 
+  // Limpia 0 inicial y 15 después del código de área (ej: 0387 154123456 -> 5493874123456)
   function formatArgentinaPhone(raw) {
     let clean = raw.replace(/\D/g, "");
+    if (clean.startsWith("549")) clean = clean.substring(3);
+    else if (clean.startsWith("54")) clean = clean.substring(2);
     if (clean.startsWith("0")) clean = clean.substring(1);
-    if (!clean.startsWith("54")) clean = "549" + clean;
-    else if (!clean.startsWith("549")) clean = "549" + clean.substring(2);
-    return clean;
+
+    // Si tiene 12 dígitos y un "15" después del código de área de 3 dígitos (ej: 387 + 15 + 7 dígitos)
+    if (clean.length === 12 && clean.substring(3, 5) === "15") {
+      clean = clean.substring(0, 3) + clean.substring(5);
+    }
+    // Si tiene 12 dígitos y un "15" después de código de 2 o 4 dígitos
+    else if (clean.length === 12 && clean.substring(2, 4) === "15") {
+      clean = clean.substring(0, 2) + clean.substring(4);
+    }
+    else if (clean.length === 12 && clean.substring(4, 6) === "15") {
+      clean = clean.substring(0, 4) + clean.substring(6);
+    }
+
+    return "549" + clean;
   }
 
   function showPublicView(data) {
     loader.classList.add("hidden");
+    viewError.classList.add("hidden");
     viewForm.classList.add("hidden");
     viewPublic.classList.remove("hidden");
+    document.getElementById("pin-prompt-box").classList.add("hidden");
 
     document.getElementById("pub-id").textContent = tagId;
     document.getElementById("pub-name").textContent = data.name;
-    document.getElementById("pub-photo").src = data.photo || "https://via.placeholder.com/200?text=Sin+Foto";
+    document.getElementById("pub-photo").src = data.photo || DEFAULT_PAW_SVG;
 
     const notesContainer = document.getElementById("pub-notes-container");
     if (data.notes && data.notes.trim() !== "") {
@@ -205,7 +257,6 @@
     document.getElementById("btn-wpp").href = `https://wa.me/${fullPhone}?text=${baseMsg}`;
     document.getElementById("btn-call").href = `tel:+${fullPhone}`;
 
-    // Botón GPS
     document.getElementById("btn-send-gps").onclick = () => {
       const btn = document.getElementById("btn-send-gps");
       btn.textContent = "Obteniendo tu ubicación...";
@@ -234,6 +285,7 @@
 
   function showFormView(isEdit) {
     loader.classList.add("hidden");
+    viewError.classList.add("hidden");
     viewPublic.classList.add("hidden");
     viewForm.classList.remove("hidden");
     document.getElementById("form-id").textContent = tagId;
@@ -257,7 +309,6 @@
     }
   }
 
-  // Iniciar carga
   async function init() {
     if (!tagId) {
       loader.classList.add("hidden");
@@ -276,19 +327,29 @@
         showFormView(false);
       }
     } catch (err) {
-      loader.textContent = "Error al conectar con la base de datos. Revisá tu conexión.";
+      loader.classList.add("hidden");
+      viewError.classList.remove("hidden");
       console.error(err);
     }
   }
 
-  // Botón Editar (pide PIN)
+  // Abrir/cerrar caja interna de PIN
   document.getElementById("btn-open-edit").addEventListener("click", () => {
-    const enteredPin = prompt("Ingresá tu PIN de 4 números para editar esta ficha:");
-    if (!enteredPin) return;
+    const box = document.getElementById("pin-prompt-box");
+    box.classList.toggle("hidden");
+    document.getElementById("pin-error-msg").classList.add("hidden");
+    document.getElementById("inp-check-pin").value = "";
+    if (!box.classList.contains("hidden")) {
+      document.getElementById("inp-check-pin").focus();
+    }
+  });
+
+  document.getElementById("btn-verify-pin").addEventListener("click", () => {
+    const enteredPin = document.getElementById("inp-check-pin").value.trim();
     if (enteredPin === currentPetData.pin || enteredPin === MASTER_PIN) {
       showFormView(true);
     } else {
-      alert("PIN incorrecto. Si lo olvidaste, contactá a Patitas Seguras Salta.");
+      document.getElementById("pin-error-msg").classList.remove("hidden");
     }
   });
 
@@ -296,7 +357,6 @@
     showPublicView(currentPetData);
   });
 
-  // Guardar datos en Firebase
   document.getElementById("btn-save").addEventListener("click", async () => {
     const name = document.getElementById("inp-name").value.trim();
     const phone = document.getElementById("inp-phone").value.trim();
@@ -331,7 +391,7 @@
     } catch (err) {
       btnSave.textContent = "💾 Guardar Ficha";
       btnSave.disabled = false;
-      alert("Error al guardar. Verificá que Firestore esté en modo de prueba.");
+      alert("Error al guardar. Revisá tu conexión e intentá de nuevo.");
       console.error(err);
     }
   });
