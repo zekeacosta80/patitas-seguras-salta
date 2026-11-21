@@ -1,520 +1,213 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-AR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Patitas Seguras Salta - Identificación Inteligente</title>
+  <title>Collar NFC para mascotas | Patitas Seguras Salta</title>
+  <meta name="description" content="Conocé el collar NFC de Patitas Seguras Salta y aprendé a usar su chapita para que puedan contactarte si encuentran a tu mascota." />
+  <script>
+    {
+      const tagId = new URLSearchParams(location.search).get("id");
+      if (tagId && !tagId.includes("/") && tagId !== "." && tagId !== ".."
+        && !/^__.*__$/.test(tagId) && new TextEncoder().encode(tagId).length <= 1500) {
+        document.documentElement.dataset.tagId = tagId;
+        document.title = "Ficha de la chapita | Patitas Seguras Salta";
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="./landing.css" />
+  <link rel="stylesheet" href="./chapita.css" />
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { margin: 0; background: #f3f4f6; color: #1f2937; display: flex; justify-content: center; padding: 16px; }
-    .card { background: #ffffff; width: 100%; max-width: 430px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; padding: 24px; }
-    .badge { display: inline-block; background: #fee2e2; color: #dc2626; font-weight: 700; font-size: 13px; padding: 6px 12px; border-radius: 999px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .badge-ok { background: #dcfce7; color: #15803d; }
-    .pet-photo { width: 170px; height: 170px; object-fit: cover; border-radius: 50%; border: 4px solid #f97316; display: block; margin: 8px auto 16px; background: #fff7ed; }
-    h1 { margin: 0; font-size: 28px; text-align: center; color: #111827; }
-    .subtitle { text-align: center; color: #6b7280; margin: 4px 0 16px; font-size: 15px; }
-    .notes-box { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 14px; border-radius: 8px; margin-bottom: 20px; font-size: 15px; line-height: 1.4; }
-    .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; margin-bottom: 12px; transition: transform 0.1s; }
-    .btn:active { transform: scale(0.98); }
-    .btn-gps { background: #2563eb; color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
-    .btn-wpp { background: #16a34a; color: #fff; }
-    .btn-call { background: #111827; color: #fff; }
-    .btn-secondary { background: #e5e7eb; color: #374151; font-size: 14px; padding: 12px; margin-top: 8px; }
-    .btn:disabled { opacity: 0.65; cursor: wait; }
-    .status { color: #374151; font-size: 14px; line-height: 1.5; }
-    .status:empty { display: none; }
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #374151; }
-    input, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
-    textarea { resize: vertical; min-height: 75px; }
-    .footer-brand { text-align: center; font-size: 12px; color: #9ca3af; margin-top: 18px; }
-    .hidden { display: none; }
-    #loader { text-align: center; padding: 40px 0; font-weight: 600; color: #6b7280; }
+    .tag-page, [data-tag-id] .landing, .tag-page .hidden { display: none; }
+    [data-tag-id] .tag-page { display: block; }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <!-- PANTALLA DE CARGA -->
-  <div id="loader">Cargando ficha de la chapita...</div>
+<div class="landing">
+  <header class="landing-header landing-wrap" id="inicio">
+    <a class="site-brand" href="#inicio">Patitas Seguras <span>Salta</span></a>
+    <nav aria-label="Navegación principal">
+      <a href="#como-se-usa">Cómo se usa</a>
+      <a class="landing-nav-order" href="#pedidos">Dónde pedirlo</a>
+    </nav>
+  </header>
 
-  <!-- PANTALLA ERROR DE CONEXIÓN -->
-  <div id="view-error" class="hidden" style="text-align:center; padding: 20px 0;">
-    <span class="badge">Sin conexión</span>
-    <h1 style="font-size:20px; margin-top:8px;">No se pudo cargar la ficha</h1>
-    <p class="subtitle">Revisá tu señal de internet e intentá de nuevo.</p>
-    <button onclick="location.reload()" class="btn btn-gps">🔄 Reintentar</button>
-  </div>
-
-  <!-- PANTALLA SIN ID EN EL LINK -->
-  <div id="view-no-id" class="hidden" style="text-align:center;">
-    <span class="badge badge-ok">Patitas Seguras Salta</span>
-    <h1 style="font-size:22px; margin-top:10px;">Sistema de Chapitas NFC</h1>
-    <p class="subtitle">Esta es la página principal del sistema. Para ver o activar una mascota, acercá el celular a una chapita grabada con su número de serie (ej: <code>?id=001</code>).</p>
-    <a href="?id=001" class="btn btn-gps">Probar Chapita Demo (#001)</a>
-  </div>
-
-  <!-- VISTA PÚBLICA (CUANDO ENCUENTRAN AL ANIMAL) -->
-  <div id="view-public" class="hidden">
-    <div style="text-align:center;">
-      <span class="badge">¡Hola! Me perdí, ayudame a volver</span>
-    </div>
-    <img id="pub-photo" class="pet-photo" src="" alt="Foto de mascota" />
-    <h1 id="pub-name">Nombre</h1>
-    <p class="subtitle">Si me encontraste, por favor avisale a mi familia:</p>
-
-    <div id="pub-notes-container" class="notes-box">
-      <strong>Datos importantes:</strong><br/>
-      <span id="pub-notes"></span>
-    </div>
-
-    <button id="btn-send-gps" class="btn btn-gps">📍 Enviar mi ubicación actual (GPS)</button>
-    <a id="btn-wpp" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-wpp">💬 Mandar WhatsApp al dueño</a>
-    <a id="btn-call" href="#" class="btn btn-call">📞 Llamar directamente</a>
-
-    <button id="btn-open-edit" type="button" class="btn btn-secondary">Editar mi ficha</button>
-
-    <div class="footer-brand">Patitas Seguras Salta • Chapita #<span id="pub-id"></span></div>
-  </div>
-
-  <section id="view-inactive" class="hidden">
-    <h1>Chapita sin activar</h1>
-    <p class="subtitle">Si ya te asignaron esta chapita, ingresá con tu cuenta para cargar la ficha.</p>
-    <button id="btn-open-activation" type="button" class="btn btn-call">Activar mi chapita</button>
-  </section>
-
-  <section id="view-account" class="hidden">
-    <h1 id="account-title">Ingresá a tu cuenta</h1>
-    <form id="login-form">
-      <div class="form-group">
-        <label for="account-email">Correo electrónico</label>
-        <input id="account-email" type="email" autocomplete="email" required />
+  <main class="landing-wrap">
+    <section class="landing-hero" aria-labelledby="product-title">
+      <div class="landing-hero-content">
+        <h1 id="product-title">Collar NFC <span>para mascotas</span></h1>
+        <p>Si alguien encuentra a tu mascota, puede acercar su celular a la chapita del collar y abrir una ficha con tus datos de contacto.</p>
+        <a class="landing-button" href="#pedidos">Dónde pedirlo <span aria-hidden="true">↓</span></a>
       </div>
-      <div class="form-group">
-        <label for="account-password">Contraseña</label>
-        <input id="account-password" type="password" autocomplete="current-password" required />
+      <img class="landing-product" src="./imagen.jpg" width="1600" height="893" alt="Chapita NFC azul en forma de huella, con un código QR, sobre madera" loading="lazy" fetchpriority="high" />
+    </section>
+
+    <section class="landing-guide" id="como-se-usa" aria-labelledby="guide-title">
+      <h2 id="guide-title">Cómo se usa</h2>
+      <ol class="landing-steps">
+        <li>
+          <h3>Escaneá la chapita</h3>
+          <p>Acercá un celular compatible con NFC a la chapita y tocá la notificación para abrir la ficha.</p>
+        </li>
+        <li>
+          <h3>Activá la ficha</h3>
+          <p>Tocá «Activar mi chapita», creá tu cuenta y verificá tu correo. Cuando te asignen la chapita, ingresá y cargá el nombre de tu mascota y tu WhatsApp.</p>
+        </li>
+        <li>
+          <h3>Poné el collar</h3>
+          <p>Si alguien encuentra a tu mascota, puede escanear la chapita y, con internet, escribirte por WhatsApp, llamarte o compartir su ubicación.</p>
+        </li>
+      </ol>
+      <a class="landing-demo" href="?id=001">Abrir la chapita de demostración <span aria-hidden="true">→</span></a>
+    </section>
+
+    <section class="landing-orders" id="pedidos" aria-labelledby="orders-title">
+      <div>
+        <h2 id="orders-title">Dónde pedir tu collar NFC</h2>
+        <p>El canal de pedidos todavía no está definido.</p>
       </div>
-      <button type="submit" class="btn btn-call">Ingresar</button>
-      <button id="btn-create-account" type="button" class="btn btn-secondary">Crear cuenta</button>
-      <button id="btn-reset-password" type="button" class="btn btn-secondary">Restablecer contraseña</button>
+      <a class="landing-button landing-button-light" href="https://www.google.com/">Abrir enlace provisorio <span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+</div>
+
+<div class="tag-page">
+  <header class="tag-header tag-wrap">
+    <a class="site-brand" href="./">Patitas Seguras <span>Salta</span></a>
+  </header>
+  <main class="tag-card tag-wrap">
+    <!-- PANTALLA DE CARGA -->
+    <div id="loader" role="status">Cargando ficha de la chapita...</div>
+
+    <!-- PANTALLA ERROR DE CONEXIÓN -->
+    <div id="view-error" class="hidden">
+      <header class="tag-heading">
+        <span class="badge">Sin conexión</span>
+        <h1>No se pudo cargar la ficha</h1>
+        <p class="subtitle">Revisá tu señal de internet e intentá de nuevo.</p>
+      </header>
+      <button onclick="location.reload()" class="btn btn-primary">Reintentar</button>
+    </div>
+
+    <!-- VISTA PÚBLICA (CUANDO ENCUENTRAN AL ANIMAL) -->
+    <section id="view-public" class="hidden" aria-labelledby="pub-name">
+      <header class="tag-profile">
+        <img id="pub-photo" class="pet-photo" alt="" />
+        <div>
+          <span class="badge">Ayudame a volver</span>
+          <h1 id="pub-name">Nombre</h1>
+        </div>
+      </header>
+
+      <div class="tag-public-body">
+        <section aria-labelledby="tag-contact-title">
+          <h2 id="tag-contact-title">Avisale a mi familia</h2>
+          <div class="tag-actions tag-contact">
+            <a id="btn-wpp" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-wpp"><span class="tag-action-icon" aria-hidden="true">✉︎</span> Escribir por WhatsApp</a>
+            <a id="btn-call" href="#" class="btn btn-primary"><span class="tag-action-icon" aria-hidden="true">☎︎</span> Llamar</a>
+            <button id="btn-send-gps" type="button" class="btn btn-gps">
+              <span class="tag-action-icon" aria-hidden="true">⌖</span>
+              <span id="gps-label" aria-live="polite">Compartir ubicación</span>
+            </button>
+          </div>
+        </section>
+
+        <section id="pub-notes-container" class="notes-box" aria-labelledby="pub-notes-title">
+          <h2 id="pub-notes-title" class="notes-heading">
+            <span class="notes-icon" aria-hidden="true">!</span>
+            Datos importantes
+          </h2>
+          <p id="pub-notes"></p>
+        </section>
+
+        <footer class="tag-footer">
+          <span>Chapita #<span id="pub-id"></span></span>
+          <button id="btn-open-edit" type="button" class="btn btn-secondary">Editar mi ficha</button>
+        </footer>
+      </div>
+    </section>
+
+    <section id="view-inactive" class="hidden">
+      <header class="tag-heading">
+        <h1>Chapita sin activar</h1>
+        <p class="subtitle">Si ya te asignaron esta chapita, ingresá con tu cuenta para cargar la ficha.</p>
+      </header>
+      <button id="btn-open-activation" type="button" class="btn btn-primary">Activar mi chapita</button>
+    </section>
+
+    <section id="view-account" class="hidden">
+      <header class="tag-heading">
+        <h1 id="account-title">Ingresá a tu cuenta</h1>
+      </header>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="account-email">Correo electrónico</label>
+          <input id="account-email" type="email" autocomplete="email" required />
+        </div>
+        <div class="form-group">
+          <label for="account-password">Contraseña</label>
+          <input id="account-password" type="password" autocomplete="current-password" required />
+        </div>
+        <div class="tag-actions">
+          <button type="submit" class="btn btn-primary">Ingresar</button>
+          <button id="btn-create-account" type="button" class="btn btn-secondary">Crear cuenta</button>
+          <button id="btn-reset-password" type="button" class="btn btn-secondary">Restablecer contraseña</button>
+        </div>
+      </form>
+      <div id="session-actions" class="tag-actions hidden">
+        <button id="btn-check-account" type="button" class="btn btn-primary">Comprobar acceso</button>
+        <button id="btn-resend-verification" type="button" class="btn btn-secondary hidden">Reenviar correo de verificación</button>
+        <button id="btn-sign-out" type="button" class="btn btn-secondary">Cerrar sesión</button>
+      </div>
+      <p id="account-status" class="status" role="status"></p>
+      <button id="btn-back-to-nfc" type="button" class="btn btn-secondary">Volver a la chapita</button>
+    </section>
+
+    <form id="view-form" class="hidden">
+      <header class="tag-heading">
+        <span id="form-badge" class="badge badge-ok">Activar Chapita Nueva</span>
+        <h1 id="form-title">Configurá tu mascota</h1>
+        <p id="form-subtitle" class="subtitle"></p>
+      </header>
+
+      <div class="form-group">
+        <label for="inp-photo">Foto de tu mascota</label>
+        <input type="file" id="inp-photo" accept="image/*" />
+        <img id="preview-photo" class="pet-photo hidden" alt="Vista previa" />
+      </div>
+
+      <div class="form-group">
+        <label for="inp-name">Nombre de la mascota *</label>
+        <input type="text" id="inp-name" placeholder="Ej: Toby" maxlength="120" required />
+      </div>
+
+      <div class="form-group">
+        <label for="inp-phone">WhatsApp público (con código de área, sin 0 ni 15) *</label>
+        <input type="tel" id="inp-phone" placeholder="Ej: 3874123456" maxlength="40" required />
+      </div>
+
+      <div class="form-group">
+        <label for="inp-notes">Notas públicas sobre la mascota</label>
+        <textarea id="inp-notes" maxlength="1200" placeholder="Ej: Es muy bueno pero asustadizo."></textarea>
+      </div>
+
+      <p id="form-status" class="status" role="status"></p>
+      <div class="tag-actions">
+        <button id="btn-save" type="submit" class="btn btn-save">Guardar ficha</button>
+        <button id="btn-cancel-edit" type="button" class="btn btn-secondary">Cancelar y volver</button>
+      </div>
     </form>
-    <div id="session-actions" class="hidden">
-      <button id="btn-check-account" type="button" class="btn btn-call">Comprobar acceso</button>
-      <button id="btn-resend-verification" type="button" class="btn btn-secondary hidden">Reenviar correo de verificación</button>
-      <button id="btn-sign-out" type="button" class="btn btn-secondary">Cerrar sesión</button>
-    </div>
-    <p id="account-status" class="status" role="status"></p>
-    <button id="btn-back-to-nfc" type="button" class="btn btn-secondary">Volver a la chapita</button>
-  </section>
-
-  <form id="view-form" class="hidden">
-    <div style="text-align:center;">
-      <span id="form-badge" class="badge badge-ok">Activar Chapita Nueva</span>
-    </div>
-    <h1 id="form-title" style="font-size:22px;">Configurá tu mascota</h1>
-    <p id="form-subtitle" class="subtitle"></p>
-
-    <div class="form-group">
-      <label for="inp-photo">Foto de tu mascota</label>
-      <input type="file" id="inp-photo" accept="image/*" />
-      <img id="preview-photo" class="pet-photo hidden" src="" alt="Vista previa" />
-    </div>
-
-    <div class="form-group">
-      <label for="inp-name">Nombre de la mascota *</label>
-      <input type="text" id="inp-name" placeholder="Ej: Toby" maxlength="120" required />
-    </div>
-
-    <div class="form-group">
-      <label for="inp-phone">WhatsApp público (con código de área, sin 0 ni 15) *</label>
-      <input type="tel" id="inp-phone" placeholder="Ej: 3874123456" maxlength="40" required />
-    </div>
-
-    <div class="form-group">
-      <label for="inp-notes">Notas públicas sobre la mascota</label>
-      <textarea id="inp-notes" maxlength="1200" placeholder="Ej: Es muy bueno pero asustadizo."></textarea>
-    </div>
-
-    <p id="form-status" class="status" role="status"></p>
-    <button id="btn-save" type="submit" class="btn btn-wpp">Guardar ficha</button>
-    <button id="btn-cancel-edit" type="button" class="btn btn-secondary">Cancelar y volver</button>
-  </form>
+  </main>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, getDoc, getDocFromServer, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import {
-    getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    sendEmailVerification, sendPasswordResetEmail, signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
-    authDomain: "patitas-seguras-salta.firebaseapp.com",
-    projectId: "patitas-seguras-salta",
-    storageBucket: "patitas-seguras-salta.firebasestorage.app",
-    messagingSenderId: "311814224464",
-    appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-
-  // Huellita SVG integrada (nunca falla ni depende de links externos)
-  const DEFAULT_PAW_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-      <rect width="200" height="200" fill="#ffedd5"/>
-      <g fill="#f97316">
-        <ellipse cx="100" cy="122" rx="34" ry="28"/>
-        <circle cx="62" cy="84" r="14"/>
-        <circle cx="88" cy="66" r="14"/>
-        <circle cx="116" cy="66" r="14"/>
-        <circle cx="140" cy="86" r="14"/>
-      </g>
-    </svg>
-  `);
-
-  const params = new URLSearchParams(window.location.search);
-  const tagId = params.get("id");
-
-  const byId = (id) => document.getElementById(id);
-  const viewForm = byId("view-form");
-  const viewAccount = byId("view-account");
-  const loginForm = byId("login-form");
-  const emailInput = byId("account-email");
-  const passwordInput = byId("account-password");
-  const accountStatus = byId("account-status");
-  const formStatus = byId("form-status");
-  const saveButton = byId("btn-save");
-  const cancelButton = byId("btn-cancel-edit");
-  const photoInput = byId("inp-photo");
-  const preview = byId("preview-photo");
-  const screens = ["loader", "view-error", "view-no-id", "view-public", "view-inactive", "view-account", "view-form"];
-
-  let currentPetData = null;
-  let compressedBase64 = "";
-  let photoSelection = 0;
-  let checkingAccount = false;
-
-  function compressImage(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onerror = reject;
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const maxSize = 500;
-          let width = img.width;
-          let height = img.height;
-          if (width > height && width > maxSize) {
-            height *= maxSize / width;
-            width = maxSize;
-          } else if (height > maxSize) {
-            width *= maxSize / height;
-            height = maxSize;
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/jpeg", 0.72));
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+  if (document.documentElement.hasAttribute("data-tag-id")) {
+    import("./chapita.js").catch(() => {
+      document.getElementById("loader").classList.add("hidden");
+      document.getElementById("view-error").classList.remove("hidden");
     });
   }
-
-  photoInput.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const selection = ++photoSelection;
-    saveButton.disabled = true;
-    formStatus.textContent = "";
-    try {
-      const photo = await compressImage(file);
-      if (selection !== photoSelection) return;
-      if (!photo.startsWith("data:image/jpeg;base64,") || photo.length > 650000) {
-        throw new Error("Foto inválida");
-      }
-      compressedBase64 = photo;
-      preview.src = photo;
-      preview.classList.remove("hidden");
-    } catch {
-      if (selection !== photoSelection) return;
-      photoInput.value = "";
-      formStatus.textContent = "No se pudo usar esa foto. Elegí otra imagen.";
-    } finally {
-      if (selection === photoSelection) saveButton.disabled = false;
-    }
-  });
-
-  // Limpia 0 inicial y 15 después del código de área (ej: 0387 154123456 -> 5493874123456)
-  function formatArgentinaPhone(raw) {
-    let clean = raw.replace(/\D/g, "");
-    if (clean.startsWith("549")) clean = clean.substring(3);
-    else if (clean.startsWith("54")) clean = clean.substring(2);
-    if (clean.startsWith("0")) clean = clean.substring(1);
-
-    // Si tiene 12 dígitos y un "15" después del código de área de 3 dígitos (ej: 387 + 15 + 7 dígitos)
-    if (clean.length === 12 && clean.substring(3, 5) === "15") {
-      clean = clean.substring(0, 3) + clean.substring(5);
-    }
-    // Si tiene 12 dígitos y un "15" después de código de 2 o 4 dígitos
-    else if (clean.length === 12 && clean.substring(2, 4) === "15") {
-      clean = clean.substring(0, 2) + clean.substring(4);
-    }
-    else if (clean.length === 12 && clean.substring(4, 6) === "15") {
-      clean = clean.substring(0, 4) + clean.substring(6);
-    }
-
-    return "549" + clean;
-  }
-
-  function showScreen(id) {
-    for (const screen of screens) {
-      byId(screen).classList.toggle("hidden", screen !== id);
-    }
-  }
-
-  function showPublicView(data) {
-    showScreen("view-public");
-    document.getElementById("pub-id").textContent = tagId;
-    document.getElementById("pub-name").textContent = data.name;
-    document.getElementById("pub-photo").src = data.photo || DEFAULT_PAW_SVG;
-
-    const notesContainer = document.getElementById("pub-notes-container");
-    if (data.notes && data.notes.trim() !== "") {
-      document.getElementById("pub-notes").textContent = data.notes;
-      notesContainer.classList.remove("hidden");
-    } else {
-      notesContainer.classList.add("hidden");
-    }
-
-    const fullPhone = formatArgentinaPhone(data.phone);
-    const baseMsg = encodeURIComponent(`¡Hola! Encontré a ${data.name}. Me comunico desde su chapita inteligente.`);
-
-    document.getElementById("btn-wpp").href = `https://wa.me/${fullPhone}?text=${baseMsg}`;
-    document.getElementById("btn-call").href = `tel:+${fullPhone}`;
-
-    document.getElementById("btn-send-gps").onclick = () => {
-      const btn = document.getElementById("btn-send-gps");
-      btn.textContent = "Obteniendo tu ubicación...";
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-            const gpsMsg = encodeURIComponent(`¡Hola! Encontré a ${data.name}. Estoy en esta ubicación ahora: ${mapsUrl}`);
-            btn.textContent = "📍 Enviar mi ubicación actual (GPS)";
-            window.location.href = `https://wa.me/${fullPhone}?text=${gpsMsg}`;
-          },
-          () => {
-            btn.textContent = "📍 Enviar mi ubicación actual (GPS)";
-            alert("No se pudo obtener el GPS automático. Te abrimos WhatsApp para que envíes tu ubicación desde el clip.");
-            window.location.href = `https://wa.me/${fullPhone}?text=${baseMsg}`;
-          },
-          { enableHighAccuracy: true, timeout: 8000 }
-        );
-      } else {
-        window.location.href = `https://wa.me/${fullPhone}?text=${baseMsg}`;
-      }
-    };
-  }
-
-  function showTag() {
-    photoSelection++;
-    if (currentPetData) showPublicView(currentPetData);
-    else showScreen("view-inactive");
-  }
-
-  function showForm() {
-    const data = currentPetData;
-    byId("form-badge").textContent = data ? "Editar chapita" : "Activar chapita";
-    byId("form-title").textContent = data ? "Editar ficha de " + data.name : "Configurá tu mascota";
-    byId("form-subtitle").textContent = "Los datos de la ficha se muestran al escanear la chapita #" + tagId + ".";
-    byId("inp-name").value = data?.name ?? "";
-    byId("inp-phone").value = data?.phone ?? "";
-    byId("inp-notes").value = data?.notes ?? "";
-    photoInput.value = "";
-    compressedBase64 = data?.photo ?? "";
-    preview.src = compressedBase64 || DEFAULT_PAW_SVG;
-    preview.classList.toggle("hidden", !compressedBase64);
-    formStatus.textContent = "";
-    saveButton.disabled = false;
-    showScreen("view-form");
-    byId("inp-name").focus();
-  }
-
-  function renderAccount(user) {
-    loginForm.classList.toggle("hidden", !!user);
-    byId("session-actions").classList.toggle("hidden", !user);
-    byId("btn-resend-verification").classList.toggle("hidden", !user || user.emailVerified);
-    byId("account-title").textContent = user ? "Acceso a la chapita" : "Ingresá a tu cuenta";
-  }
-
-  async function accountAction(action, errorMessage) {
-    if (checkingAccount) return;
-    checkingAccount = true;
-    accountStatus.textContent = "Un momento…";
-    const buttons = viewAccount.querySelectorAll("button");
-    for (const button of buttons) button.disabled = true;
-    try {
-      await action();
-    } catch (err) {
-      accountStatus.textContent = err.code === "permission-denied"
-        ? "Esta cuenta todavía no tiene asignada la chapita."
-        : errorMessage;
-    } finally {
-      passwordInput.value = "";
-      renderAccount(auth.currentUser);
-      checkingAccount = false;
-      for (const button of buttons) button.disabled = false;
-    }
-  }
-
-  async function checkAssignment(user) {
-    await user.reload();
-    if (!user.emailVerified) {
-      accountStatus.textContent = "Verificá tu correo y después tocá «Comprobar acceso».";
-      return;
-    }
-    await user.getIdToken(true);
-    const assignment = await getDocFromServer(doc(db, "chapitasPermisos", tagId));
-    if (auth.currentUser?.uid === user.uid && assignment.data()?.ownerUid === user.uid) {
-      showForm();
-    }
-  }
-
-  function openAccount() {
-    accountStatus.textContent = "";
-    renderAccount(auth.currentUser);
-    showScreen("view-account");
-    if (auth.currentUser) {
-      accountAction(() => checkAssignment(auth.currentUser), "No se pudo comprobar el acceso. Volvé a intentar.");
-    } else emailInput.focus();
-  }
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user && !viewForm.classList.contains("hidden")) showTag();
-    renderAccount(user);
-  });
-
-  byId("btn-open-edit").addEventListener("click", openAccount);
-  byId("btn-open-activation").addEventListener("click", openAccount);
-  byId("btn-back-to-nfc").addEventListener("click", showTag);
-  cancelButton.addEventListener("click", showTag);
-
-  loginForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    accountAction(async () => {
-      const { user } = await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
-      await checkAssignment(user);
-    }, "No se pudo ingresar o comprobar el acceso. Revisá tus datos y volvé a intentar.");
-  });
-
-  byId("btn-create-account").addEventListener("click", () => {
-    if (!loginForm.reportValidity()) return;
-    accountAction(async () => {
-      const { user } = await createUserWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
-      await sendEmailVerification(user);
-      accountStatus.textContent = "Te enviamos un correo para verificar tu cuenta.";
-    }, "No se pudo completar el registro. Si ya tenés cuenta, ingresá o restablecé la contraseña.");
-  });
-
-  byId("btn-reset-password").addEventListener("click", () => {
-    if (!emailInput.reportValidity()) return;
-    accountAction(async () => {
-      await sendPasswordResetEmail(auth, emailInput.value.trim());
-      accountStatus.textContent = "Si existe una cuenta con ese correo, vas a recibir un enlace para restablecer la contraseña.";
-    }, "No se pudo solicitar el correo. Volvé a intentar.");
-  });
-
-  byId("btn-check-account").addEventListener("click", () => {
-    if (auth.currentUser) {
-      accountAction(() => checkAssignment(auth.currentUser), "No se pudo comprobar el acceso. Volvé a intentar.");
-    }
-  });
-
-  byId("btn-resend-verification").addEventListener("click", () => {
-    if (!auth.currentUser) return;
-    accountAction(async () => {
-      await sendEmailVerification(auth.currentUser);
-      accountStatus.textContent = "Te enviamos otro correo de verificación.";
-    }, "No se pudo reenviar el correo. Volvé a intentar más tarde.");
-  });
-
-  byId("btn-sign-out").addEventListener("click", () => {
-    accountAction(async () => {
-      await signOut(auth);
-      accountStatus.textContent = "";
-    }, "No se pudo cerrar la sesión. Volvé a intentar.");
-  });
-
-  viewForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (saveButton.disabled) return;
-    const name = byId("inp-name").value.trim();
-    const phone = byId("inp-phone").value.trim();
-    const notes = byId("inp-notes").value.trim();
-    if (!name || !phone) {
-      formStatus.textContent = "Completá el nombre y el teléfono de contacto.";
-      return;
-    }
-
-    const wasActive = !!currentPetData;
-    const ref = doc(db, "chapitas", tagId);
-    const payload = { name, phone, notes, photo: compressedBase64, updatedAt: new Date().toISOString() };
-    saveButton.disabled = true;
-    cancelButton.disabled = true;
-    photoInput.disabled = true;
-    formStatus.textContent = "Guardando…";
-    try {
-      await runTransaction(db, async (transaction) => {
-        const existing = await transaction.get(ref);
-        if (existing.exists() !== wasActive) throw new Error("ficha-cambió");
-        transaction.set(ref, payload);
-      });
-      currentPetData = payload;
-      showTag();
-    } catch (err) {
-      formStatus.textContent = err.code === "permission-denied"
-        ? "Tu cuenta no tiene permiso para guardar esta ficha."
-        : err.message === "ficha-cambió"
-          ? "La ficha cambió. Volvé a abrir el enlace antes de guardar."
-          : "No se pudo guardar. Revisá tu conexión y volvé a intentar.";
-    } finally {
-      saveButton.disabled = false;
-      cancelButton.disabled = false;
-      photoInput.disabled = false;
-    }
-  });
-
-  async function init() {
-    if (!tagId || tagId.includes("/") || tagId === "." || tagId === ".."
-      || /^__.*__$/.test(tagId) || new TextEncoder().encode(tagId).length > 1500) {
-      showScreen("view-no-id");
-      return;
-    }
-    try {
-      const snapshot = await getDoc(doc(db, "chapitas", tagId));
-      currentPetData = snapshot.exists() ? snapshot.data() : null;
-      showTag();
-    } catch (err) {
-      if (err.code === "permission-denied") {
-        byId("view-error").querySelector(".badge").textContent = "Ficha no disponible";
-        byId("view-error").querySelector(".subtitle").textContent = "Volvé a intentar más tarde.";
-      }
-      showScreen("view-error");
-    }
-  }
-
-  init();
 </script>
 </body>
 </html>
