@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="es-AR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Collar NFC para mascotas | Patitas Seguras Salta</title>
-  <meta name="description" content="Conocé el collar NFC de Patitas Seguras Salta y aprendé a usar su chapita para que puedan contactarte si encuentran a tu mascota." />
+  <title>Collar NFC y QR para mascotas | Patitas Seguras Salta</title>
+  <meta name="description"
+    content="Conocé el collar NFC de Patitas Seguras Salta y aprendé a usar su chapita para que puedan contactarte si encuentran a tu mascota." />
   <script>
     {
       const tagId = new URLSearchParams(location.search).get("id");
@@ -18,196 +20,214 @@
   <link rel="stylesheet" href="./landing.css" />
   <link rel="stylesheet" href="./chapita.css" />
   <style>
-    .tag-page, [data-tag-id] .landing, .tag-page .hidden { display: none; }
-    [data-tag-id] .tag-page { display: block; }
+    .tag-page,
+    [data-tag-id] .landing,
+    .tag-page .hidden {
+      display: none;
+    }
+
+    [data-tag-id] .tag-page {
+      display: block;
+    }
   </style>
 </head>
+
 <body>
 
-<div class="landing">
-  <header class="landing-header landing-wrap" id="inicio">
-    <a class="site-brand" href="#inicio">Patitas Seguras <span>Salta</span></a>
-    <nav aria-label="Navegación principal">
-      <a href="#como-se-usa">Cómo se usa</a>
-      <a class="landing-nav-order" href="#pedidos">Dónde pedirlo</a>
-    </nav>
-  </header>
+  <div class="landing">
+    <header class="landing-header landing-wrap" id="inicio">
+      <a class="site-brand" href="#inicio">Patitas Seguras <span>Salta</span></a>
+      <nav aria-label="Navegación principal">
+        <a href="#como-se-usa">Cómo se usa</a>
+        <a class="landing-nav-order" href="#pedidos">Dónde pedirlo</a>
+      </nav>
+    </header>
 
-  <main class="landing-wrap">
-    <section class="landing-hero" aria-labelledby="product-title">
-      <div class="landing-hero-content">
-        <h1 id="product-title">Collar NFC <span>para mascotas</span></h1>
-        <p>Si alguien encuentra a tu mascota, puede acercar su celular a la chapita del collar y abrir una ficha con tus datos de contacto.</p>
-        <a class="landing-button" href="#pedidos">Dónde pedirlo <span aria-hidden="true">↓</span></a>
-      </div>
-      <img class="landing-product" src="./imagen.jpg" width="1600" height="893" alt="Chapita NFC azul en forma de huella, con un código QR, sobre madera" loading="lazy" fetchpriority="high" />
-    </section>
+    <main class="landing-wrap">
+      <section class="landing-hero" aria-labelledby="product-title">
+        <div class="landing-hero-content">
+          <h1 id="product-title">Collar NFC <span>para mascotas</span></h1>
+          <p>Si alguien encuentra a tu mascota, puede acercar su celular a la chapita del collar y abrir una ficha con
+            tus datos de contacto.</p>
+          <a class="landing-button" href="#pedidos">Dónde pedirlo <span aria-hidden="true">↓</span></a>
+        </div>
+        <img class="landing-product" src="./imagen.jpg" width="1600" height="893"
+          alt="Chapita NFC azul en forma de huella, con un código QR, sobre madera" loading="lazy"
+          fetchpriority="high" />
+      </section>
 
-    <section class="landing-guide" id="como-se-usa" aria-labelledby="guide-title">
-      <h2 id="guide-title">Cómo se usa</h2>
-      <ol class="landing-steps">
-        <li>
-          <h3>Escaneá la chapita</h3>
-          <p>Acercá un celular compatible con NFC a la chapita y tocá la notificación para abrir la ficha.</p>
-        </li>
-        <li>
-          <h3>Activá la ficha</h3>
-          <p>Tocá «Activar mi chapita», creá tu cuenta y verificá tu correo. Cuando te asignen la chapita, ingresá y cargá el nombre de tu mascota y tu WhatsApp.</p>
-        </li>
-        <li>
-          <h3>Poné el collar</h3>
-          <p>Si alguien encuentra a tu mascota, puede escanear la chapita y, con internet, escribirte por WhatsApp, llamarte o compartir su ubicación.</p>
-        </li>
-      </ol>
-      <a class="landing-demo" href="?id=001">Abrir la chapita de demostración <span aria-hidden="true">→</span></a>
-    </section>
+      <section class="landing-guide" id="como-se-usa" aria-labelledby="guide-title">
+        <h2 id="guide-title">Cómo se usa</h2>
+        <ol class="landing-steps">
+          <li>
+            <h3>Escaneá la chapita</h3>
+            <p>Acercá un celular compatible con NFC a la chapita y tocá la notificación para abrir la ficha.</p>
+          </li>
+          <li>
+            <h3>Activá la ficha</h3>
+            <p>Tocá «Activar mi chapita», creá tu cuenta y verificá tu correo. Cuando te asignen la chapita, ingresá y
+              cargá el nombre de tu mascota y tu WhatsApp.</p>
+          </li>
+          <li>
+            <h3>Poné el collar</h3>
+            <p>Si alguien encuentra a tu mascota, puede escanear la chapita y, con internet, escribirte por WhatsApp,
+              llamarte o compartir su ubicación.</p>
+          </li>
+        </ol>
+        <a class="landing-demo" href="?id=001">Abrir la chapita de demostración <span aria-hidden="true">→</span></a>
+      </section>
 
-    <section class="landing-orders" id="pedidos" aria-labelledby="orders-title">
-      <div>
-        <h2 id="orders-title">Dónde pedir tu collar NFC</h2>
-        <p>El canal de pedidos todavía no está definido.</p>
-      </div>
-      <a class="landing-button landing-button-light" href="https://www.google.com/">Abrir enlace provisorio <span aria-hidden="true">↗</span></a>
-    </section>
-  </main>
-</div>
-
-<div class="tag-page">
-  <header class="tag-header tag-wrap">
-    <a class="site-brand" href="./">Patitas Seguras <span>Salta</span></a>
-  </header>
-  <main class="tag-card tag-wrap">
-    <!-- PANTALLA DE CARGA -->
-    <div id="loader" role="status">Cargando ficha de la chapita...</div>
-
-    <!-- PANTALLA ERROR DE CONEXIÓN -->
-    <div id="view-error" class="hidden">
-      <header class="tag-heading">
-        <span class="badge">Sin conexión</span>
-        <h1>No se pudo cargar la ficha</h1>
-        <p class="subtitle">Revisá tu señal de internet e intentá de nuevo.</p>
-      </header>
-      <button onclick="location.reload()" class="btn btn-primary">Reintentar</button>
-    </div>
-
-    <!-- VISTA PÚBLICA (CUANDO ENCUENTRAN AL ANIMAL) -->
-    <section id="view-public" class="hidden" aria-labelledby="pub-name">
-      <header class="tag-profile">
-        <img id="pub-photo" class="pet-photo" alt="" />
+      <section class="landing-orders" id="pedidos" aria-labelledby="orders-title">
         <div>
-          <span class="badge">Ayudame a volver</span>
-          <h1 id="pub-name">Nombre</h1>
+          <h2 id="orders-title">Dónde pedir tu collar NFC</h2>
+          <p>El canal de pedidos todavía no está definido.</p>
         </div>
-      </header>
+        <a class="landing-button landing-button-light" href="https://www.google.com/">Abrir enlace provisorio <span
+            aria-hidden="true">↗</span></a>
+      </section>
+    </main>
+  </div>
 
-      <div class="tag-public-body">
-        <section aria-labelledby="tag-contact-title">
-          <h2 id="tag-contact-title">Avisale a mi familia</h2>
-          <div class="tag-actions tag-contact">
-            <a id="btn-wpp" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-wpp"><span class="tag-action-icon" aria-hidden="true">✉︎</span> Escribir por WhatsApp</a>
-            <a id="btn-call" href="#" class="btn btn-primary"><span class="tag-action-icon" aria-hidden="true">☎︎</span> Llamar</a>
-            <button id="btn-send-gps" type="button" class="btn btn-gps">
-              <span class="tag-action-icon" aria-hidden="true">⌖</span>
-              <span id="gps-label" aria-live="polite">Compartir ubicación</span>
-            </button>
-          </div>
-        </section>
+  <div class="tag-page">
+    <header class="tag-header tag-wrap">
+      <a class="site-brand" href="./">Patitas Seguras <span>Salta</span></a>
+    </header>
+    <main class="tag-card tag-wrap">
+      <!-- PANTALLA DE CARGA -->
+      <div id="loader" role="status">Cargando ficha de la chapita...</div>
 
-        <section id="pub-notes-container" class="notes-box" aria-labelledby="pub-notes-title">
-          <h2 id="pub-notes-title" class="notes-heading">
-            <span class="notes-icon" aria-hidden="true">!</span>
-            Datos importantes
-          </h2>
-          <p id="pub-notes"></p>
-        </section>
-
-        <footer class="tag-footer">
-          <span>Chapita #<span id="pub-id"></span></span>
-          <button id="btn-open-edit" type="button" class="btn btn-secondary">Editar mi ficha</button>
-        </footer>
+      <!-- PANTALLA ERROR DE CONEXIÓN -->
+      <div id="view-error" class="hidden">
+        <header class="tag-heading">
+          <span class="badge">Sin conexión</span>
+          <h1>No se pudo cargar la ficha</h1>
+          <p class="subtitle">Revisá tu señal de internet e intentá de nuevo.</p>
+        </header>
+        <button onclick="location.reload()" class="btn btn-primary">Reintentar</button>
       </div>
-    </section>
 
-    <section id="view-inactive" class="hidden">
-      <header class="tag-heading">
-        <h1>Chapita sin activar</h1>
-        <p class="subtitle">Si ya te asignaron esta chapita, ingresá con tu cuenta para cargar la ficha.</p>
-      </header>
-      <button id="btn-open-activation" type="button" class="btn btn-primary">Activar mi chapita</button>
-    </section>
+      <!-- VISTA PÚBLICA (CUANDO ENCUENTRAN AL ANIMAL) -->
+      <section id="view-public" class="hidden" aria-labelledby="pub-name">
+        <header class="tag-profile">
+          <img id="pub-photo" class="pet-photo" alt="" />
+          <div>
+            <span class="badge">Ayudame a volver</span>
+            <h1 id="pub-name">Nombre</h1>
+          </div>
+        </header>
 
-    <section id="view-account" class="hidden">
-      <header class="tag-heading">
-        <h1 id="account-title">Ingresá a tu cuenta</h1>
-      </header>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="account-email">Correo electrónico</label>
-          <input id="account-email" type="email" autocomplete="email" required />
+        <div class="tag-public-body">
+          <section aria-labelledby="tag-contact-title">
+            <h2 id="tag-contact-title">Avisale a mi familia</h2>
+            <div class="tag-actions tag-contact">
+              <a id="btn-wpp" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-wpp"><span
+                  class="tag-action-icon" aria-hidden="true">✉︎</span> Escribir por WhatsApp</a>
+              <a id="btn-call" href="#" class="btn btn-primary"><span class="tag-action-icon"
+                  aria-hidden="true">☎︎</span> Llamar</a>
+              <button id="btn-send-gps" type="button" class="btn btn-gps">
+                <span class="tag-action-icon" aria-hidden="true">⌖</span>
+                <span id="gps-label" aria-live="polite">Compartir ubicación</span>
+              </button>
+            </div>
+          </section>
+
+          <section id="pub-notes-container" class="notes-box" aria-labelledby="pub-notes-title">
+            <h2 id="pub-notes-title" class="notes-heading">
+              <span class="notes-icon" aria-hidden="true">!</span>
+              Datos importantes
+            </h2>
+            <p id="pub-notes"></p>
+          </section>
+
+          <footer class="tag-footer">
+            <span>Chapita #<span id="pub-id"></span></span>
+            <button id="btn-open-edit" type="button" class="btn btn-secondary">Editar mi ficha</button>
+          </footer>
         </div>
-        <div class="form-group">
-          <label for="account-password">Contraseña</label>
-          <input id="account-password" type="password" autocomplete="current-password" required />
+      </section>
+
+      <section id="view-inactive" class="hidden">
+        <header class="tag-heading">
+          <h1>Chapita sin activar</h1>
+          <p class="subtitle">Si ya te asignaron esta chapita, ingresá con tu cuenta para cargar la ficha.</p>
+        </header>
+        <button id="btn-open-activation" type="button" class="btn btn-primary">Activar mi chapita</button>
+      </section>
+
+      <section id="view-account" class="hidden">
+        <header class="tag-heading">
+          <h1 id="account-title">Ingresá a tu cuenta</h1>
+        </header>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="account-email">Correo electrónico</label>
+            <input id="account-email" type="email" autocomplete="email" required />
+          </div>
+          <div class="form-group">
+            <label for="account-password">Contraseña</label>
+            <input id="account-password" type="password" autocomplete="current-password" required />
+          </div>
+          <div class="tag-actions">
+            <button type="submit" class="btn btn-primary">Ingresar</button>
+            <button id="btn-create-account" type="button" class="btn btn-secondary">Crear cuenta</button>
+            <button id="btn-reset-password" type="button" class="btn btn-secondary">Restablecer contraseña</button>
+          </div>
+        </form>
+        <div id="session-actions" class="tag-actions hidden">
+          <button id="btn-check-account" type="button" class="btn btn-primary">Comprobar acceso</button>
+          <button id="btn-resend-verification" type="button" class="btn btn-secondary hidden">Reenviar correo de
+            verificación</button>
+          <button id="btn-sign-out" type="button" class="btn btn-secondary">Cerrar sesión</button>
         </div>
+        <p id="account-status" class="status" role="status"></p>
+        <button id="btn-back-to-nfc" type="button" class="btn btn-secondary">Volver a la chapita</button>
+      </section>
+
+      <form id="view-form" class="hidden">
+        <header class="tag-heading">
+          <span id="form-badge" class="badge badge-ok">Activar Chapita Nueva</span>
+          <h1 id="form-title">Configurá tu mascota</h1>
+          <p id="form-subtitle" class="subtitle"></p>
+        </header>
+
+        <div class="form-group">
+          <label for="inp-photo">Foto de tu mascota</label>
+          <input type="file" id="inp-photo" accept="image/*" />
+          <img id="preview-photo" class="pet-photo hidden" alt="Vista previa" />
+        </div>
+
+        <div class="form-group">
+          <label for="inp-name">Nombre de la mascota *</label>
+          <input type="text" id="inp-name" placeholder="Ej: Toby" maxlength="120" required />
+        </div>
+
+        <div class="form-group">
+          <label for="inp-phone">WhatsApp público (con código de área, sin 0 ni 15) *</label>
+          <input type="tel" id="inp-phone" placeholder="Ej: 3874123456" maxlength="40" required />
+        </div>
+
+        <div class="form-group">
+          <label for="inp-notes">Notas públicas sobre la mascota</label>
+          <textarea id="inp-notes" maxlength="1200" placeholder="Ej: Es muy bueno pero asustadizo."></textarea>
+        </div>
+
+        <p id="form-status" class="status" role="status"></p>
         <div class="tag-actions">
-          <button type="submit" class="btn btn-primary">Ingresar</button>
-          <button id="btn-create-account" type="button" class="btn btn-secondary">Crear cuenta</button>
-          <button id="btn-reset-password" type="button" class="btn btn-secondary">Restablecer contraseña</button>
+          <button id="btn-save" type="submit" class="btn btn-save">Guardar ficha</button>
+          <button id="btn-cancel-edit" type="button" class="btn btn-secondary">Cancelar y volver</button>
         </div>
       </form>
-      <div id="session-actions" class="tag-actions hidden">
-        <button id="btn-check-account" type="button" class="btn btn-primary">Comprobar acceso</button>
-        <button id="btn-resend-verification" type="button" class="btn btn-secondary hidden">Reenviar correo de verificación</button>
-        <button id="btn-sign-out" type="button" class="btn btn-secondary">Cerrar sesión</button>
-      </div>
-      <p id="account-status" class="status" role="status"></p>
-      <button id="btn-back-to-nfc" type="button" class="btn btn-secondary">Volver a la chapita</button>
-    </section>
+    </main>
+  </div>
 
-    <form id="view-form" class="hidden">
-      <header class="tag-heading">
-        <span id="form-badge" class="badge badge-ok">Activar Chapita Nueva</span>
-        <h1 id="form-title">Configurá tu mascota</h1>
-        <p id="form-subtitle" class="subtitle"></p>
-      </header>
-
-      <div class="form-group">
-        <label for="inp-photo">Foto de tu mascota</label>
-        <input type="file" id="inp-photo" accept="image/*" />
-        <img id="preview-photo" class="pet-photo hidden" alt="Vista previa" />
-      </div>
-
-      <div class="form-group">
-        <label for="inp-name">Nombre de la mascota *</label>
-        <input type="text" id="inp-name" placeholder="Ej: Toby" maxlength="120" required />
-      </div>
-
-      <div class="form-group">
-        <label for="inp-phone">WhatsApp público (con código de área, sin 0 ni 15) *</label>
-        <input type="tel" id="inp-phone" placeholder="Ej: 3874123456" maxlength="40" required />
-      </div>
-
-      <div class="form-group">
-        <label for="inp-notes">Notas públicas sobre la mascota</label>
-        <textarea id="inp-notes" maxlength="1200" placeholder="Ej: Es muy bueno pero asustadizo."></textarea>
-      </div>
-
-      <p id="form-status" class="status" role="status"></p>
-      <div class="tag-actions">
-        <button id="btn-save" type="submit" class="btn btn-save">Guardar ficha</button>
-        <button id="btn-cancel-edit" type="button" class="btn btn-secondary">Cancelar y volver</button>
-      </div>
-    </form>
-  </main>
-</div>
-
-<script type="module">
-  if (document.documentElement.hasAttribute("data-tag-id")) {
-    import("./chapita.js").catch(() => {
-      document.getElementById("loader").classList.add("hidden");
-      document.getElementById("view-error").classList.remove("hidden");
-    });
-  }
-</script>
+  <script type="module">
+    if (document.documentElement.hasAttribute("data-tag-id")) {
+      import("./chapita.js").catch(() => {
+        document.getElementById("loader").classList.add("hidden");
+        document.getElementById("view-error").classList.remove("hidden");
+      });
+    }
+  </script>
 </body>
+
 </html>
