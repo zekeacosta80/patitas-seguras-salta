@@ -20,10 +20,9 @@
     .btn-wpp { background: #16a34a; color: #fff; }
     .btn-call { background: #111827; color: #fff; }
     .btn-secondary { background: #e5e7eb; color: #374151; font-size: 14px; padding: 12px; margin-top: 8px; }
-    .pin-box { background: #f9fafb; border: 1px solid #d1d5db; border-radius: 12px; padding: 14px; margin-top: 12px; }
-    .pin-row { display: flex; gap: 8px; margin-top: 8px; }
-    .pin-row input { flex: 1; text-align: center; font-size: 18px; letter-spacing: 4px; font-weight: 700; }
-    .pin-row button { width: auto; margin-bottom: 0; padding: 12px 18px; }
+    .btn:disabled { opacity: 0.65; cursor: wait; }
+    .status { color: #374151; font-size: 14px; line-height: 1.5; }
+    .status:empty { display: none; }
     .form-group { margin-bottom: 14px; }
     label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #374151; }
     input, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
@@ -70,66 +69,85 @@
     </div>
 
     <button id="btn-send-gps" class="btn btn-gps">📍 Enviar mi ubicación actual (GPS)</button>
-    <a id="btn-wpp" href="#" target="_blank" class="btn btn-wpp">💬 Mandar WhatsApp al dueño</a>
+    <a id="btn-wpp" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-wpp">💬 Mandar WhatsApp al dueño</a>
     <a id="btn-call" href="#" class="btn btn-call">📞 Llamar directamente</a>
 
-    <button id="btn-open-edit" class="btn btn-secondary">🔑 Soy el dueño / Editar datos</button>
-
-    <!-- CAJA INTERNA DE PIN (Compatible con todos los iPhone y navegadores) -->
-    <div id="pin-prompt-box" class="pin-box hidden">
-      <label for="inp-check-pin" style="margin-bottom:0;">Ingresá tu PIN de 4 números:</label>
-      <div class="pin-row">
-        <input type="password" id="inp-check-pin" maxlength="4" inputmode="numeric" placeholder="••••" />
-        <button id="btn-verify-pin" class="btn btn-call">Entrar</button>
-      </div>
-      <div id="pin-error-msg" style="color:#dc2626; font-size:13px; margin-top:6px;" class="hidden">PIN incorrecto.</div>
-    </div>
+    <button id="btn-open-edit" type="button" class="btn btn-secondary">Editar mi ficha</button>
 
     <div class="footer-brand">Patitas Seguras Salta • Chapita #<span id="pub-id"></span></div>
   </div>
 
-  <!-- VISTA ACTIVACIÓN O EDICIÓN (DUEÑO) -->
-  <div id="view-form" class="hidden">
+  <section id="view-inactive" class="hidden">
+    <h1>Chapita sin activar</h1>
+    <p class="subtitle">Si ya te asignaron esta chapita, ingresá con tu cuenta para cargar la ficha.</p>
+    <button id="btn-open-activation" type="button" class="btn btn-call">Activar mi chapita</button>
+  </section>
+
+  <section id="view-account" class="hidden">
+    <h1 id="account-title">Ingresá a tu cuenta</h1>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="account-email">Correo electrónico</label>
+        <input id="account-email" type="email" autocomplete="email" required />
+      </div>
+      <div class="form-group">
+        <label for="account-password">Contraseña</label>
+        <input id="account-password" type="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn-call">Ingresar</button>
+      <button id="btn-create-account" type="button" class="btn btn-secondary">Crear cuenta</button>
+      <button id="btn-reset-password" type="button" class="btn btn-secondary">Restablecer contraseña</button>
+    </form>
+    <div id="session-actions" class="hidden">
+      <button id="btn-check-account" type="button" class="btn btn-call">Comprobar acceso</button>
+      <button id="btn-resend-verification" type="button" class="btn btn-secondary hidden">Reenviar correo de verificación</button>
+      <button id="btn-sign-out" type="button" class="btn btn-secondary">Cerrar sesión</button>
+    </div>
+    <p id="account-status" class="status" role="status"></p>
+    <button id="btn-back-to-nfc" type="button" class="btn btn-secondary">Volver a la chapita</button>
+  </section>
+
+  <form id="view-form" class="hidden">
     <div style="text-align:center;">
       <span id="form-badge" class="badge badge-ok">Activar Chapita Nueva</span>
     </div>
     <h1 id="form-title" style="font-size:22px;">Configurá tu mascota</h1>
-    <p id="form-subtitle" class="subtitle">Completá los datos para vincular esta chapita #<span id="form-id"></span></p>
+    <p id="form-subtitle" class="subtitle"></p>
 
     <div class="form-group">
-      <label>Foto de tu mascota</label>
+      <label for="inp-photo">Foto de tu mascota</label>
       <input type="file" id="inp-photo" accept="image/*" />
       <img id="preview-photo" class="pet-photo hidden" src="" alt="Vista previa" />
     </div>
 
     <div class="form-group">
-      <label>Nombre de la mascota *</label>
-      <input type="text" id="inp-name" placeholder="Ej: Toby" required />
+      <label for="inp-name">Nombre de la mascota *</label>
+      <input type="text" id="inp-name" placeholder="Ej: Toby" maxlength="120" required />
     </div>
 
     <div class="form-group">
-      <label>Tu WhatsApp (con código de área, sin 0 ni 15) *</label>
-      <input type="tel" id="inp-phone" placeholder="Ej: 3874123456" required />
+      <label for="inp-phone">WhatsApp público (con código de área, sin 0 ni 15) *</label>
+      <input type="tel" id="inp-phone" placeholder="Ej: 3874123456" maxlength="40" required />
     </div>
 
     <div class="form-group">
-      <label>Notas importantes (carácter, remedios, dirección)</label>
-      <textarea id="inp-notes" placeholder="Ej: Es muy bueno pero asustadizo. Toma medicación para la alergia."></textarea>
+      <label for="inp-notes">Notas públicas sobre la mascota</label>
+      <textarea id="inp-notes" maxlength="1200" placeholder="Ej: Es muy bueno pero asustadizo."></textarea>
     </div>
 
-    <div class="form-group">
-      <label id="pin-label">Creá un PIN de 4 números (para editar en el futuro) *</label>
-      <input type="password" id="inp-pin" maxlength="4" inputmode="numeric" placeholder="Ej: 1234" required />
-    </div>
-
-    <button id="btn-save" class="btn btn-wpp">💾 Guardar Ficha</button>
-    <button id="btn-cancel-edit" class="btn btn-secondary hidden">Cancelar y volver</button>
-  </div>
+    <p id="form-status" class="status" role="status"></p>
+    <button id="btn-save" type="submit" class="btn btn-wpp">Guardar ficha</button>
+    <button id="btn-cancel-edit" type="button" class="btn btn-secondary">Cancelar y volver</button>
+  </form>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, getDocFromServer, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    sendEmailVerification, sendPasswordResetEmail, signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
@@ -142,9 +160,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
-  // PIN MAESTRO DE ADMINISTRADOR
-  const MASTER_PIN = "9999";
+  const auth = getAuth(app);
 
   // Huellita SVG integrada (nunca falla ni depende de links externos)
   const DEFAULT_PAW_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
@@ -163,20 +179,32 @@
   const params = new URLSearchParams(window.location.search);
   const tagId = params.get("id");
 
-  const loader = document.getElementById("loader");
-  const viewError = document.getElementById("view-error");
-  const viewNoId = document.getElementById("view-no-id");
-  const viewPublic = document.getElementById("view-public");
-  const viewForm = document.getElementById("view-form");
+  const byId = (id) => document.getElementById(id);
+  const viewForm = byId("view-form");
+  const viewAccount = byId("view-account");
+  const loginForm = byId("login-form");
+  const emailInput = byId("account-email");
+  const passwordInput = byId("account-password");
+  const accountStatus = byId("account-status");
+  const formStatus = byId("form-status");
+  const saveButton = byId("btn-save");
+  const cancelButton = byId("btn-cancel-edit");
+  const photoInput = byId("inp-photo");
+  const preview = byId("preview-photo");
+  const screens = ["loader", "view-error", "view-no-id", "view-public", "view-inactive", "view-account", "view-form"];
 
   let currentPetData = null;
   let compressedBase64 = "";
+  let photoSelection = 0;
+  let checkingAccount = false;
 
   function compressImage(file) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
+      reader.onerror = reject;
       reader.onload = (e) => {
         const img = new Image();
+        img.onerror = reject;
         img.onload = () => {
           const canvas = document.createElement("canvas");
           const maxSize = 500;
@@ -201,13 +229,28 @@
     });
   }
 
-  document.getElementById("inp-photo").addEventListener("change", async (e) => {
+  photoInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    compressedBase64 = await compressImage(file);
-    const preview = document.getElementById("preview-photo");
-    preview.src = compressedBase64;
-    preview.classList.remove("hidden");
+    const selection = ++photoSelection;
+    saveButton.disabled = true;
+    formStatus.textContent = "";
+    try {
+      const photo = await compressImage(file);
+      if (selection !== photoSelection) return;
+      if (!photo.startsWith("data:image/jpeg;base64,") || photo.length > 650000) {
+        throw new Error("Foto inválida");
+      }
+      compressedBase64 = photo;
+      preview.src = photo;
+      preview.classList.remove("hidden");
+    } catch {
+      if (selection !== photoSelection) return;
+      photoInput.value = "";
+      formStatus.textContent = "No se pudo usar esa foto. Elegí otra imagen.";
+    } finally {
+      if (selection === photoSelection) saveButton.disabled = false;
+    }
   });
 
   // Limpia 0 inicial y 15 después del código de área (ej: 0387 154123456 -> 5493874123456)
@@ -232,13 +275,14 @@
     return "549" + clean;
   }
 
-  function showPublicView(data) {
-    loader.classList.add("hidden");
-    viewError.classList.add("hidden");
-    viewForm.classList.add("hidden");
-    viewPublic.classList.remove("hidden");
-    document.getElementById("pin-prompt-box").classList.add("hidden");
+  function showScreen(id) {
+    for (const screen of screens) {
+      byId(screen).classList.toggle("hidden", screen !== id);
+    }
+  }
 
+  function showPublicView(data) {
+    showScreen("view-public");
     document.getElementById("pub-id").textContent = tagId;
     document.getElementById("pub-name").textContent = data.name;
     document.getElementById("pub-photo").src = data.photo || DEFAULT_PAW_SVG;
@@ -283,118 +327,192 @@
     };
   }
 
-  function showFormView(isEdit) {
-    loader.classList.add("hidden");
-    viewError.classList.add("hidden");
-    viewPublic.classList.add("hidden");
-    viewForm.classList.remove("hidden");
-    document.getElementById("form-id").textContent = tagId;
+  function showTag() {
+    photoSelection++;
+    if (currentPetData) showPublicView(currentPetData);
+    else showScreen("view-inactive");
+  }
 
-    if (isEdit && currentPetData) {
-      document.getElementById("form-badge").textContent = "Modo Edición";
-      document.getElementById("form-title").textContent = "Editar ficha de " + currentPetData.name;
-      document.getElementById("form-subtitle").textContent = "Actualizá los datos y guardá los cambios";
-      document.getElementById("inp-name").value = currentPetData.name;
-      document.getElementById("inp-phone").value = currentPetData.phone;
-      document.getElementById("inp-notes").value = currentPetData.notes || "";
-      document.getElementById("inp-pin").value = currentPetData.pin;
-      document.getElementById("pin-label").textContent = "PIN de 4 números (podés cambiarlo si querés)";
-      if (currentPetData.photo) {
-        const preview = document.getElementById("preview-photo");
-        preview.src = currentPetData.photo;
-        preview.classList.remove("hidden");
-        compressedBase64 = currentPetData.photo;
-      }
-      document.getElementById("btn-cancel-edit").classList.remove("hidden");
+  function showForm() {
+    const data = currentPetData;
+    byId("form-badge").textContent = data ? "Editar chapita" : "Activar chapita";
+    byId("form-title").textContent = data ? "Editar ficha de " + data.name : "Configurá tu mascota";
+    byId("form-subtitle").textContent = "Los datos de la ficha se muestran al escanear la chapita #" + tagId + ".";
+    byId("inp-name").value = data?.name ?? "";
+    byId("inp-phone").value = data?.phone ?? "";
+    byId("inp-notes").value = data?.notes ?? "";
+    photoInput.value = "";
+    compressedBase64 = data?.photo ?? "";
+    preview.src = compressedBase64 || DEFAULT_PAW_SVG;
+    preview.classList.toggle("hidden", !compressedBase64);
+    formStatus.textContent = "";
+    saveButton.disabled = false;
+    showScreen("view-form");
+    byId("inp-name").focus();
+  }
+
+  function renderAccount(user) {
+    loginForm.classList.toggle("hidden", !!user);
+    byId("session-actions").classList.toggle("hidden", !user);
+    byId("btn-resend-verification").classList.toggle("hidden", !user || user.emailVerified);
+    byId("account-title").textContent = user ? "Acceso a la chapita" : "Ingresá a tu cuenta";
+  }
+
+  async function accountAction(action, errorMessage) {
+    if (checkingAccount) return;
+    checkingAccount = true;
+    accountStatus.textContent = "Un momento…";
+    const buttons = viewAccount.querySelectorAll("button");
+    for (const button of buttons) button.disabled = true;
+    try {
+      await action();
+    } catch (err) {
+      accountStatus.textContent = err.code === "permission-denied"
+        ? "Esta cuenta todavía no tiene asignada la chapita."
+        : errorMessage;
+    } finally {
+      passwordInput.value = "";
+      renderAccount(auth.currentUser);
+      checkingAccount = false;
+      for (const button of buttons) button.disabled = false;
     }
   }
+
+  async function checkAssignment(user) {
+    await user.reload();
+    if (!user.emailVerified) {
+      accountStatus.textContent = "Verificá tu correo y después tocá «Comprobar acceso».";
+      return;
+    }
+    await user.getIdToken(true);
+    const assignment = await getDocFromServer(doc(db, "chapitasPermisos", tagId));
+    if (auth.currentUser?.uid === user.uid && assignment.data()?.ownerUid === user.uid) {
+      showForm();
+    }
+  }
+
+  function openAccount() {
+    accountStatus.textContent = "";
+    renderAccount(auth.currentUser);
+    showScreen("view-account");
+    if (auth.currentUser) {
+      accountAction(() => checkAssignment(auth.currentUser), "No se pudo comprobar el acceso. Volvé a intentar.");
+    } else emailInput.focus();
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user && !viewForm.classList.contains("hidden")) showTag();
+    renderAccount(user);
+  });
+
+  byId("btn-open-edit").addEventListener("click", openAccount);
+  byId("btn-open-activation").addEventListener("click", openAccount);
+  byId("btn-back-to-nfc").addEventListener("click", showTag);
+  cancelButton.addEventListener("click", showTag);
+
+  loginForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    accountAction(async () => {
+      const { user } = await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
+      await checkAssignment(user);
+    }, "No se pudo ingresar o comprobar el acceso. Revisá tus datos y volvé a intentar.");
+  });
+
+  byId("btn-create-account").addEventListener("click", () => {
+    if (!loginForm.reportValidity()) return;
+    accountAction(async () => {
+      const { user } = await createUserWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
+      await sendEmailVerification(user);
+      accountStatus.textContent = "Te enviamos un correo para verificar tu cuenta.";
+    }, "No se pudo completar el registro. Si ya tenés cuenta, ingresá o restablecé la contraseña.");
+  });
+
+  byId("btn-reset-password").addEventListener("click", () => {
+    if (!emailInput.reportValidity()) return;
+    accountAction(async () => {
+      await sendPasswordResetEmail(auth, emailInput.value.trim());
+      accountStatus.textContent = "Si existe una cuenta con ese correo, vas a recibir un enlace para restablecer la contraseña.";
+    }, "No se pudo solicitar el correo. Volvé a intentar.");
+  });
+
+  byId("btn-check-account").addEventListener("click", () => {
+    if (auth.currentUser) {
+      accountAction(() => checkAssignment(auth.currentUser), "No se pudo comprobar el acceso. Volvé a intentar.");
+    }
+  });
+
+  byId("btn-resend-verification").addEventListener("click", () => {
+    if (!auth.currentUser) return;
+    accountAction(async () => {
+      await sendEmailVerification(auth.currentUser);
+      accountStatus.textContent = "Te enviamos otro correo de verificación.";
+    }, "No se pudo reenviar el correo. Volvé a intentar más tarde.");
+  });
+
+  byId("btn-sign-out").addEventListener("click", () => {
+    accountAction(async () => {
+      await signOut(auth);
+      accountStatus.textContent = "";
+    }, "No se pudo cerrar la sesión. Volvé a intentar.");
+  });
+
+  viewForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (saveButton.disabled) return;
+    const name = byId("inp-name").value.trim();
+    const phone = byId("inp-phone").value.trim();
+    const notes = byId("inp-notes").value.trim();
+    if (!name || !phone) {
+      formStatus.textContent = "Completá el nombre y el teléfono de contacto.";
+      return;
+    }
+
+    const wasActive = !!currentPetData;
+    const ref = doc(db, "chapitas", tagId);
+    const payload = { name, phone, notes, photo: compressedBase64, updatedAt: new Date().toISOString() };
+    saveButton.disabled = true;
+    cancelButton.disabled = true;
+    photoInput.disabled = true;
+    formStatus.textContent = "Guardando…";
+    try {
+      await runTransaction(db, async (transaction) => {
+        const existing = await transaction.get(ref);
+        if (existing.exists() !== wasActive) throw new Error("ficha-cambió");
+        transaction.set(ref, payload);
+      });
+      currentPetData = payload;
+      showTag();
+    } catch (err) {
+      formStatus.textContent = err.code === "permission-denied"
+        ? "Tu cuenta no tiene permiso para guardar esta ficha."
+        : err.message === "ficha-cambió"
+          ? "La ficha cambió. Volvé a abrir el enlace antes de guardar."
+          : "No se pudo guardar. Revisá tu conexión y volvé a intentar.";
+    } finally {
+      saveButton.disabled = false;
+      cancelButton.disabled = false;
+      photoInput.disabled = false;
+    }
+  });
 
   async function init() {
-    if (!tagId) {
-      loader.classList.add("hidden");
-      viewNoId.classList.remove("hidden");
+    if (!tagId || tagId.includes("/") || tagId === "." || tagId === ".."
+      || /^__.*__$/.test(tagId) || new TextEncoder().encode(tagId).length > 1500) {
+      showScreen("view-no-id");
       return;
     }
-
     try {
-      const docRef = doc(db, "chapitas", tagId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        currentPetData = docSnap.data();
-        showPublicView(currentPetData);
-      } else {
-        showFormView(false);
-      }
+      const snapshot = await getDoc(doc(db, "chapitas", tagId));
+      currentPetData = snapshot.exists() ? snapshot.data() : null;
+      showTag();
     } catch (err) {
-      loader.classList.add("hidden");
-      viewError.classList.remove("hidden");
-      console.error(err);
+      if (err.code === "permission-denied") {
+        byId("view-error").querySelector(".badge").textContent = "Ficha no disponible";
+        byId("view-error").querySelector(".subtitle").textContent = "Volvé a intentar más tarde.";
+      }
+      showScreen("view-error");
     }
   }
-
-  // Abrir/cerrar caja interna de PIN
-  document.getElementById("btn-open-edit").addEventListener("click", () => {
-    const box = document.getElementById("pin-prompt-box");
-    box.classList.toggle("hidden");
-    document.getElementById("pin-error-msg").classList.add("hidden");
-    document.getElementById("inp-check-pin").value = "";
-    if (!box.classList.contains("hidden")) {
-      document.getElementById("inp-check-pin").focus();
-    }
-  });
-
-  document.getElementById("btn-verify-pin").addEventListener("click", () => {
-    const enteredPin = document.getElementById("inp-check-pin").value.trim();
-    if (enteredPin === currentPetData.pin || enteredPin === MASTER_PIN) {
-      showFormView(true);
-    } else {
-      document.getElementById("pin-error-msg").classList.remove("hidden");
-    }
-  });
-
-  document.getElementById("btn-cancel-edit").addEventListener("click", () => {
-    showPublicView(currentPetData);
-  });
-
-  document.getElementById("btn-save").addEventListener("click", async () => {
-    const name = document.getElementById("inp-name").value.trim();
-    const phone = document.getElementById("inp-phone").value.trim();
-    const notes = document.getElementById("inp-notes").value.trim();
-    const pin = document.getElementById("inp-pin").value.trim();
-
-    if (!name || !phone || pin.length !== 4 || isNaN(pin)) {
-      alert("Por favor completá el nombre, el teléfono y un PIN de exactamente 4 números.");
-      return;
-    }
-
-    const btnSave = document.getElementById("btn-save");
-    btnSave.textContent = "Guardando...";
-    btnSave.disabled = true;
-
-    const payload = {
-      name,
-      phone,
-      notes,
-      pin,
-      photo: compressedBase64 || "",
-      updatedAt: new Date().toISOString()
-    };
-
-    try {
-      await setDoc(doc(db, "chapitas", tagId), payload);
-      currentPetData = payload;
-      btnSave.textContent = "💾 Guardar Ficha";
-      btnSave.disabled = false;
-      alert("¡Ficha guardada con éxito!");
-      showPublicView(payload);
-    } catch (err) {
-      btnSave.textContent = "💾 Guardar Ficha";
-      btnSave.disabled = false;
-      alert("Error al guardar. Revisá tu conexión e intentá de nuevo.");
-      console.error(err);
-    }
-  });
 
   init();
 </script>
