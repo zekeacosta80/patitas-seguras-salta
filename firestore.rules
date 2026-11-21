@@ -1,0 +1,44 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function soloCamposPublicos(ficha) {
+      return ficha.keys().hasOnly(['name', 'phone', 'notes', 'photo', 'updatedAt']);
+    }
+
+    function fichaValida(ficha) {
+      let notas = ficha.get('notes', '');
+      let foto = ficha.get('photo', '');
+      let actualizacion = ficha.get('updatedAt', '');
+      return soloCamposPublicos(ficha)
+        && ficha.keys().hasAll(['name', 'phone'])
+        && ficha.name is string && ficha.name.size() > 0 && ficha.name.size() <= 120
+        && ficha.phone is string && ficha.phone.size() > 0 && ficha.phone.size() <= 40
+        && notas is string && notas.size() <= 1200
+        && foto is string && foto.size() <= 650000
+        && (foto == '' || foto.matches('data:image/jpeg;base64,[A-Za-z0-9+/]+={0,2}'))
+        && actualizacion is string && actualizacion.size() <= 40;
+    }
+
+    function tieneCorreoVerificado() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function esTitular(permiso) {
+      return permiso != null && permiso.data.ownerUid == request.auth.uid;
+    }
+
+    match /chapitas/{chapitaId} {
+      allow get: if resource == null || soloCamposPublicos(resource.data);
+      allow create, update: if tieneCorreoVerificado()
+        && fichaValida(request.resource.data)
+        && esTitular(get(/databases/$(database)/documents/chapitasPermisos/$(chapitaId)));
+      allow list, delete: if false;
+    }
+
+    match /chapitasPermisos/{chapitaId} {
+      allow get: if tieneCorreoVerificado() && esTitular(resource);
+      allow list, write: if false;
+    }
+  }
+}
