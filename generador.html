@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de QR - Patitas Seguras Salta</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #f3f4f6; color: #111827; padding: 16px; }
+    .container { max-width: 680px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); margin-bottom: 16px; }
+    h1 { margin: 0 0 6px; font-size: 22px; }
+    p.sub { margin: 0 0 16px; color: #6b7280; font-size: 14px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .field { flex: 1; min-width: 120px; margin-bottom: 12px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
+    button { border: none; border-radius: 10px; padding: 11px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .btn-primary { background: #f97316; color: #fff; width: 100%; }
+    .btn-google { background: #111827; color: #fff; width: 100%; }
+    .btn-small { padding: 7px 10px; font-size: 12px; background: #e5e7eb; color: #111827; }
+    .btn-dl { background: #16a34a; color: #fff; }
+    .status { font-size: 13px; color: #374151; margin-top: 10px; min-height: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .tag-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; text-align: center; background: #fafafa; }
+    .tag-num { font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+    .qr-box { display: flex; justify-content: center; margin: 8px auto; min-height: 128px; }
+    .tag-url { font-size: 11px; color: #6b7280; word-break: break-all; margin: 6px 0 10px; }
+    .actions { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+    .hidden { display: none; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="auth-box" class="card" style="text-align:center;">
+    <h1>Generador de QR — Chapitas</h1>
+    <p class="sub">Iniciá sesión con tu cuenta de Google para crear y administrar lotes vírgenes.</p>
+    <button id="btn-google-login" class="btn-google">Ingresar con Google</button>
+    <div id="auth-status" class="status"></div>
+  </div>
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="panel-box" class="hidden">
+    <div class="card">
+      <div class="top-bar">
+        <div>
+          <h1>Generador de Lotes Vírgenes</h1>
+          <p class="sub" style="margin:0;">Creá códigos numerados (ej. del 1 al 10) para imprimir QR y grabar NFC.</p>
+        </div>
+        <button id="btn-logout" class="btn-small">Cerrar sesión</button>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="inp-from">Desde número</label>
+          <input id="inp-from" type="number" min="1" value="1" />
+        </div>
+        <div class="field">
+          <label for="inp-to">Hasta número</label>
+          <input id="inp-to" type="number" min="1" value="10" />
+        </div>
+        <div class="field">
+          <label for="inp-digits">Dígitos (ej. 3 = 001)</label>
+          <input id="inp-digits" type="number" min="1" max="6" value="3" />
+        </div>
+      </div>
+
+      <button id="btn-generate" class="btn-primary">Generar lote y guardar como virgen</button>
+      <div id="gen-status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <div class="top-bar">
+        <h2 style="margin:0; font-size:18px;">Chapitas generadas</h2>
+        <button id="btn-refresh" class="btn-small">Actualizar lista</button>
+      </div>
+      <div id="tags-grid" class="grid"></div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
+    authDomain: "patitas-seguras-salta.firebaseapp.com",
+    projectId: "patitas-seguras-salta",
+    storageBucket: "patitas-seguras-salta.firebasestorage.app",
+    messagingSenderId: "311814224464",
+    appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const authBox = document.getElementById("auth-box");
+  const panelBox = document.getElementById("panel-box");
+  const authStatus = document.getElementById("auth-status");
+  const genStatus = document.getElementById("gen-status");
+  const tagsGrid = document.getElementById("tags-grid");
+
+  // Apunta a tu index.html de la ficha con ?id=XXX
+  function buildTagUrl(code) {
+    const base = window.location.href.replace(/generador\.html.*$/i, "index.html");
+    const cleanBase = base.endsWith("/") ? base + "index.html" : base;
+    return `${cleanBase}?id=${encodeURIComponent(code)}`;
+  }
+
+  function formatCode(num, digits) {
+    return String(num).padStart(digits, "0");
+  }
+
+  function renderTagCard(code, estado = "virgen") {
+    const url = buildTagUrl(code);
+    const card = document.createElement("div");
+    card.className = "tag-card";
+
+    const numEl = document.createElement("div");
+    numEl.className = "tag-num";
+    numEl.textContent = `#${code} (${estado})`;
+
+    const qrDiv = document.createElement("div");
+    qrDiv.className = "qr-box";
+    new QRCode(qrDiv, {
+      text: url,
+      width: 124,
+      height: 124,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    const urlEl = document.createElement("div");
+    urlEl.className = "tag-url";
+    urlEl.textContent = url;
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const btnCopy = document.createElement("button");
+    btnCopy.className = "btn-small";
+    btnCopy.textContent = "Copiar link NFC";
+    btnCopy.onclick = async () => {
+      await navigator.clipboard.writeText(url);
+      btnCopy.textContent = "¡Copiado!";
+      setTimeout(() => (btnCopy.textContent = "Copiar link NFC"), 1200);
+    };
+
+    const btnDl = document.createElement("button");
+    btnDl.className = "btn-small btn-dl";
+    btnDl.textContent = "Bajar QR";
+    btnDl.onclick = () => {
+      const canvas = qrDiv.querySelector("canvas");
+      const img = qrDiv.querySelector("img");
+      const href = canvas ? canvas.toDataURL("image/png") : img?.src;
+      if (!href) return;
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = `chapita-${code}.png`;
+      a.click();
+    };
+
+    actions.append(btnCopy, btnDl);
+    card.append(numEl, qrDiv, urlEl, actions);
+    tagsGrid.appendChild(card);
+  }
+
+  async function loadTags() {
+    tagsGrid.innerHTML = "";
+    try {
+      const q = query(collection(db, "chapitasInventario"), orderBy("code", "asc"));
+      const snap = await getDocs(q);
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        renderTagCard(d.code || docSnap.id, d.status || "virgen");
+      });
+    } catch (e) {
+      genStatus.textContent = "No se pudo cargar la lista desde Firebase (revisá las reglas de Firestore).";
+    }
+  }
+
+  document.getElementById("btn-google-login").onclick = async () => {
+    authStatus.textContent = "Abriendo Google...";
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      authStatus.textContent = "No se pudo iniciar sesión con Google.";
+    }
+  };
+
+  document.getElementById("btn-logout").onclick = () => signOut(auth);
+  document.getElementById("btn-refresh").onclick = loadTags;
+
+  document.getElementById("btn-generate").onclick = async () => {
+    const from = parseInt(document.getElementById("inp-from").value, 10);
+    const to = parseInt(document.getElementById("inp-to").value, 10);
+    const digits = Math.min(6, Math.max(1, parseInt(document.getElementById("inp-digits").value, 10) || 3));
+
+    if (isNaN(from) || isNaN(to) || from < 1 || to < from || (to - from) > 100) {
+      genStatus.textContent = "Ingresá un rango válido (máximo 100 chapitas por tanda).";
+      return;
+    }
+
+    genStatus.textContent = "Generando lote...";
+    try {
+      for (let i = from; i <= to; i++) {
+        const code = formatCode(i, digits);
+        await setDoc(doc(db, "chapitasInventario", code), {
+          code,
+          status: "virgen",
+          createdAt: new Date().toISOString(),
+          createdBy: auth.currentUser?.uid || ""
+        }, { merge: true });
+      }
+      genStatus.textContent = `Listo: lote del #${formatCode(from, digits)} al #${formatCode(to, digits)} guardado.`;
+      await loadTags();
+    } catch (e) {
+      genStatus.textContent = "Error al guardar en Firestore: revisá que tu usuario tenga permiso de escritura.";
+    }
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      authBox.classList.add("hidden");
+      panelBox.classList.remove("hidden");
+      await loadTags();
+    } else {
+      panelBox.classList.add("hidden");
+      authBox.classList.remove("hidden");
+      authStatus.textContent = "";
+    }
+  });
+</script>
+</body>
+</html>
