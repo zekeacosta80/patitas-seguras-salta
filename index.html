@@ -237,9 +237,9 @@
       try {
         await signInWithPopup(auth, provider);
       } catch (e) {
-        console.error(e);
-        mostrarMsg("No se pudo iniciar sesión con Google.", "err");
-      }
+  console.error(e);
+  mostrarMsg(`Error (${e.code || "sin código"}): ${e.message} | URL: ${window.location.href}`, "err");
+}
     });
 
     document.getElementById("btnSalir").addEventListener("click", async () => {
