@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Todo-en-Uno QR y NFC — Patitas Seguras Salta</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #f3f4f6; color: #111827; padding: 16px; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); margin-bottom: 16px; }
+    h1 { margin: 0 0 6px; font-size: 22px; }
+    h2 { margin: 0 0 12px; font-size: 17px; }
+    p.sub { margin: 0 0 14px; color: #6b7280; font-size: 14px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .field { flex: 1; min-width: 120px; margin-bottom: 12px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
+    input, select { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; background: #fff; }
+    button { border: none; border-radius: 9px; padding: 9px 14px; font-weight: 700; font-size: 13px; cursor: pointer; }
+    .btn-orange { background: #f97316; color: #fff; }
+    .btn-dark { background: #111827; color: #fff; }
+    .btn-light { background: #e5e7eb; color: #111827; }
+    .btn-green { background: #16a34a; color: #fff; }
+    .btn-xs { padding: 6px 9px; font-size: 11px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 14px; }
+    .stat-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; text-align: center; }
+    .stat-val { font-size: 22px; font-weight: 800; }
+    .stat-lbl { font-size: 12px; color: #6b7280; margin-top: 3px; }
+    .grid-qr { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 12px; margin-top: 12px; }
+    .qr-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; text-align: center; background: #fafafa; }
+    .qr-title { font-weight: 800; font-size: 15px; margin-bottom: 6px; }
+    .qr-holder { display: flex; justify-content: center; margin: 8px auto; min-height: 120px; }
+    .qr-link { font-size: 11px; color: #6b7280; word-break: break-all; margin: 6px 0 8px; }
+    .qr-actions { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e5e7eb; }
+    th { color: #4b5563; font-size: 11px; text-transform: uppercase; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .b-virgen { background: #fef3c7; color: #92400e; }
+    .b-activa { background: #dcfce7; color: #166534; }
+    .b-inactiva { background: #fee2e2; color: #991b1b; }
+    .table-wrap { overflow-x: auto; }
+    .status { font-size: 13px; color: #374151; margin-top: 8px; min-height: 18px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- INGRESO -->
+  <div id="login-card" class="card" style="text-align:center;">
+    <h1>Panel de Control — QR y NFC</h1>
+    <p class="sub">Iniciá sesión con tu cuenta de Google para generar, organizar y ver estadísticas.</p>
+    <button id="btn-login" class="btn-dark" style="padding:12px 18px; font-size:14px;">Ingresar con Google</button>
+    <div id="login-status" class="status"></div>
+  </div>
+
+  <!-- PANEL COMPLETO -->
+  <div id="main-panel" class="hidden">
+
+    <!-- RESUMEN Y ESTADÍSTICAS GENERALES -->
+    <div class="card">
+      <div class="top-bar">
+        <div>
+          <h1>Panel General — Chapitas (QR + NFC)</h1>
+          <p class="sub" style="margin:0;">Generá lotes, organizá estados y revisá escaneos en un solo lugar.</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="btn-refresh" class="btn-light">Actualizar todo</button>
+          <button id="btn-logout" class="btn-dark">Salir</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box"><div id="s-total" class="stat-val">0</div><div class="stat-lbl">Total</div></div>
+        <div class="stat-box"><div id="s-virgen" class="stat-val">0</div><div class="stat-lbl">Vírgenes</div></div>
+        <div class="stat-box"><div id="s-activa" class="stat-val">0</div><div class="stat-lbl">Activas</div></div>
+        <div class="stat-box"><div id="s-inactiva" class="stat-val">0</div><div class="stat-lbl">Inactivas</div></div>
+        <div class="stat-box"><div id="s-scans" class="stat-val">0</div><div class="stat-lbl">Escaneos totales</div></div>
+        <div class="stat-box"><div id="s-today" class="stat-val">0</div><div class="stat-lbl">Escaneos hoy</div></div>
+      </div>
+      <div id="global-status" class="status"></div>
+    </div>
+
+    <!-- 1. GENERAR QR Y LINK NFC -->
+    <div class="card">
+      <h2>1. Generar QR y Link para NFC</h2>
+      <div class="row">
+        <div class="field">
+          <label for="inp-from">Desde número</label>
+          <input id="inp-from" type="number" min="1" value="1" />
+        </div>
+        <div class="field">
+          <label for="inp-to">Hasta número</label>
+          <input id="inp-to" type="number" min="1" value="10" />
+        </div>
+        <div class="field">
+          <label for="inp-digits">Dígitos (3 = 001)</label>
+          <input id="inp-digits" type="number" min="1" max="6" value="3" />
+        </div>
+      </div>
+      <button id="btn-generate" class="btn-orange" style="width:100%;">Generar lote virgen</button>
+      <div id="gen-status" class="status"></div>
+
+      <div id="qr-grid" class="grid-qr"></div>
+    </div>
+
+    <!-- 2. ORGANIZAR Y ESTADÍSTICAS POR CHAPITA -->
+    <div class="card">
+      <div class="top-bar">
+        <h2 style="margin:0;">2. Organizar chapitas y estadísticas</h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input id="inp-search" type="text" placeholder="Buscar número o mascota..." style="width:200px;" />
+          <select id="sel-filter" style="width:150px;">
+            <option value="all">Todas</option>
+            <option value="virgen">Solo vírgenes</option>
+            <option value="activa">Solo activas</option>
+            <option value="inactiva">Solo inactivas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Estado</th>
+              <th>Mascota / Contacto</th>
+              <th>Escaneos</th>
+              <th>Último escaneo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="inv-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. HISTORIAL DE ESCANEOS -->
+    <div class="card">
+      <h2>3. Últimos escaneos (QR / NFC)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Fecha y hora</th>
+              <th>Origen</th>
+              <th>Dispositivo</th>
+            </tr>
+          </thead>
+          <tbody id="scans-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
+    authDomain: "patitas-seguras-salta.firebaseapp.com",
+    projectId: "patitas-seguras-salta",
+    storageBucket: "patitas-seguras-salta.firebasestorage.app",
+    messagingSenderId: "311814224464",
+    appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
+  };
+
+  const PUBLIC_BASE_URL = "https://zekeacosta80.github.io/patitas-seguras-salta/";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const loginCard = document.getElementById("login-card");
+  const mainPanel = document.getElementById("main-panel");
+  const loginStatus = document.getElementById("login-status");
+  const globalStatus = document.getElementById("global-status");
+  const genStatus = document.getElementById("gen-status");
+  const qrGrid = document.getElementById("qr-grid");
+  const invTbody = document.getElementById("inv-tbody");
+  const scansTbody = document.getElementById("scans-tbody");
+
+  let allRows = [];
+
+  function getTagUrl(code) {
+    return `${PUBLIC_BASE_URL}?id=${encodeURIComponent(code)}`;
+  }
+
+  function formatCode(num, digits) {
+    return String(num).padStart(digits, "0");
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function isToday(iso) {
+    if (!iso) return false;
+    const d = new Date(iso);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  }
+
+  function renderQrCards(rows) {
+    qrGrid.innerHTML = "";
+    rows.slice(0, 24).forEach((item) => {
+      const url = getTagUrl(item.code);
+      const card = document.createElement("div");
+      card.className = "qr-card";
+
+      const title = document.createElement("div");
+      title.className = "qr-title";
+      title.textContent = `#${item.code} • ${item.status}`;
+
+      const holder = document.createElement("div");
+      holder.className = "qr-holder";
+      new QRCode(holder, {
+        text: url,
+        width: 116,
+        height: 116,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      const link = document.createElement("div");
+      link.className = "qr-link";
+      link.textContent = url;
+
+      const actions = document.createElement("div");
+      actions.className = "qr-actions";
+
+      const btnCopy = document.createElement("button");
+      btnCopy.className = "btn-light btn-xs";
+      btnCopy.textContent = "Copiar NFC";
+      btnCopy.onclick = async () => {
+        await navigator.clipboard.writeText(url);
+        btnCopy.textContent = "¡Copiado!";
+        setTimeout(() => (btnCopy.textContent = "Copiar NFC"), 1200);
+      };
+
+      const btnDl = document.createElement("button");
+      btnDl.className = "btn-green btn-xs";
+      btnDl.textContent = "Bajar QR";
+      btnDl.onclick = () => {
+        const canvas = holder.querySelector("canvas");
+        const img = holder.querySelector("img");
+        const href = canvas ? canvas.toDataURL("image/png") : img?.src;
+        if (!href) return;
+        const a = document.createElement("a");
+        a.href = href;
+        a.download = `chapita-${item.code}.png`;
+        a.click();
+      };
+
+      actions.append(btnCopy, btnDl);
+      card.append(title, holder, link, actions);
+      qrGrid.appendChild(card);
+    });
+  }
+
+  function renderTable() {
+    const term = document.getElementById("inp-search").value.trim().toLowerCase();
+    const filter = document.getElementById("sel-filter").value;
+
+    const filtered = allRows.filter((r) => {
+      const matchFilter = filter === "all" || r.status === filter;
+      const matchSearch = !term || r.code.toLowerCase().includes(term) || r.petInfo.toLowerCase().includes(term);
+      return matchFilter && matchSearch;
+    });
+
+    invTbody.innerHTML = "";
+    filtered.forEach((r) => {
+      const badgeClass = r.status === "activa" ? "b-activa" : r.status === "inactiva" ? "b-inactiva" : "b-virgen";
+      const nextStatus = r.status === "inactiva" ? "activa" : "inactiva";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><strong>#${r.code}</strong></td>
+        <td><span class="badge ${badgeClass}">${r.status}</span></td>
+        <td>${r.petInfo}</td>
+        <td><strong>${r.scans}</strong></td>
+        <td>${fmtDate(r.lastScanAt)}</td>
+        <td>
+          <button class="btn-light btn-xs btn-copy-row" data-code="${r.code}">Link NFC</button>
+          <button class="btn-orange btn-xs btn-toggle-row" data-code="${r.code}" data-next="${nextStatus}">
+            ${r.status === "inactiva" ? "Activar" : "Desactivar"}
+          </button>
+        </td>
+      `;
+
+      tr.querySelector(".btn-copy-row").addEventListener("click", async (ev) => {
+        const c = ev.currentTarget.getAttribute("data-code");
+        await navigator.clipboard.writeText(getTagUrl(c));
+        ev.currentTarget.textContent = "¡Copiado!";
+        setTimeout(() => (ev.currentTarget.textContent = "Link NFC"), 1200);
+      });
+
+      tr.querySelector(".btn-toggle-row").addEventListener("click", async (ev) => {
+        const btn = ev.currentTarget;
+        const c = btn.getAttribute("data-code");
+        const nextSt = btn.getAttribute("data-next");
+        btn.disabled = true;
+        try {
+          await updateDoc(doc(db, "chapitasInventario", c), { status: nextSt });
+          await loadAll();
+        } catch {
+          globalStatus.textContent = "No se pudo cambiar el estado (revisá permisos de Firestore).";
+          btn.disabled = false;
+        }
+      });
+
+      invTbody.appendChild(tr);
+    });
+  }
+
+  async function loadAll() {
+    globalStatus.textContent = "Cargando datos...";
+    scansTbody.innerHTML = "";
+
+    try {
+      const [invSnap, petsSnap, scansSnap] = await Promise.all([
+        getDocs(query(collection(db, "chapitasInventario"), orderBy("code", "asc"))),
+        getDocs(collection(db, "chapitas")),
+        getDocs(query(collection(db, "chapitasEscaneos"), orderBy("scannedAt", "desc"), limit(25)))
+      ]);
+
+      const petsMap = {};
+      petsSnap.forEach((p) => { petsMap[p.id] = p.data(); });
+
+      let total = 0, virgen = 0, activa = 0, inactiva = 0, totalScans = 0, todayScans = 0;
+      const rows = [];
+
+      scansSnap.forEach((s) => {
+        const sd = s.data();
+        if (isToday(sd.scannedAt)) todayScans++;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>#${sd.tagId || "—"}</strong></td>
+          <td>${fmtDate(sd.scannedAt)}</td>
+          <td>${sd.source || "web"}</td>
+          <td>${sd.device || "—"}</td>
+        `;
+        scansTbody.appendChild(tr);
+      });
+
+      invSnap.forEach((dSnap) => {
+        const d = dSnap.data();
+        const code = d.code || dSnap.id;
+        const pet = petsMap[code];
+        let status = d.status || (pet ? "activa" : "virgen");
+        if (pet && status === "virgen") status = "activa";
+
+        const scans = Number(d.scans || 0);
+        total++;
+        if (status === "virgen") virgen++;
+        else if (status === "activa") activa++;
+        else if (status === "inactiva") inactiva++;
+        totalScans += scans;
+
+        rows.push({
+          code,
+          status,
+          petInfo: pet ? `${pet.name || "Sin nombre"} (${pet.phone || ""})` : "Sin ficha cargada",
+          scans,
+          lastScanAt: d.lastScanAt || ""
+        });
+      });
+
+      allRows = rows;
+      document.getElementById("s-total").textContent = total;
+      document.getElementById("s-virgen").textContent = virgen;
+      document.getElementById("s-activa").textContent = activa;
+      document.getElementById("s-inactiva").textContent = inactiva;
+      document.getElementById("s-scans").textContent = totalScans;
+      document.getElementById("s-today").textContent = todayScans;
+
+      renderQrCards(allRows);
+      renderTable();
+      globalStatus.textContent = "Todo actualizado.";
+    } catch {
+      globalStatus.textContent = "No se pudieron leer los datos desde Firebase (revisá reglas/permisos).";
+    }
+  }
+
+  document.getElementById("btn-login").onclick = async () => {
+    loginStatus.textContent = "Abriendo Google...";
+    try {
+      await signInWithPopup(auth, provider);
+    } catch {
+      loginStatus.textContent = "No se pudo iniciar sesión con Google.";
+    }
+  };
+
+  document.getElementById("btn-logout").onclick = () => signOut(auth);
+  document.getElementById("btn-refresh").onclick = loadAll;
+  document.getElementById("inp-search").addEventListener("input", renderTable);
+  document.getElementById("sel-filter").addEventListener("change", renderTable);
+
+  document.getElementById("btn-generate").onclick = async () => {
+    const from = parseInt(document.getElementById("inp-from").value, 10);
+    const to = parseInt(document.getElementById("inp-to").value, 10);
+    const digits = Math.min(6, Math.max(1, parseInt(document.getElementById("inp-digits").value, 10) || 3));
+
+    if (isNaN(from) || isNaN(to) || from < 1 || to < from || (to - from) > 100) {
+      genStatus.textContent = "Ingresá un rango válido (máximo 100 por tanda).";
+      return;
+    }
+
+    genStatus.textContent = "Generando lote...";
+    try {
+      for (let i = from; i <= to; i++) {
+        const code = formatCode(i, digits);
+        await setDoc(doc(db, "chapitasInventario", code), {
+          code,
+          status: "virgen",
+          scans: 0,
+          createdAt: new Date().toISOString(),
+          createdBy: auth.currentUser?.uid || ""
+        }, { merge: true });
+      }
+      genStatus.textContent = `Listo: lote #${formatCode(from, digits)} al #${formatCode(to, digits)} guardado.`;
+      await loadAll();
+    } catch {
+      genStatus.textContent = "Error al guardar en Firestore (revisá permisos de escritura).";
+    }
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      loginCard.classList.add("hidden");
+      mainPanel.classList.remove("hidden");
+      await loadAll();
+    } else {
+      mainPanel.classList.add("hidden");
+      loginCard.classList.remove("hidden");
+      loginStatus.textContent = "";
+    }
+  });
+</script>
+</body>
+</html>
