@@ -7,33 +7,33 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { margin: 0; background: #0b1120; color: #e2e8f0; padding: 14px; }
+    body { margin: 0; background: #e5e7eb; color: #111827; padding: 14px; }
     .container { max-width: 1080px; margin: 0 auto; }
     .card {
-      background: #131c31;
-      border: 1px solid #24324d;
+      background: #f9fafb;
+      border: 1px solid #cbd5e1;
       border-radius: 16px;
       padding: 18px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06);
       margin-bottom: 16px;
     }
-    h1 { margin: 0 0 4px; font-size: 21px; color: #f8fafc; }
-    h2 { margin: 0 0 12px; font-size: 16px; color: #f8fafc; }
-    p.sub { margin: 0 0 12px; color: #94a3b8; font-size: 13px; }
+    h1 { margin: 0 0 4px; font-size: 21px; color: #111827; }
+    h2 { margin: 0 0 12px; font-size: 16px; color: #111827; }
+    p.sub { margin: 0 0 12px; color: #4b5563; font-size: 13px; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; }
     .field { flex: 1; min-width: 120px; margin-bottom: 10px; }
-    label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; color: #cbd5e1; }
+    label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; color: #1f2937; }
     input, select {
       width: 100%;
       padding: 9px 11px;
-      border: 1px solid #334155;
+      border: 1px solid #9ca3af;
       border-radius: 9px;
       font-size: 13px;
-      background: #0b1120;
-      color: #f1f5f9;
+      background: #ffffff;
+      color: #111827;
     }
-    input::placeholder { color: #64748b; }
+    input::placeholder { color: #6b7280; }
     button {
       border: none;
       border-radius: 9px;
@@ -45,76 +45,77 @@
     }
     button:hover { opacity: 0.92; }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-orange { background: #ea580c; color: #fff; }
-    .btn-blue { background: #2563eb; color: #fff; }
-    .btn-slate { background: #334155; color: #f8fafc; }
-    .btn-green { background: #15803d; color: #fff; }
-    .btn-purple { background: #6d28d9; color: #fff; }
+    .btn-orange { background: #d95d16; color: #ffffff; }
+    .btn-blue { background: #2563eb; color: #ffffff; }
+    .btn-slate { background: #374151; color: #ffffff; }
+    .btn-green { background: #15803d; color: #ffffff; }
+    .btn-purple { background: #4b5563; color: #ffffff; }
     .btn-xs { padding: 5px 8px; font-size: 11px; }
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: 10px; margin-top: 12px; }
     .stat-box {
-      background: #0b1120;
-      border: 1px solid #1e293b;
+      background: #f3f4f6;
+      border: 1px solid #cbd5e1;
       border-radius: 12px;
       padding: 11px;
       text-align: center;
     }
-    .stat-val { font-size: 20px; font-weight: 800; color: #f8fafc; }
-    .stat-lbl { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .stat-val { font-size: 20px; font-weight: 800; color: #111827; }
+    .stat-lbl { font-size: 11px; font-weight: 600; color: #4b5563; margin-top: 2px; }
     .box-soft {
-      background: #0b1120;
-      border: 1px solid #1e293b;
+      background: #f3f4f6;
+      border: 1px solid #cbd5e1;
       border-radius: 12px;
       padding: 13px;
       margin-bottom: 12px;
     }
     .grid-qr { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 11px; margin-top: 12px; }
     .qr-card {
-      border: 1px solid #24324d;
+      border: 1px solid #cbd5e1;
       border-radius: 12px;
       padding: 11px;
       text-align: center;
-      background: #0b1120;
+      background: #f3f4f6;
     }
-    .qr-title { font-weight: 800; font-size: 14px; color: #f8fafc; }
-    .qr-group { font-size: 11px; color: #60a5fa; font-weight: 700; margin: 3px 0; }
-    .qr-sub { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+    .qr-title { font-weight: 800; font-size: 14px; color: #111827; }
+    .qr-group { font-size: 11px; color: #1d4ed8; font-weight: 800; margin: 3px 0; }
+    .qr-sub { font-size: 11px; color: #4b5563; font-weight: 600; margin-bottom: 6px; }
     .qr-holder {
       display: flex;
       justify-content: center;
       background: #ffffff;
+      border: 1px solid #d1d5db;
       padding: 8px;
       border-radius: 10px;
       width: fit-content;
       margin: 6px auto;
     }
-    .qr-link { font-size: 10px; color: #64748b; word-break: break-all; margin: 6px 0 8px; }
+    .qr-link { font-size: 11px; color: #374151; word-break: break-all; margin: 6px 0 8px; }
     .qr-actions { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th, td { text-align: left; padding: 8px 7px; border-bottom: 1px solid #1e293b; vertical-align: middle; }
-    th { color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .badge { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; }
-    .b-virgen { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
-    .b-activa { background: rgba(34, 197, 94, 0.18); color: #4ade80; }
-    .b-inactiva { background: rgba(239, 68, 68, 0.18); color: #f87171; }
-    .pill-group { display: inline-block; background: rgba(59, 130, 246, 0.18); color: #93c5fd; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; }
-    .pill-hot { display: inline-block; background: rgba(249, 115, 22, 0.22); color: #fdba74; padding: 2px 6px; border-radius: 999px; font-size: 10px; font-weight: 800; margin-left: 4px; }
-    .chk-row { display: flex; gap: 8px; font-size: 11px; color: #cbd5e1; }
-    .chk-row label { display: inline-flex; align-items: center; gap: 3px; margin: 0; font-weight: 500; cursor: pointer; }
+    th, td { text-align: left; padding: 8px 7px; border-bottom: 1px solid #d1d5db; vertical-align: middle; }
+    th { color: #1f2937; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; background: #f3f4f6; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .b-virgen { background: #fef3c7; color: #92400e; }
+    .b-activa { background: #dcfce7; color: #166534; }
+    .b-inactiva { background: #fee2e2; color: #991b1b; }
+    .pill-group { display: inline-block; background: #e5e7eb; color: #1f2937; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .pill-hot { display: inline-block; background: #ffedd5; color: #9a3412; padding: 2px 6px; border-radius: 999px; font-size: 10px; font-weight: 800; margin-left: 4px; }
+    .chk-row { display: flex; gap: 8px; font-size: 11px; color: #111827; }
+    .chk-row label { display: inline-flex; align-items: center; gap: 3px; margin: 0; font-weight: 700; cursor: pointer; }
     .chk-row input[type="checkbox"] { width: auto; padding: 0; }
     .note-inp { min-width: 130px; padding: 5px 8px; font-size: 11px; }
-    .table-wrap { overflow-x: auto; }
-    .status { font-size: 12px; color: #94a3b8; margin-top: 8px; min-height: 16px; }
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #d1d5db; background: #ffffff; }
+    .status { font-size: 12px; font-weight: 600; color: #374151; margin-top: 8px; min-height: 16px; }
     .hidden { display: none; }
     .top-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .top-chip { background: #0b1120; border: 1px solid #24324d; border-radius: 10px; padding: 6px 10px; font-size: 12px; }
+    .top-chip { background: #ffffff; border: 1px solid #cbd5e1; color: #111827; font-weight: 600; border-radius: 10px; padding: 6px 10px; font-size: 12px; }
     .bulk-box { margin-top: 8px; }
     .bulk-box textarea {
       width: 100%;
       min-height: 90px;
-      background: #0b1120;
-      color: #e2e8f0;
-      border: 1px solid #334155;
+      background: #ffffff;
+      color: #111827;
+      border: 1px solid #9ca3af;
       border-radius: 10px;
       padding: 9px;
       font-size: 11px;
@@ -160,7 +161,7 @@
       </div>
 
       <div class="box-soft" style="margin-top:12px; margin-bottom:0;">
-        <div style="font-size:12px; font-weight:700; color:#cbd5e1;">Top más escaneadas</div>
+        <div style="font-size:12px; font-weight:700; color:#1f2937;">Top más escaneadas</div>
         <div id="top-scans-list" class="top-list"></div>
       </div>
 
@@ -207,586 +208,11 @@
       <h2>2. Organizar chapitas, grupos, notas y estadísticas</h2>
 
       <div class="box-soft">
-        <div style="font-weight:700; font-size:12px; margin-bottom:8px; color:#cbd5e1;">Mover un rango a un grupo o cambiar su entrega (ej. 005 a 015)</div>
+        <div style="font-weight:700; font-size:12px; margin-bottom:8px; color:#1f2937;">Mover un rango a un grupo o cambiar su entrega (ej. 005 a 015)</div>
         <div class="row" style="align-items:end; margin-bottom:0;">
           <div class="field" style="margin-bottom:0; max-width:110px;">
             <label for="grp-from">Desde</label>
             <input id="grp-from" type="text" placeholder="005" />
           </div>
           <div class="field" style="margin-bottom:0; max-width:110px;">
-            <label for="grp-to">Hasta</label>
-            <input id="grp-to" type="text" placeholder="015" />
-          </div>
-          <div class="field" style="margin-bottom:0;">
-            <label for="grp-name">Grupo</label>
-            <input id="grp-name" type="text" placeholder="Ej: Local Centro" />
-          </div>
-          <div class="field" style="margin-bottom:0; max-width:160px;">
-            <label for="grp-sale">Entrega</label>
-            <select id="grp-sale">
-              <option value="">No cambiar</option>
-              <option value="stock">En stock</option>
-              <option value="vendida">Vendida / Entregada</option>
-              <option value="prueba">Prueba / Regalo</option>
-            </select>
-          </div>
-          <div>
-            <button id="btn-assign-group" class="btn-blue">Aplicar a rango</button>
-          </div>
-        </div>
-        <div id="grp-status" class="status"></div>
-      </div>
-
-      <div class="top-bar" style="margin-bottom:10px;">
-        <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1;">
-          <input id="inp-search" type="text" placeholder="Buscar código, grupo, nota o mascota..." style="flex:1; min-width:180px;" />
-          <select id="sel-group" style="width:180px;">
-            <option value="all">Todos los grupos</option>
-          </select>
-          <select id="sel-filter" style="width:145px;">
-            <option value="all">Todos los estados</option>
-            <option value="virgen">Vírgenes</option>
-            <option value="activa">Activas</option>
-            <option value="inactiva">Inactivas</option>
-          </select>
-          <select id="sel-sale" style="width:155px;">
-            <option value="all">Toda entrega</option>
-            <option value="stock">En stock</option>
-            <option value="vendida">Vendidas / Entreg.</option>
-            <option value="prueba">Prueba / Regalo</option>
-          </select>
-        </div>
-        <button id="btn-copy-group-links" class="btn-purple">Copiar links del filtro</button>
-      </div>
-
-      <div id="group-summary" class="status" style="margin-bottom:8px;"></div>
-
-      <div id="bulk-links-wrap" class="bulk-box hidden">
-        <div class="top-bar" style="margin-bottom:6px;">
-          <span style="font-size:12px; font-weight:700; color:#cbd5e1;">Links listos para grabar en NFC (uno por línea)</span>
-          <button id="btn-hide-bulk" class="btn-slate btn-xs">Ocultar</button>
-        </div>
-        <textarea id="bulk-links-area" readonly></textarea>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Grupo</th>
-              <th>Entrega</th>
-              <th>Estado</th>
-              <th>Preparación</th>
-              <th>Mascota</th>
-              <th>Nota interna</th>
-              <th>Escaneos</th>
-              <th>Último</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="inv-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 3. HISTORIAL DE ESCANEOS -->
-    <div class="card">
-      <h2>3. Últimos escaneos (QR / NFC)</h2>
-      <div id="origin-summary" class="sub"></div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Fecha y hora</th>
-              <th>Origen</th>
-              <th>Dispositivo</th>
-            </tr>
-          </thead>
-          <tbody id="scans-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
-    authDomain: "patitas-seguras-salta.firebaseapp.com",
-    projectId: "patitas-seguras-salta",
-    storageBucket: "patitas-seguras-salta.firebasestorage.app",
-    messagingSenderId: "311814224464",
-    appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
-  };
-
-  const PUBLIC_BASE_URL = "https://zekeacosta80.github.io/patitas-seguras-salta/";
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
-
-  const loginCard = document.getElementById("login-card");
-  const mainPanel = document.getElementById("main-panel");
-  const loginStatus = document.getElementById("login-status");
-  const globalStatus = document.getElementById("global-status");
-  const genStatus = document.getElementById("gen-status");
-  const grpStatus = document.getElementById("grp-status");
-  const qrGrid = document.getElementById("qr-grid");
-  const invTbody = document.getElementById("inv-tbody");
-  const scansTbody = document.getElementById("scans-tbody");
-  const selGroup = document.getElementById("sel-group");
-
-  let allRows = [];
-
-  function getTagUrl(code, source = "nfc") {
-    return `${PUBLIC_BASE_URL}?id=${encodeURIComponent(code)}&src=${source}`;
-  }
-
-  function formatCode(num, digits) {
-    return String(num).padStart(digits, "0");
-  }
-
-  function fmtDate(iso) {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return iso;
-    return d.toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-  }
-
-  function isToday(iso) {
-    if (!iso) return false;
-    const d = new Date(iso);
-    const now = new Date();
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-  }
-
-  function isLast24h(iso) {
-    if (!iso) return false;
-    const t = new Date(iso).getTime();
-    return !isNaN(t) && (Date.now() - t) <= 24 * 60 * 60 * 1000;
-  }
-
-  function updateGroupSelect(rows) {
-    const prev = selGroup.value;
-    const groups = Array.from(new Set(rows.map(r => r.group).filter(Boolean))).sort();
-    selGroup.innerHTML = `<option value="all">Todos los grupos</option><option value="__none__">Sin grupo</option>`;
-    groups.forEach(g => {
-      const opt = document.createElement("option");
-      opt.value = g;
-      opt.textContent = g;
-      selGroup.appendChild(opt);
-    });
-    if ([...selGroup.options].some(o => o.value === prev)) {
-      selGroup.value = prev;
-    }
-  }
-
-  function renderQrCards(rows) {
-    qrGrid.innerHTML = "";
-    rows.slice(0, 24).forEach((item) => {
-      const urlNfc = getTagUrl(item.code, "nfc");
-      const urlQr = getTagUrl(item.code, "qr");
-
-      const card = document.createElement("div");
-      card.className = "qr-card";
-
-      const title = document.createElement("div");
-      title.className = "qr-title";
-      title.textContent = `#${item.code} • ${item.status}`;
-
-      const grp = document.createElement("div");
-      grp.className = "qr-group";
-      grp.textContent = item.group ? `Grupo: ${item.group}` : "Sin grupo";
-
-      const sub = document.createElement("div");
-      sub.className = "qr-sub";
-      sub.textContent = `Entrega: ${item.saleStatus}`;
-
-      const holder = document.createElement("div");
-      holder.className = "qr-holder";
-      new QRCode(holder, {
-        text: urlQr,
-        width: 112,
-        height: 112,
-        correctLevel: QRCode.CorrectLevel.M
-      });
-
-      const link = document.createElement("div");
-      link.className = "qr-link";
-      link.textContent = urlNfc;
-
-      const actions = document.createElement("div");
-      actions.className = "qr-actions";
-
-      const btnCopy = document.createElement("button");
-      btnCopy.className = "btn-slate btn-xs";
-      btnCopy.textContent = "Copiar NFC";
-      btnCopy.onclick = async () => {
-        await navigator.clipboard.writeText(urlNfc);
-        btnCopy.textContent = "¡Copiado!";
-        setTimeout(() => (btnCopy.textContent = "Copiar NFC"), 1200);
-      };
-
-      const btnDl = document.createElement("button");
-      btnDl.className = "btn-green btn-xs";
-      btnDl.textContent = "Bajar QR";
-      btnDl.onclick = () => {
-        const canvas = holder.querySelector("canvas");
-        const img = holder.querySelector("img");
-        const href = canvas ? canvas.toDataURL("image/png") : img?.src;
-        if (!href) return;
-        const a = document.createElement("a");
-        a.href = href;
-        a.download = `chapita-${item.code}.png`;
-        a.click();
-      };
-
-      actions.append(btnCopy, btnDl);
-      card.append(title, grp, sub, holder, link, actions);
-      qrGrid.appendChild(card);
-    });
-  }
-
-  function getFilteredRows() {
-    const term = document.getElementById("inp-search").value.trim().toLowerCase();
-    const filter = document.getElementById("sel-filter").value;
-    const saleFilter = document.getElementById("sel-sale").value;
-    const grpVal = selGroup.value;
-
-    return allRows.filter((r) => {
-      const matchFilter = filter === "all" || r.status === filter;
-      const matchSale = saleFilter === "all" || r.saleStatus === saleFilter;
-      const matchGroup =
-        grpVal === "all" ||
-        (grpVal === "__none__" && !r.group) ||
-        r.group === grpVal;
-      const matchSearch =
-        !term ||
-        r.code.toLowerCase().includes(term) ||
-        r.group.toLowerCase().includes(term) ||
-        r.note.toLowerCase().includes(term) ||
-        r.petInfo.toLowerCase().includes(term);
-      return matchFilter && matchSale && matchGroup && matchSearch;
-    });
-  }
-
-  function renderTable() {
-    const filtered = getFilteredRows();
-    const groupScans = filtered.reduce((acc, x) => acc + x.scans, 0);
-    document.getElementById("group-summary").textContent =
-      `Mostrando ${filtered.length} de ${allRows.length} chapitas • Escaneos en esta vista: ${groupScans}`;
-
-    invTbody.innerHTML = "";
-    filtered.forEach((r) => {
-      const badgeClass = r.status === "activa" ? "b-activa" : r.status === "inactiva" ? "b-inactiva" : "b-virgen";
-      const nextStatus = r.status === "inactiva" ? "activa" : "inactiva";
-      const hotBadge = isLast24h(r.lastScanAt) && r.scans > 0 ? `<span class="pill-hot">24h</span>` : "";
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><strong>#${r.code}</strong></td>
-        <td>${r.group ? `<span class="pill-group">${r.group}</span>` : `<span style="color:#64748b;">—</span>`}</td>
-        <td>
-          <select class="sel-row-sale" data-code="${r.code}" style="padding:4px 6px; font-size:11px; min-width:110px;">
-            <option value="stock" ${r.saleStatus === "stock" ? "selected" : ""}>En stock</option>
-            <option value="vendida" ${r.saleStatus === "vendida" ? "selected" : ""}>Vendida</option>
-            <option value="prueba" ${r.saleStatus === "prueba" ? "selected" : ""}>Prueba/Regalo</option>
-          </select>
-        </td>
-        <td><span class="badge ${badgeClass}">${r.status}</span></td>
-        <td>
-          <div class="chk-row">
-            <label><input type="checkbox" class="chk-nfc" data-code="${r.code}" ${r.nfcDone ? "checked" : ""} /> NFC</label>
-            <label><input type="checkbox" class="chk-qr" data-code="${r.code}" ${r.qrDone ? "checked" : ""} /> QR</label>
-          </div>
-        </td>
-        <td>${r.petInfo}</td>
-        <td><input type="text" class="note-inp" data-code="${r.code}" value="${r.note.replace(/"/g, "&quot;")}" placeholder="Nota..." /></td>
-        <td><strong>${r.scans}</strong>${hotBadge}</td>
-        <td>${fmtDate(r.lastScanAt)}</td>
-        <td style="white-space:nowrap;">
-          <button class="btn-slate btn-xs btn-copy-row" data-code="${r.code}">NFC</button>
-          <button class="btn-orange btn-xs btn-toggle-row" data-code="${r.code}" data-next="${nextStatus}">
-            ${r.status === "inactiva" ? "Activar" : "Pausar"}
-          </button>
-        </td>
-      `;
-
-      tr.querySelector(".sel-row-sale").addEventListener("change", async (ev) => {
-        const c = ev.currentTarget.getAttribute("data-code");
-        const val = ev.currentTarget.value;
-        await updateDoc(doc(db, "chapitasInventario", c), { saleStatus: val });
-        await loadAll();
-      });
-
-      tr.querySelector(".chk-nfc").addEventListener("change", async (ev) => {
-        const c = ev.currentTarget.getAttribute("data-code");
-        await updateDoc(doc(db, "chapitasInventario", c), { nfcDone: ev.currentTarget.checked });
-      });
-
-      tr.querySelector(".chk-qr").addEventListener("change", async (ev) => {
-        const c = ev.currentTarget.getAttribute("data-code");
-        await updateDoc(doc(db, "chapitasInventario", c), { qrDone: ev.currentTarget.checked });
-      });
-
-      tr.querySelector(".note-inp").addEventListener("change", async (ev) => {
-        const c = ev.currentTarget.getAttribute("data-code");
-        await updateDoc(doc(db, "chapitasInventario", c), { note: ev.currentTarget.value.trim() });
-      });
-
-      tr.querySelector(".btn-copy-row").addEventListener("click", async (ev) => {
-        const c = ev.currentTarget.getAttribute("data-code");
-        await navigator.clipboard.writeText(getTagUrl(c, "nfc"));
-        ev.currentTarget.textContent = "¡OK!";
-        setTimeout(() => (ev.currentTarget.textContent = "NFC"), 1100);
-      });
-
-      tr.querySelector(".btn-toggle-row").addEventListener("click", async (ev) => {
-        const btn = ev.currentTarget;
-        const c = btn.getAttribute("data-code");
-        const nextSt = btn.getAttribute("data-next");
-        btn.disabled = true;
-        try {
-          await updateDoc(doc(db, "chapitasInventario", c), { status: nextSt });
-          await loadAll();
-        } catch {
-          globalStatus.textContent = "No se pudo cambiar el estado.";
-          btn.disabled = false;
-        }
-      });
-
-      invTbody.appendChild(tr);
-    });
-  }
-
-  async function loadAll() {
-    globalStatus.textContent = "Cargando datos...";
-    scansTbody.innerHTML = "";
-
-    try {
-      const [invSnap, petsSnap, scansSnap] = await Promise.all([
-        getDocs(query(collection(db, "chapitasInventario"), orderBy("code", "asc"))),
-        getDocs(collection(db, "chapitas")),
-        getDocs(query(collection(db, "chapitasEscaneos"), orderBy("scannedAt", "desc"), limit(30)))
-      ]);
-
-      const petsMap = {};
-      petsSnap.forEach((p) => { petsMap[p.id] = p.data(); });
-
-      let total = 0, virgen = 0, activa = 0, inactiva = 0, vendida = 0, totalScans = 0, todayScans = 0;
-      let qrCount = 0, nfcCount = 0;
-      const rows = [];
-
-      scansSnap.forEach((s) => {
-        const sd = s.data();
-        if (isToday(sd.scannedAt)) todayScans++;
-        const src = (sd.source || "web").toLowerCase();
-        if (src === "qr") qrCount++;
-        if (src === "nfc") nfcCount++;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><strong>#${sd.tagId || "—"}</strong></td>
-          <td>${fmtDate(sd.scannedAt)}</td>
-          <td>${sd.source || "web"}</td>
-          <td>${sd.device || "—"}</td>
-        `;
-        scansTbody.appendChild(tr);
-      });
-
-      document.getElementById("origin-summary").textContent =
-        `Últimos ${scansSnap.size} registros • Lecturas NFC: ${nfcCount} • Lecturas QR: ${qrCount}`;
-
-      invSnap.forEach((dSnap) => {
-        const d = dSnap.data();
-        const code = d.code || dSnap.id;
-        const pet = petsMap[code];
-        let status = d.status || (pet ? "activa" : "virgen");
-        if (pet && status === "virgen") status = "activa";
-
-        const saleStatus = d.saleStatus || "stock";
-        const scans = Number(d.scans || 0);
-        total++;
-        if (status === "virgen") virgen++;
-        else if (status === "activa") activa++;
-        else if (status === "inactiva") inactiva++;
-        if (saleStatus === "vendida") vendida++;
-        totalScans += scans;
-
-        rows.push({
-          code,
-          group: (d.group || "").trim(),
-          saleStatus,
-          status,
-          nfcDone: Boolean(d.nfcDone),
-          qrDone: Boolean(d.qrDone),
-          note: d.note || "",
-          petInfo: pet ? `${pet.name || "Sin nombre"} (${pet.phone || ""})` : "Sin ficha",
-          scans,
-          lastScanAt: d.lastScanAt || ""
-        });
-      });
-
-      allRows = rows;
-      updateGroupSelect(allRows);
-
-      document.getElementById("s-total").textContent = total;
-      document.getElementById("s-virgen").textContent = virgen;
-      document.getElementById("s-activa").textContent = activa;
-      document.getElementById("s-inactiva").textContent = inactiva;
-      document.getElementById("s-vendida").textContent = vendida;
-      document.getElementById("s-scans").textContent = totalScans;
-      document.getElementById("s-today").textContent = todayScans;
-
-      const topList = document.getElementById("top-scans-list");
-      topList.innerHTML = "";
-      const top5 = [...allRows].sort((a, b) => b.scans - a.scans).slice(0, 5);
-      top5.forEach((item) => {
-        const chip = document.createElement("div");
-        chip.className = "top-chip";
-        chip.textContent = `#${item.code}: ${item.scans} escaneos${item.group ? ` (${item.group})` : ""}`;
-        topList.appendChild(chip);
-      });
-
-      renderQrCards(allRows);
-      renderTable();
-      globalStatus.textContent = "Todo actualizado.";
-    } catch {
-      globalStatus.textContent = "No se pudieron leer los datos desde Firebase.";
-    }
-  }
-
-  document.getElementById("btn-login").onclick = async () => {
-    loginStatus.textContent = "Abriendo Google...";
-    try {
-      await signInWithPopup(auth, provider);
-    } catch {
-      loginStatus.textContent = "No se pudo iniciar sesión con Google.";
-    }
-  };
-
-  document.getElementById("btn-logout").onclick = () => signOut(auth);
-  document.getElementById("btn-refresh").onclick = loadAll;
-  document.getElementById("inp-search").addEventListener("input", renderTable);
-  document.getElementById("sel-filter").addEventListener("change", renderTable);
-  document.getElementById("sel-sale").addEventListener("change", renderTable);
-  selGroup.addEventListener("change", renderTable);
-
-  document.getElementById("btn-copy-group-links").onclick = async () => {
-    const list = getFilteredRows().map(r => getTagUrl(r.code, "nfc"));
-    if (!list.length) return;
-    document.getElementById("bulk-links-area").value = list.join("\n");
-    document.getElementById("bulk-links-wrap").classList.remove("hidden");
-    try {
-      await navigator.clipboard.writeText(list.join("\n"));
-      globalStatus.textContent = `Copiados ${list.length} links NFC del filtro actual.`;
-    } catch {}
-  };
-
-  document.getElementById("btn-hide-bulk").onclick = () => {
-    document.getElementById("bulk-links-wrap").classList.add("hidden");
-  };
-
-  document.getElementById("btn-export-csv").onclick = () => {
-    const headers = ["Codigo", "Grupo", "Entrega", "Estado", "NFC", "QR", "Mascota", "Nota", "Escaneos", "UltimoEscaneo"];
-    const lines = [headers.join(";")];
-    allRows.forEach(r => {
-      const vals = [
-        r.code, r.group, r.saleStatus, r.status,
-        r.nfcDone ? "SI" : "NO", r.qrDone ? "SI" : "NO",
-        r.petInfo, r.note, r.scans, r.lastScanAt
-      ].map(v => `"${String(v || "").replace(/"/g, '""')}"`);
-      lines.push(vals.join(";"));
-    });
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "patitas-seguras-chapitas.csv";
-    a.click();
-  };
-
-  document.getElementById("btn-generate").onclick = async () => {
-    const from = parseInt(document.getElementById("inp-from").value, 10);
-    const to = parseInt(document.getElementById("inp-to").value, 10);
-    const digits = Math.min(6, Math.max(1, parseInt(document.getElementById("inp-digits").value, 10) || 3));
-    const groupName = document.getElementById("inp-group").value.trim();
-    const saleStatus = document.getElementById("inp-sale").value;
-
-    if (isNaN(from) || isNaN(to) || from < 1 || to < from || (to - from) > 100) {
-      genStatus.textContent = "Ingresá un rango válido (máximo 100 por tanda).";
-      return;
-    }
-
-    genStatus.textContent = "Guardando...";
-    try {
-      for (let i = from; i <= to; i++) {
-        const code = formatCode(i, digits);
-        await setDoc(doc(db, "chapitasInventario", code), {
-          code,
-          group: groupName,
-          saleStatus,
-          status: "virgen",
-          scans: 0,
-          createdAt: new Date().toISOString(),
-          createdBy: auth.currentUser?.uid || ""
-        }, { merge: true });
-      }
-      genStatus.textContent = `Listo: #${formatCode(from, digits)} al #${formatCode(to, digits)} guardado.`;
-      await loadAll();
-    } catch {
-      genStatus.textContent = "Error al guardar en Firestore.";
-    }
-  };
-
-  document.getElementById("btn-assign-group").onclick = async () => {
-    const rawFrom = document.getElementById("grp-from").value.trim();
-    const rawTo = document.getElementById("grp-to").value.trim();
-    const grpName = document.getElementById("grp-name").value.trim();
-    const saleVal = document.getElementById("grp-sale").value;
-
-    const numFrom = parseInt(rawFrom, 10);
-    const numTo = parseInt(rawTo || rawFrom, 10);
-    const digits = Math.max(rawFrom.length || 3, rawTo.length || 3, 3);
-
-    if (isNaN(numFrom) || isNaN(numTo) || numTo < numFrom) {
-      grpStatus.textContent = "Poné un rango válido (ej. 005 hasta 015).";
-      return;
-    }
-
-    grpStatus.textContent = "Actualizando rango...";
-    try {
-      for (let i = numFrom; i <= numTo; i++) {
-        const code = formatCode(i, digits);
-        const patch = { group: grpName };
-        if (saleVal) patch.saleStatus = saleVal;
-        await updateDoc(doc(db, "chapitasInventario", code), patch);
-      }
-      grpStatus.textContent = `Actualizado del #${formatCode(numFrom, digits)} al #${formatCode(numTo, digits)}.`;
-      await loadAll();
-    } catch {
-      grpStatus.textContent = "No se pudo actualizar el rango (verificá que existan esos números).";
-    }
-  };
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      loginCard.classList.add("hidden");
-      mainPanel.classList.remove("hidden");
-      await loadAll();
-    } else {
-      mainPanel.classList.add("hidden");
-      loginCard.classList.remove("hidden");
-      loginStatus.textContent = "";
-    }
-  });
-</script>
-</body>
-</html>
+            <label for="grp-to">Hasta</label
