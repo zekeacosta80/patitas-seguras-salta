@@ -66,7 +66,7 @@
         </div>
       </div>
 
-      <button id="btn-generate" class="btn-primary">Generar lote y guardar como virgen</button>
+      <button id="btn-generate" class="btn-primary">Generar lote y guardar como disponible</button>
       <div id="gen-status" class="status"></div>
     </div>
 
@@ -122,6 +122,14 @@
     return String(num).padStart(DIGITS_PREDETERMINADOS, "0");
   }
 
+  function formatearEstadoVisible(estadoRaw) {
+    const limpio = String(estadoRaw || "").trim().toLowerCase();
+    if (!limpio || limpio === "virgen" || limpio === "disponible") {
+      return "disponible";
+    }
+    return estadoRaw;
+  }
+
   async function deleteTag(docId, code) {
     try {
       await deleteDoc(doc(db, "chapitasInventario", docId));
@@ -132,14 +140,15 @@
     }
   }
 
-  function renderTagCard(docId, code, estado = "virgen") {
+  function renderTagCard(docId, code, estado = "disponible") {
+    const estadoVisible = formatearEstadoVisible(estado);
     const url = buildTagUrl(code);
     const card = document.createElement("div");
     card.className = "tag-card";
 
     const numEl = document.createElement("div");
     numEl.className = "tag-num";
-    numEl.textContent = `#${code} (${estado})`;
+    numEl.textContent = `#${code} (${estadoVisible})`;
 
     const qrDiv = document.createElement("div");
     qrDiv.className = "qr-box";
@@ -199,7 +208,7 @@
       snap.forEach((docSnap) => {
         total += 1;
         const d = docSnap.data();
-        renderTagCard(docSnap.id, d.code || docSnap.id, d.status || "virgen");
+        renderTagCard(docSnap.id, d.code || docSnap.id, d.status || d.estado || "disponible");
       });
       tagsCount.textContent = String(total);
     } catch (e) {
@@ -250,12 +259,13 @@
         const code = formatCode(i);
         await setDoc(doc(db, "chapitasInventario", code), {
           code,
-          status: "virgen",
+          status: "disponible",
+          estado: "disponible",
           createdAt: new Date().toISOString(),
           createdBy: auth.currentUser?.uid || ""
         }, { merge: true });
       }
-      genStatus.textContent = `Listo: lote del #${formatCode(from)} al #${formatCode(to)} guardado.`;
+      genStatus.textContent = `Listo: lote del #${formatCode(from)} al #${formatCode(to)} guardado como disponible.`;
       await loadTags();
     } catch (e) {
       genStatus.textContent = "Error al guardar en Firestore: revisá que tu usuario tenga permiso de escritura.";
