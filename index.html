@@ -3,133 +3,422 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Patitas Seguras Salta — Registrar Perrito</title>
+  <title>Patitas Seguras Salta — Panel del Dueño</title>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #f4f6f8;
-      color: #18181b;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
       padding: 16px;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
     }
     .card {
       width: 100%;
-      max-width: 440px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      align-self: flex-start;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
     }
     h1 {
       font-size: 1.25rem;
-      margin: 0 0 4px;
+      margin: 0;
       color: #0f766e;
     }
-    .codigo {
-      font-size: 0.88rem;
-      color: #52525b;
-      margin-bottom: 16px;
-    }
-    label {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin: 10px 0 4px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #d4d4d8;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-family: inherit;
-    }
-    textarea { min-height: 75px; resize: vertical; }
-    button {
-      width: 100%;
-      padding: 12px;
-      border: 0;
-      border-radius: 10px;
-      font-size: 1rem;
+    .badge-id {
+      background: #ccfbf1;
+      color: #115e59;
       font-weight: 700;
-      cursor: pointer;
-      background: #0f766e;
-      color: #fff;
-      margin-top: 14px;
+      font-size: 0.82rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
     }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .subtexto {
+      font-size: 0.88rem;
+      color: #64748b;
+      margin: 0 0 16px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .step {
+      text-align: center;
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 7px 6px;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+    .step.active {
+      background: #f0fdfa;
+      color: #0f766e;
+      border-color: #5eead4;
+    }
+    .step.done {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #86efac;
+    }
     .user-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f4f4f5;
+      gap: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       padding: 10px 12px;
-      border-radius: 10px;
-      font-size: 0.85rem;
-      margin-bottom: 12px;
+      border-radius: 12px;
+      font-size: 0.84rem;
+      margin-bottom: 14px;
     }
-    .btn-salir {
+    .user-email {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+      color: #334155;
+    }
+    .btn-secundario {
       width: auto;
       margin: 0;
-      padding: 6px 10px;
+      padding: 7px 11px;
       font-size: 0.8rem;
-      background: #e4e4e7;
-      color: #18181b;
+      font-weight: 600;
+      border-radius: 8px;
+      background: #e2e8f0;
+      color: #1e293b;
+      border: 0;
+      cursor: pointer;
+    }
+    .btn-secundario:hover { background: #cbd5e1; }
+    .seccion-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .seccion-titulo {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 4px;
+    }
+    .ayuda {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin: 4px 0 0;
+      line-height: 1.35;
+    }
+    label {
+      display: block;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 12px 0 5px;
+    }
+    .seccion-box label:first-of-type { margin-top: 4px; }
+    input[type="text"],
+    input[type="tel"],
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 11px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      color: #0f172a;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #0f766e;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+    .tel-grid {
+      display: grid;
+      grid-template-columns: 115px 1fr;
+      gap: 10px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .chip {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .chip:hover {
+      background: #f0fdfa;
+      border-color: #0f766e;
+      color: #0f766e;
+    }
+    .foto-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .foto-preview {
+      width: 84px;
+      height: 84px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 2px solid #cbd5e1;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+    .foto-placeholder {
+      width: 84px;
+      height: 84px;
+      border-radius: 16px;
+      border: 2px dashed #94a3b8;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .foto-acciones {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .btn-foto {
+      display: inline-block;
+      text-align: center;
+      background: #ffffff;
+      border: 1px solid #0f766e;
+      color: #0f766e;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn-foto:hover { background: #f0fdfa; }
+    .btn-quitar-foto {
+      background: transparent;
+      border: 0;
+      color: #dc2626;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 4px;
+      text-align: left;
+      width: fit-content;
+    }
+    .btn-principal {
+      width: 100%;
+      padding: 13px 16px;
+      border: 0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #0f766e;
+      color: #ffffff;
+      margin-top: 16px;
+    }
+    .btn-principal:hover { background: #115e59; }
+    .btn-principal:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .resumen-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .resumen-top {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .resumen-foto {
+      width: 78px;
+      height: 78px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 2px solid #0f766e;
+      flex-shrink: 0;
+    }
+    .resumen-nombre {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin: 0 0 4px;
+    }
+    .resumen-dato {
+      font-size: 0.88rem;
+      color: #334155;
+      margin: 4px 0;
     }
     .msg {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-size: 0.9rem;
+      margin-top: 14px;
+      padding: 11px 13px;
+      border-radius: 11px;
+      font-size: 0.88rem;
+      line-height: 1.4;
       display: none;
     }
-    .msg.ok { display: block; background: #dcfce7; color: #166534; }
-    .msg.err { display: block; background: #fee2e2; color: #991b1b; }
-    .hidden { display: none; }
+    .msg.ok {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+    .msg.err {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>🐾 Patitas Seguras Salta</h1>
-    <div id="txtCodigo" class="codigo">Verificando chapita...</div>
+    <div class="header-top">
+      <h1>🐾 Patitas Seguras Salta</h1>
+      <span id="badgeChapita" class="badge-id">Chapita —</span>
+    </div>
+    <p id="subtextoHeader" class="subtexto">Verificando el estado de tu chapita...</p>
 
-    <!-- 1. Solo Login con Google -->
-    <div id="vistaLogin" class="hidden">
-      <p>Esta chapita está lista para usar. Entrá con tu cuenta de Google para registrar a tu perrito.</p>
-      <button id="btnGoogle" type="button">Continuar con Google</button>
+    <div id="barraPasos" class="steps hidden">
+      <div id="paso1" class="step active">1. Cuenta Google</div>
+      <div id="paso2" class="step">2. Datos y foto</div>
+      <div id="paso3" class="step">3. ¡Activa!</div>
     </div>
 
-    <!-- 2. Panel de registro del perrito (solo visible si entró con Google) -->
+    <!-- 1. Login con Google -->
+    <div id="vistaLogin" class="hidden">
+      <div class="seccion-box">
+        <p class="seccion-titulo">Esta chapita está lista para activar</p>
+        <p class="ayuda">Iniciá sesión con tu cuenta de Google para asociar esta chapita a tu mascota y poder administrar sus datos cuando quieras.</p>
+      </div>
+      <button id="btnGoogle" class="btn-principal" type="button">Continuar con Google</button>
+    </div>
+
+    <!-- 2. Formulario de activación / edición -->
     <div id="vistaRegistro" class="hidden">
       <div class="user-bar">
-        <span id="txtUsuario">—</span>
-        <button id="btnSalir" type="button" class="btn-salir">Salir</button>
+        <span id="txtUsuario" class="user-email">—</span>
+        <button id="btnSalir" class="btn-secundario" type="button">Cerrar sesión</button>
       </div>
 
       <form id="formPerrito">
-        <label for="nombreMascota">Nombre del perrito *</label>
-        <input id="nombreMascota" type="text" required placeholder="Ej: Moro" />
+        <div class="seccion-box">
+          <p class="seccion-titulo">Foto de tu mascota</p>
+          <p class="ayuda">Ayuda a reconocerla rápido. Se ajusta automáticamente para cargar liviana.</p>
+          <div class="foto-wrap">
+            <div id="fotoPlaceholder" class="foto-placeholder">🐶</div>
+            <img id="fotoPreview" class="foto-preview hidden" alt="Vista previa de la mascota" />
+            <div class="foto-acciones">
+              <label for="inputFoto" class="btn-foto">Subir o sacar foto</label>
+              <input id="inputFoto" type="file" accept="image/*" class="hidden" />
+              <button id="btnQuitarFoto" type="button" class="btn-quitar-foto hidden">Quitar foto</button>
+            </div>
+          </div>
+        </div>
 
-        <label for="raza">Raza / Descripción</label>
-        <input id="raza" type="text" placeholder="Ej: Mestizo negro, tamaño mediano" />
+        <div class="seccion-box">
+          <p class="seccion-titulo">Datos de la mascota</p>
 
-        <label for="telefono">WhatsApp / Teléfono de contacto *</label>
-        <input id="telefono" type="tel" required placeholder="Ej: 3875123456" />
+          <label for="nombreMascota">Nombre de la mascota *</label>
+          <input id="nombreMascota" type="text" required maxlength="60" placeholder="Ej: Paco" />
 
-        <label for="nota">Aviso importante (opcional)</label>
-        <textarea id="nota" placeholder="Ej: Toma medicación, es muy asustadizo..."></textarea>
+          <label for="raza">Raza o descripción física</label>
+          <input id="raza" type="text" maxlength="100" placeholder="Ej: Mestizo mediano, negro con pecho blanco" />
+        </div>
 
-        <button id="btnGuardar" type="submit">Guardar y activar chapita</button>
+        <div class="seccion-box">
+          <p class="seccion-titulo">Teléfono de contacto principal *</p>
+          <p class="ayuda">Ingresá la característica y el número <strong>sin el 15</strong>.</p>
+
+          <div class="tel-grid">
+            <div>
+              <label for="caracteristica">Característica *</label>
+              <input id="caracteristica" type="tel" inputmode="numeric" required maxlength="6" placeholder="Ej: 387" />
+            </div>
+            <div>
+              <label for="numeroLocal">Número (sin 15) *</label>
+              <input id="numeroLocal" type="tel" inputmode="numeric" required maxlength="12" placeholder="Ej: 3447953" />
+            </div>
+          </div>
+
+          <label for="telefonoAlternativo">Teléfono alternativo (opcional)</label>
+          <input id="telefonoAlternativo" type="tel" inputmode="numeric" maxlength="20" placeholder="Ej: 3875123456" />
+        </div>
+
+        <div class="seccion-box">
+          <p class="seccion-titulo">Cuidados o avisos importantes</p>
+          <textarea id="nota" maxlength="400" placeholder="Ej: Toma medicación diaria, se asusta con ruidos fuertes..."></textarea>
+
+          <div class="chips" aria-label="Sugerencias rápidas">
+            <button type="button" class="chip" data-chip="Toma medicación.">+ Toma medicación</button>
+            <button type="button" class="chip" data-chip="Es asustadizo/a, acercarse con calma.">+ Asustadizo/a</button>
+            <button type="button" class="chip" data-chip="Tiene alergias alimentarias.">+ Alergias</button>
+            <button type="button" class="chip" data-chip="Amigable con personas y otros animales.">+ Muy amigable</button>
+          </div>
+        </div>
+
+        <button id="btnGuardar" class="btn-principal" type="submit">Guardar y activar chapita</button>
       </form>
     </div>
 
-    <!-- 3. Si ya estaba activada -->
+    <!-- 3. Vista de chapita ya activada -->
     <div id="vistaYaRegistrada" class="hidden">
-      <h2 style="margin:0 0 6px; font-size:1.1rem;">¡Chapita activada!</h2>
-      <p id="resumenPerrito">—</p>
+      <div class="resumen-card">
+        <div class="resumen-top">
+          <img id="resumenFoto" class="resumen-foto hidden" alt="Foto de la mascota" />
+          <div>
+            <p id="resumenNombre" class="resumen-nombre">—</p>
+            <p id="resumenRaza" class="resumen-dato"></p>
+            <p id="resumenTel" class="resumen-dato"></p>
+            <p id="resumenTelAlt" class="resumen-dato"></p>
+          </div>
+        </div>
+        <p id="resumenNota" class="resumen-dato" style="margin-top:10px;"></p>
+      </div>
+
+      <div id="accionesDueno" class="hidden" style="margin-top:14px; display:flex; gap:10px; justify-content:space-between; align-items:center;">
+        <span id="txtDuenoSesion" class="ayuda" style="margin:0;"></span>
+        <button id="btnEditarDatos" type="button" class="btn-secundario">Editar datos</button>
+      </div>
     </div>
 
     <div id="msg" class="msg"></div>
@@ -169,78 +458,281 @@
     const params = new URLSearchParams(window.location.search);
     const chapitaId = (params.get("id") || params.get("c") || params.get("codigo") || "").trim();
 
-    const txtCodigo = document.getElementById("txtCodigo");
+    const badgeChapita = document.getElementById("badgeChapita");
+    const subtextoHeader = document.getElementById("subtextoHeader");
+    const barraPasos = document.getElementById("barraPasos");
+    const paso1 = document.getElementById("paso1");
+    const paso2 = document.getElementById("paso2");
+    const paso3 = document.getElementById("paso3");
+
     const vistaLogin = document.getElementById("vistaLogin");
     const vistaRegistro = document.getElementById("vistaRegistro");
     const vistaYaRegistrada = document.getElementById("vistaYaRegistrada");
     const txtUsuario = document.getElementById("txtUsuario");
     const msg = document.getElementById("msg");
 
+    const inputFoto = document.getElementById("inputFoto");
+    const fotoPreview = document.getElementById("fotoPreview");
+    const fotoPlaceholder = document.getElementById("fotoPlaceholder");
+    const btnQuitarFoto = document.getElementById("btnQuitarFoto");
+    const btnGuardar = document.getElementById("btnGuardar");
+    const btnEditarDatos = document.getElementById("btnEditarDatos");
+
     let usuarioActual = null;
-    let chapitaListaParaActivar = false;
+    let datosChapitaActual = null;
+    let fotoBase64 = "";
+    let modoEdicion = false;
 
     function mostrarMsg(texto, tipo = "ok") {
       msg.textContent = texto;
       msg.className = `msg ${tipo}`;
     }
 
-    function actualizarVistas() {
+    function limpiarMsg() {
+      msg.textContent = "";
+      msg.className = "msg";
+    }
+
+    function actualizarFotoFormulario(dataUrl) {
+      fotoBase64 = dataUrl || "";
+      if (fotoBase64) {
+        fotoPreview.src = fotoBase64;
+        fotoPreview.classList.remove("hidden");
+        fotoPlaceholder.classList.add("hidden");
+        btnQuitarFoto.classList.remove("hidden");
+      } else {
+        fotoPreview.src = "";
+        fotoPreview.classList.add("hidden");
+        fotoPlaceholder.classList.remove("hidden");
+        btnQuitarFoto.classList.add("hidden");
+      }
+    }
+
+    function limpiarDigitos(valor) {
+      return (valor || "").replace(/\D+/g, "");
+    }
+
+    function normalizarTelefonoArgentino(areaRaw, localRaw) {
+      let area = limpiarDigitos(areaRaw).replace(/^0+/, "");
+      let local = limpiarDigitos(localRaw);
+
+      // Si el usuario escribió un "15" pegado al inicio del número local (ej: 15447953 -> 447953)
+      if (local.length > 7 && local.startsWith("15")) {
+        local = local.slice(2);
+      }
+
+      const telefonoCompleto = `${area}${local}`;
+      return { area, local, telefonoCompleto };
+    }
+
+    function actualizarPasos(estado) {
+      barraPasos.classList.remove("hidden");
+      paso1.className = "step";
+      paso2.className = "step";
+      paso3.className = "step";
+
+      if (estado === "login") {
+        paso1.classList.add("active");
+      } else if (estado === "formulario") {
+        paso1.classList.add("done");
+        paso2.classList.add("active");
+      } else if (estado === "activa") {
+        paso1.classList.add("done");
+        paso2.classList.add("done");
+        paso3.classList.add("done");
+      }
+    }
+
+    function cargarDatosEnFormulario(data) {
+      document.getElementById("nombreMascota").value = data?.nombreMascota || "";
+      document.getElementById("raza").value = data?.raza || "";
+      document.getElementById("caracteristica").value = data?.areaCode || "";
+      document.getElementById("numeroLocal").value = data?.phoneNumber || data?.telefono || "";
+      document.getElementById("telefonoAlternativo").value = data?.telefonoAlternativo || "";
+      document.getElementById("nota").value = data?.nota || "";
+      actualizarFotoFormulario(data?.foto || "");
+      btnGuardar.textContent = modoEdicion ? "Guardar cambios" : "Guardar y activar chapita";
+    }
+
+    function renderizarResumenActivada(data) {
       vistaLogin.classList.add("hidden");
       vistaRegistro.classList.add("hidden");
+      vistaYaRegistrada.classList.remove("hidden");
+      actualizarPasos("activa");
 
-      if (!chapitaListaParaActivar) return;
+      subtextoHeader.textContent = "Esta chapita ya está activada y vinculada a su perfil.";
+
+      const resumenFoto = document.getElementById("resumenFoto");
+      if (data.foto) {
+        resumenFoto.src = data.foto;
+        resumenFoto.classList.remove("hidden");
+      } else {
+        resumenFoto.classList.add("hidden");
+      }
+
+      document.getElementById("resumenNombre").textContent = data.nombreMascota || "Mascota registrada";
+      document.getElementById("resumenRaza").textContent = data.raza ? `Raza / descripción: ${data.raza}` : "";
+
+      const telMostrar = data.areaCode && data.phoneNumber
+        ? `(${data.areaCode}) ${data.phoneNumber}`
+        : (data.telefono || "—");
+      document.getElementById("resumenTel").textContent = `Contacto: ${telMostrar}`;
+
+      const telAltEl = document.getElementById("resumenTelAlt");
+      telAltEl.textContent = data.telefonoAlternativo ? `Contacto alternativo: ${data.telefonoAlternativo}` : "";
+
+      const notaEl = document.getElementById("resumenNota");
+      notaEl.textContent = data.nota ? `Aviso: ${data.nota}` : "";
+
+      const accionesDueno = document.getElementById("accionesDueno");
+      const esDueno = Boolean(usuarioActual && data.duenoUid && usuarioActual.uid === data.duenoUid);
+      if (esDueno) {
+        accionesDueno.classList.remove("hidden");
+        document.getElementById("txtDuenoSesion").textContent = `Sesión: ${usuarioActual.email}`;
+      } else {
+        accionesDueno.classList.add("hidden");
+      }
+    }
+
+    function actualizarVistas() {
+      if (!chapitaId || !datosChapitaActual) return;
+
+      const estaActivada = datosChapitaActual.status === "activada" || datosChapitaActual.estado === "activada";
+      const esDueno = Boolean(usuarioActual && datosChapitaActual.duenoUid && usuarioActual.uid === datosChapitaActual.duenoUid);
+
+      if (estaActivada && !modoEdicion) {
+        renderizarResumenActivada(datosChapitaActual);
+        return;
+      }
+
+      vistaYaRegistrada.classList.add("hidden");
 
       if (usuarioActual) {
+        vistaLogin.classList.add("hidden");
         vistaRegistro.classList.remove("hidden");
-        txtUsuario.textContent = usuarioActual.email || usuarioActual.displayName;
+        txtUsuario.textContent = usuarioActual.email || usuarioActual.displayName || "Cuenta de Google";
+        subtextoHeader.textContent = modoEdicion
+          ? "Editá los datos de tu mascota y guardá los cambios."
+          : "Completá los datos de tu mascota para activar la chapita.";
+        actualizarPasos("formulario");
       } else {
+        vistaRegistro.classList.add("hidden");
         vistaLogin.classList.remove("hidden");
+        subtextoHeader.textContent = "Chapita disponible para registrar.";
+        actualizarPasos("login");
       }
     }
 
     async function verificarChapita() {
       if (!chapitaId) {
-        txtCodigo.textContent = "No se detectó ningún código en el QR.";
+        badgeChapita.textContent = "Sin código";
+        subtextoHeader.textContent = "No se detectó un código de chapita en el enlace.";
         return;
       }
-      txtCodigo.textContent = `Chapita: ${chapitaId}`;
+
+      badgeChapita.textContent = `Chapita ${chapitaId}`;
 
       try {
         const invRef = doc(db, "chapitasInventario", chapitaId);
         const invSnap = await getDoc(invRef);
 
         if (!invSnap.exists()) {
-          mostrarMsg(`El código "${chapitaId}" no existe en chapitasInventario.`, "err");
+          subtextoHeader.textContent = "Código no encontrado.";
+          mostrarMsg(`La chapita "${chapitaId}" no figura registrada en el inventario.`, "err");
           return;
         }
 
-        const data = invSnap.data();
-        if (data.status === "activada" || data.estado === "activada") {
-          vistaYaRegistrada.classList.remove("hidden");
-          document.getElementById("resumenPerrito").textContent =
-            `Esta chapita ya está activada para ${data.nombreMascota || "una mascota"} (Contacto: ${data.telefono || "—"}).`;
-          return;
-        }
-
-        chapitaListaParaActivar = true;
+        datosChapitaActual = invSnap.data();
+        cargarDatosEnFormulario(datosChapitaActual);
         actualizarVistas();
       } catch (e) {
         console.error(e);
+        subtextoHeader.textContent = "No se pudo verificar la chapita.";
         mostrarMsg("Error al consultar la chapita.", "err");
       }
     }
 
+    // Comprimir imagen a JPEG liviano en el navegador
+    function comprimirImagen(file, maxAncho = 600, calidad = 0.75) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            let ancho = img.width;
+            let alto = img.height;
+
+            if (ancho > maxAncho) {
+              alto = Math.round((alto * maxAncho) / ancho);
+              ancho = maxAncho;
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = ancho;
+            canvas.height = alto;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, ancho, alto);
+            resolve(canvas.toDataURL("image/jpeg", calidad));
+          };
+          img.onerror = reject;
+          img.src = ev.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    inputFoto.addEventListener("change", async (e) => {
+      const archivo = e.target.files?.[0];
+      if (!archivo) return;
+
+      try {
+        limpiarMsg();
+        const comprimida = await comprimirImagen(archivo);
+        actualizarFotoFormulario(comprimida);
+      } catch (err) {
+        console.error(err);
+        mostrarMsg("No se pudo procesar la foto. Probá con otra imagen.", "err");
+      }
+    });
+
+    btnQuitarFoto.addEventListener("click", () => {
+      inputFoto.value = "";
+      actualizarFotoFormulario("");
+    });
+
+    document.querySelectorAll(".chip").forEach((chipBtn) => {
+      chipBtn.addEventListener("click", () => {
+        const textoChip = chipBtn.getAttribute("data-chip") || "";
+        const notaEl = document.getElementById("nota");
+        const actual = notaEl.value.trim();
+        if (!actual) {
+          notaEl.value = textoChip;
+        } else if (!actual.includes(textoChip)) {
+          notaEl.value = `${actual} ${textoChip}`;
+        }
+      });
+    });
+
+    btnEditarDatos.addEventListener("click", () => {
+      limpiarMsg();
+      modoEdicion = true;
+      cargarDatosEnFormulario(datosChapitaActual);
+      actualizarVistas();
+    });
+
     document.getElementById("btnGoogle").addEventListener("click", async () => {
-      msg.className = "msg";
+      limpiarMsg();
       try {
         await signInWithPopup(auth, provider);
       } catch (e) {
         console.error(e);
-        mostrarMsg(`Error (${e.code || "sin código"}): ${e.message}`, "err");
+        mostrarMsg("No se pudo iniciar sesión con Google. Intentá nuevamente.", "err");
       }
     });
 
     document.getElementById("btnSalir").addEventListener("click", async () => {
+      modoEdicion = false;
       await signOut(auth);
     });
 
@@ -253,37 +745,73 @@
       e.preventDefault();
       if (!usuarioActual || !chapitaId) return;
 
-      const btn = document.getElementById("btnGuardar");
-      btn.disabled = true;
-      btn.textContent = "Guardando...";
+      limpiarMsg();
 
-      const datosActivacion = {
+      const nombreMascota = document.getElementById("nombreMascota").value.trim();
+      const raza = document.getElementById("raza").value.trim();
+      const { area, local, telefonoCompleto } = normalizarTelefonoArgentino(
+        document.getElementById("caracteristica").value,
+        document.getElementById("numeroLocal").value
+      );
+      const telefonoAlternativo = limpiarDigitos(document.getElementById("telefonoAlternativo").value);
+      const nota = document.getElementById("nota").value.trim();
+
+      if (!nombreMascota) {
+        mostrarMsg("Por favor ingresá el nombre de tu mascota.", "err");
+        return;
+      }
+      if (!area || area.length < 2 || !local || local.length < 5) {
+        mostrarMsg("Revisá la característica y el número de teléfono (sin el 15).", "err");
+        return;
+      }
+
+      btnGuardar.disabled = true;
+      btnGuardar.textContent = "Guardando...";
+
+      const esPrimeraActivacion = !(datosChapitaActual?.status === "activada" || datosChapitaActual?.estado === "activada");
+
+      const datosGuardar = {
         status: "activada",
         estado: "activada",
-        nombreMascota: document.getElementById("nombreMascota").value.trim(),
-        raza: document.getElementById("raza").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        nota: document.getElementById("nota").value.trim(),
-        duenoUid: usuarioActual.uid,
-        duenoEmail: usuarioActual.email || "",
-        fechaActivacion: serverTimestamp()
+        nombreMascota,
+        raza,
+        areaCode: area,
+        phoneNumber: local,
+        telefono: telefonoCompleto,
+        telefonoAlternativo,
+        nota,
+        foto: fotoBase64,
+        duenoUid: datosChapitaActual?.duenoUid || usuarioActual.uid,
+        duenoEmail: datosChapitaActual?.duenoEmail || usuarioActual.email || "",
+        actualizadaEn: serverTimestamp()
       };
 
-      try {
-        await updateDoc(doc(db, "chapitasInventario", chapitaId), datosActivacion);
+      if (esPrimeraActivacion) {
+        datosGuardar.fechaActivacion = serverTimestamp();
+      }
 
-        chapitaListaParaActivar = false;
-        vistaRegistro.classList.add("hidden");
-        vistaYaRegistrada.classList.remove("hidden");
-        document.getElementById("resumenPerrito").textContent =
-          `¡Listo! Activaste la chapita ${chapitaId} para ${datosActivacion.nombreMascota} con tu cuenta (${usuarioActual.email}).`;
-        mostrarMsg("Chapita guardada en chapitasInventario.", "ok");
+      try {
+        await updateDoc(doc(db, "chapitasInventario", chapitaId), datosGuardar);
+
+        datosChapitaActual = {
+          ...datosChapitaActual,
+          ...datosGuardar
+        };
+        modoEdicion = false;
+
+        renderizarResumenActivada(datosChapitaActual);
+        mostrarMsg(
+          esPrimeraActivacion
+            ? `¡Listo! Activaste la chapita ${chapitaId} para ${nombreMascota}.`
+            : `¡Listo! Se actualizaron los datos de ${nombreMascota}.`,
+          "ok"
+        );
       } catch (err) {
         console.error(err);
-        mostrarMsg(`Error al guardar: ${err.code || err.message || "revisá permisos"}`, "err");
+        mostrarMsg("No se pudieron guardar los datos. Revisá los permisos de la cuenta en Firestore.", "err");
       } finally {
-        btn.disabled = false;
-        btn.textContent = "Guardar y activar chapita";
+        btnGuardar.disabled = false;
+        btnGuardar.textContent = modoEdicion ? "Guardar cambios" : "Guardar y activar chapita";
       }
     });
 
