@@ -528,3 +528,109 @@
           <div class="photo-upload-box">
             <input id="inputFoto" type="file" accept="image/*" style="width:100%; font-size:0.88rem;" />
             <div class="helper">Se verá bien visible para reconocerla al instante.</div>
+            <img id="previewFoto" class="photo-preview" alt="Vista previa" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="nombreMascota">Nombre de la mascota *</label>
+          <input id="nombreMascota" type="text" required placeholder="Ej: Paco" />
+        </div>
+
+        <div class="form-group">
+          <label for="raza">Raza o descripción física</label>
+          <textarea
+            id="raza"
+            class="textarea-desc"
+            placeholder="Contá con detalle cómo es: raza o cruza, color de pelaje, manchas, porte, si usa collar o chapita..."
+          ></textarea>
+          <div class="helper">Escribí con tranquilidad todo lo que ayude a identificarlo a simple vista.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="edadTamano">Edad o tamaño aproximado (opcional)</label>
+          <input id="edadTamano" type="text" placeholder="Ej: Adulto mediano, unos 4 años / Cachorro chico" />
+        </div>
+
+        <div class="form-group">
+          <label for="senias">Señas o collar (opcional)</label>
+          <input id="senias" type="text" placeholder="Ej: Collar rojo, mancha blanca en el pecho" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono / WhatsApp principal (sin 0 y sin 15) *</label>
+          <div class="phone-row">
+            <input id="areaCode" type="tel" inputmode="numeric" required placeholder="387" value="387" />
+            <input id="phoneNumber" type="tel" inputmode="numeric" required placeholder="5123456 (sin 15)" />
+          </div>
+          <div class="helper">Ej: Característica <strong>387</strong> y número <strong>5123456</strong>.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono alternativo / respaldo (opcional)</label>
+          <div class="phone-row">
+            <input id="areaCodeAlt" type="tel" inputmode="numeric" placeholder="387" />
+            <input id="phoneNumberAlt" type="tel" inputmode="numeric" placeholder="Otro número (sin 15)" />
+          </div>
+          <div class="helper">Por si el número principal no atiende en el momento.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="nota">Características y cuidados importantes</label>
+          <div class="chips">
+            <button type="button" class="chip" data-chip="Es amigable.">Es amigable</button>
+            <button type="button" class="chip" data-chip="Asustadizo/a.">Asustadizo/a</button>
+            <button type="button" class="chip" data-chip="Toma medicación.">Toma medicación</button>
+            <button type="button" class="chip" data-chip="Tiene alergias.">Tiene alergias</button>
+            <button type="button" class="chip" data-chip="Se lleva bien con perros.">Se lleva bien con perros</button>
+            <button type="button" class="chip" data-chip="Se lleva bien con gatos.">Se lleva bien con gatos</button>
+            <button type="button" class="chip" data-chip="Trato calmo / paciente.">Trato calmo / paciente</button>
+            <button type="button" class="chip" data-chip="Castrado/a.">Castrado/a</button>
+            <button type="button" class="chip" data-chip="Chipeado / con carnet.">Chipeado / con carnet</button>
+            <button type="button" class="chip" data-chip="Se escapa fácil.">Se escapa fácil</button>
+          </div>
+          <textarea
+            id="nota"
+            class="textarea-notes"
+            placeholder="Tocá los botones de arriba o escribí acá remedios, horarios, miedos o cómo acercarse..."
+          ></textarea>
+        </div>
+
+        <button id="btnGuardar" type="submit" class="btn btn-primary">
+          Guardar y activar
+        </button>
+
+        <button id="btnCancelarEdicion" type="button" class="btn btn-secondary hidden" style="margin-top:8px;">
+          Cancelar edición
+        </button>
+      </form>
+    </div>
+
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      addDoc,
+      collection,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
+      authDomain: "patitas-seguras-salta.firebaseapp.com",
+      projectId: "patitas-seguras-salta",
+      storageBucket: "patitas-seguras-salta.firebasestorage.app",
+      messagingSenderId: "31
