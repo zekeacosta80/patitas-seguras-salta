@@ -111,6 +111,8 @@
   const genStatus = document.getElementById("gen-status");
   const tagsGrid = document.getElementById("tags-grid");
   const tagsCount = document.getElementById("tags-count");
+  const inpFrom = document.getElementById("inp-from");
+  const inpTo = document.getElementById("inp-to");
 
   function buildTagUrl(code) {
     const base = window.location.href.replace(/generador\.html.*$/i, "index.html");
@@ -128,6 +130,15 @@
       return "disponible";
     }
     return estadoRaw;
+  }
+
+  function actualizarSugerenciaRango(maxNumeroExistente) {
+    const proximoDesde = Math.max(1, maxNumeroExistente + 1);
+    inpFrom.value = String(proximoDesde);
+    const hastaActual = parseInt(inpTo.value, 10);
+    if (isNaN(hastaActual) || hastaActual < proximoDesde) {
+      inpTo.value = String(proximoDesde + 4);
+    }
   }
 
   async function deleteTag(docId, code) {
@@ -202,15 +213,22 @@
   async function loadTags() {
     tagsGrid.innerHTML = "";
     let total = 0;
+    let maxNum = 0;
     try {
       const q = query(collection(db, "chapitasInventario"), orderBy("code", "asc"));
       const snap = await getDocs(q);
       snap.forEach((docSnap) => {
         total += 1;
         const d = docSnap.data();
-        renderTagCard(docSnap.id, d.code || docSnap.id, d.status || d.estado || "disponible");
+        const code = d.code || docSnap.id;
+        const numParsed = parseInt(String(code).replace(/\D+/g, ""), 10);
+        if (!isNaN(numParsed) && numParsed > maxNum) {
+          maxNum = numParsed;
+        }
+        renderTagCard(docSnap.id, code, d.status || d.estado || "disponible");
       });
       tagsCount.textContent = String(total);
+      actualizarSugerenciaRango(maxNum);
     } catch (e) {
       genStatus.textContent = "No se pudo cargar la lista desde Firebase (revisá las reglas de Firestore).";
     }
@@ -245,8 +263,8 @@
   };
 
   document.getElementById("btn-generate").onclick = async () => {
-    const from = parseInt(document.getElementById("inp-from").value, 10);
-    const to = parseInt(document.getElementById("inp-to").value, 10);
+    const from = parseInt(inpFrom.value, 10);
+    const to = parseInt(inpTo.value, 10);
 
     if (isNaN(from) || isNaN(to) || from < 1 || to < from) {
       genStatus.textContent = "Ingresá números desde 1 en adelante (y 'Hasta' mayor o igual que 'Desde').";
@@ -255,8 +273,19 @@
 
     genStatus.textContent = "Generando lote...";
     try {
+      const existentesSnap = await getDocs(collection(db, "chapitasInventario"));
+      const idsExistentes = new Set(existentesSnap.docs.map((d) => d.id));
+
+      let creadas = 0;
+      let yaExistian = 0;
+
       for (let i = from; i <= to; i++) {
         const code = formatCode(i);
+        if (idsExistentes.has(code)) {
+          yaExistian += 1;
+        } else {
+          creadas += 1;
+        }
         await setDoc(doc(db, "chapitasInventario", code), {
           code,
           status: "disponible",
@@ -265,7 +294,9 @@
           createdBy: auth.currentUser?.uid || ""
         }, { merge: true });
       }
-      genStatus.textContent = `Listo: lote del #${formatCode(from)} al #${formatCode(to)} guardado como disponible.`;
+
+      const detalleExistentes = yaExistian > 0 ? ` (${yaExistian} ya existían)` : "";
+      genStatus.textContent = `Listo: ${creadas} chapitas nuevas del #${formatCode(from)} al #${formatCode(to)}${detalleExistentes}.`;
       await loadTags();
     } catch (e) {
       genStatus.textContent = "Error al guardar en Firestore: revisá que tu usuario tenga permiso de escritura.";
