@@ -17,7 +17,6 @@
       --call: #244c6b;
       --call-hover: #1a384f;
       --loc: #7c5821;
-      --loc-hover: #614418;
       --border: #dfe3e8;
       --radius: 16px;
     }
@@ -94,7 +93,6 @@
     .pet-photo-wrap {
       width: 100%;
       background: #e9ecef;
-      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -119,7 +117,6 @@
       color: var(--muted);
       background: #f4f5f7;
       font-size: 0.9rem;
-      gap: 4px;
     }
 
     .rescue-body {
@@ -132,7 +129,6 @@
       margin: 0;
       line-height: 1.15;
       color: var(--text);
-      letter-spacing: -0.01em;
     }
 
     .pet-subtitle {
@@ -198,7 +194,6 @@
       justify-content: center;
       gap: 8px;
       text-decoration: none;
-      letter-spacing: 0.01em;
       transition: transform 0.08s ease, background 0.15s ease, opacity 0.15s ease;
     }
 
@@ -412,7 +407,6 @@
       <p id="errorTexto" style="margin:0; color: var(--muted);">Escaneá el QR o acercá tu celular al chip NFC.</p>
     </div>
 
-    <!-- Vista quien encuentra la mascota -->
     <div id="vistaRescate" class="hidden">
       <div id="barraDueno" class="owner-bar hidden">
         <span>Sesión del titular</span>
@@ -531,4 +525,429 @@
           Guardar y activar
         </button>
 
-        <button id="btnCancelarEdicion" type="button" class="btn btn
+        <button id="btnCancelarEdicion" type="button" class="btn btn-secondary hidden" style="margin-top:8px;">
+          Cancelar edición
+        </button>
+      </form>
+    </div>
+
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      addDoc,
+      collection,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
+      authDomain: "patitas-seguras-salta.firebaseapp.com",
+      projectId: "patitas-seguras-salta",
+      storageBucket: "patitas-seguras-salta.firebasestorage.app",
+      messagingSenderId: "311814224464",
+      appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    const params = new URLSearchParams(window.location.search);
+    const chapitaId = (params.get("id") || params.get("c") || params.get("codigo") || "").trim();
+    const origenEscaneo = (params.get("src") || "directo").trim();
+
+    const barraSuperior = document.getElementById("barraSuperior");
+    const badgeChapita = document.getElementById("badgeChapita");
+    const vistaCargando = document.getElementById("vistaCargando");
+    const vistaError = document.getElementById("vistaError");
+    const vistaRescate = document.getElementById("vistaRescate");
+    const vistaLogin = document.getElementById("vistaLogin");
+    const vistaFormulario = document.getElementById("vistaFormulario");
+    const msg = document.getElementById("msg");
+
+    let usuarioActual = null;
+    let datosActuales = null;
+    let modoEdicion = false;
+    let fotoBase64Actual = "";
+
+    function ocultarVistas() {
+      [vistaCargando, vistaError, vistaRescate, vistaLogin, vistaFormulario].forEach((v) =>
+        v.classList.add("hidden")
+      );
+    }
+
+    function mostrarMsg(texto, tipo = "ok") {
+      msg.textContent = texto;
+      msg.className = `msg ${tipo}`;
+    }
+
+    function limpiarMsg() {
+      msg.className = "msg";
+      msg.textContent = "";
+    }
+
+    function normalizarTelefonoArgentina(areaRaw, numRaw) {
+      let area = (areaRaw || "").replace(/\D+/g, "").replace(/^0+/, "");
+      let num = (numRaw || "").replace(/\D+/g, "");
+      if (num.startsWith("15") && num.length >= 8) {
+        num = num.slice(2);
+      }
+      const completo = `${area}${num}`;
+      return { area, num, completo };
+    }
+
+    function armarLinkWhatsapp(telefonoLimpio, textoMensaje) {
+      if (!telefonoLimpio) return "#";
+      const waNum = telefonoLimpio.startsWith("54") ? telefonoLimpio : `549${telefonoLimpio}`;
+      return `https://wa.me/${waNum}?text=${encodeURIComponent(textoMensaje)}`;
+    }
+
+    function comprimirImagen(file, maxWidth = 850, quality = 0.78) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          };
+          img.onerror = reject;
+          img.src = ev.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function registrarEscaneoSilencioso(id) {
+      const key = `ps_scan_${id}`;
+      if (sessionStorage.getItem(key)) return;
+      try {
+        await addDoc(collection(db, "chapitasEscaneos"), {
+          chapitaId: id,
+          origen: origenEscaneo,
+          fecha: serverTimestamp(),
+          userAgent: navigator.userAgent || ""
+        });
+        sessionStorage.setItem(key, "1");
+      } catch (_) {}
+    }
+
+    function mostrarVistaRescate(data) {
+      ocultarVistas();
+      barraSuperior.classList.add("hidden");
+
+      document.getElementById("rescateNombre").textContent = data.nombreMascota || "Mascota";
+      document.getElementById("rescateRaza").textContent = data.raza || "";
+
+      const imgEl = document.getElementById("rescateFoto");
+      const sinFotoEl = document.getElementById("rescateSinFoto");
+      if (data.foto && data.foto.startsWith("data:image")) {
+        imgEl.src = data.foto;
+        imgEl.classList.remove("hidden");
+        sinFotoEl.classList.add("hidden");
+      } else {
+        imgEl.classList.add("hidden");
+        sinFotoEl.classList.remove("hidden");
+      }
+
+      const cajaNota = document.getElementById("rescateCajaNota");
+      if (data.nota && data.nota.trim()) {
+        document.getElementById("rescateNota").textContent = data.nota.trim();
+        cajaNota.classList.remove("hidden");
+      } else {
+        cajaNota.classList.add("hidden");
+      }
+
+      const telLimpio = (data.telefono || "").replace(/\D+/g, "");
+      const mensajeBase = `Hola, encontré a ${data.nombreMascota || "su mascota"}. ¿Cómo coordinamos para devolverlo?`;
+      document.getElementById("btnWhatsapp").href = armarLinkWhatsapp(telLimpio, mensajeBase);
+      document.getElementById("btnLlamar").href = telLimpio ? `tel:${telLimpio}` : "#";
+
+      const btnLoc = document.getElementById("btnEnviarUbicacion");
+      btnLoc.onclick = () => {
+        if (!navigator.geolocation) {
+          window.open(armarLinkWhatsapp(telLimpio, `${mensajeBase} Estoy en: `), "_blank");
+          return;
+        }
+        btnLoc.disabled = true;
+        btnLoc.textContent = "Obteniendo ubicación...";
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            const mapsUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
+            const msgLoc = `Hola, encontré a ${data.nombreMascota || "su mascota"}. Esta es mi ubicación actual: ${mapsUrl}`;
+            btnLoc.disabled = false;
+            btnLoc.textContent = "Enviar mi ubicación por WhatsApp";
+            window.open(armarLinkWhatsapp(telLimpio, msgLoc), "_blank");
+          },
+          () => {
+            btnLoc.disabled = false;
+            btnLoc.textContent = "Enviar mi ubicación por WhatsApp";
+            alert("No se pudo obtener la ubicación automática. Se abrirá WhatsApp para compartirla manualmente.");
+            window.open(armarLinkWhatsapp(telLimpio, mensajeBase), "_blank");
+          },
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      };
+
+      const telAltLimpio = (data.telefonoAlt || "").replace(/\D+/g, "");
+      const bloqueRespaldo = document.getElementById("bloqueRespaldo");
+      if (telAltLimpio) {
+        document.getElementById("btnWaAlt").href = armarLinkWhatsapp(telAltLimpio, mensajeBase);
+        document.getElementById("btnCallAlt").href = `tel:${telAltLimpio}`;
+        bloqueRespaldo.classList.remove("hidden");
+      } else {
+        bloqueRespaldo.classList.add("hidden");
+      }
+
+      const barraDueno = document.getElementById("barraDueno");
+      if (usuarioActual && data.duenoUid && usuarioActual.uid === data.duenoUid) {
+        barraDueno.classList.remove("hidden");
+      } else {
+        barraDueno.classList.add("hidden");
+      }
+
+      vistaRescate.classList.remove("hidden");
+      registrarEscaneoSilencioso(chapitaId);
+    }
+
+    function abrirFormularioDueno(esEdicion = false) {
+      ocultarVistas();
+      barraSuperior.classList.remove("hidden");
+      modoEdicion = esEdicion;
+      document.getElementById("txtUsuario").textContent = usuarioActual?.email || "Sesión iniciada";
+      document.getElementById("tituloForm").textContent = esEdicion
+        ? `Editar datos de ${datosActuales?.nombreMascota || "tu mascota"}`
+        : "Datos de tu mascota";
+      document.getElementById("btnGuardar").textContent = esEdicion
+        ? "Guardar cambios"
+        : "Guardar y activar";
+
+      const btnCancelar = document.getElementById("btnCancelarEdicion");
+      if (esEdicion) {
+        btnCancelar.classList.remove("hidden");
+        document.getElementById("nombreMascota").value = datosActuales.nombreMascota || "";
+        document.getElementById("raza").value = datosActuales.raza || "";
+        document.getElementById("areaCode").value = datosActuales.areaCode || "387";
+        document.getElementById("phoneNumber").value = datosActuales.phoneNumber || "";
+        document.getElementById("areaCodeAlt").value = datosActuales.areaCodeAlt || "";
+        document.getElementById("phoneNumberAlt").value = datosActuales.phoneNumberAlt || "";
+        document.getElementById("nota").value = datosActuales.nota || "";
+        fotoBase64Actual = datosActuales.foto || "";
+        const prev = document.getElementById("previewFoto");
+        if (fotoBase64Actual) {
+          prev.src = fotoBase64Actual;
+          prev.classList.add("show");
+        } else {
+          prev.classList.remove("show");
+        }
+      } else {
+        btnCancelar.classList.add("hidden");
+      }
+
+      vistaFormulario.classList.remove("hidden");
+    }
+
+    async function verificarChapita() {
+      barraSuperior.classList.remove("hidden");
+      if (!chapitaId) {
+        badgeChapita.textContent = "Sin código";
+        badgeChapita.className = "tag-pill error";
+        ocultarVistas();
+        vistaError.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        const invSnap = await getDoc(doc(db, "chapitasInventario", chapitaId));
+        if (!invSnap.exists()) {
+          badgeChapita.textContent = "No encontrada";
+          badgeChapita.className = "tag-pill error";
+          ocultarVistas();
+          document.getElementById("errorTitulo").textContent = "Código no registrado";
+          document.getElementById("errorTexto").textContent = "Este código no figura en el sistema.";
+          vistaError.classList.remove("hidden");
+          return;
+        }
+
+        datosActuales = invSnap.data();
+        const activada = datosActuales.status === "activada" || datosActuales.estado === "activada";
+
+        if (activada) {
+          mostrarVistaRescate(datosActuales);
+          return;
+        }
+
+        badgeChapita.textContent = "Disponible";
+        badgeChapita.className = "tag-pill virgin";
+        if (usuarioActual) {
+          abrirFormularioDueno(false);
+        } else {
+          ocultarVistas();
+          vistaLogin.classList.remove("hidden");
+        }
+      } catch (e) {
+        console.error(e);
+        badgeChapita.textContent = "Error";
+        badgeChapita.className = "tag-pill error";
+        ocultarVistas();
+        document.getElementById("errorTitulo").textContent = "No se pudo cargar";
+        document.getElementById("errorTexto").textContent = "Revisá tu conexión e intentá nuevamente.";
+        vistaError.classList.remove("hidden");
+      }
+    }
+
+    document.getElementById("btnGoogle").addEventListener("click", async () => {
+      limpiarMsg();
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        mostrarMsg("No se pudo iniciar sesión con Google.", "err");
+      }
+    });
+
+    document.getElementById("btnSalir").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    document.getElementById("btnEditarDueno").addEventListener("click", () => {
+      limpiarMsg();
+      abrirFormularioDueno(true);
+    });
+
+    document.getElementById("btnCancelarEdicion").addEventListener("click", () => {
+      limpiarMsg();
+      if (datosActuales) mostrarVistaRescate(datosActuales);
+    });
+
+    document.querySelectorAll(".chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const notaEl = document.getElementById("nota");
+        const textoChip = chip.getAttribute("data-chip");
+        notaEl.value = notaEl.value.trim()
+          ? `${notaEl.value.trim()} ${textoChip}`
+          : textoChip;
+      });
+    });
+
+    document.getElementById("inputFoto").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        fotoBase64Actual = await comprimirImagen(file, 850, 0.78);
+        const prev = document.getElementById("previewFoto");
+        prev.src = fotoBase64Actual;
+        prev.classList.add("show");
+      } catch (err) {
+        mostrarMsg("No se pudo procesar la foto. Probá con otra imagen.", "err");
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      usuarioActual = user;
+      if (!datosActuales) return;
+      const activada = datosActuales.status === "activada" || datosActuales.estado === "activada";
+      if (activada) {
+        if (!modoEdicion) mostrarVistaRescate(datosActuales);
+      } else {
+        if (user) {
+          abrirFormularioDueno(false);
+        } else {
+          ocultarVistas();
+          barraSuperior.classList.remove("hidden");
+          vistaLogin.classList.remove("hidden");
+        }
+      }
+    });
+
+    document.getElementById("formMascota").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      limpiarMsg();
+      if (!usuarioActual || !chapitaId) return;
+
+      const principal = normalizarTelefonoArgentina(
+        document.getElementById("areaCode").value,
+        document.getElementById("phoneNumber").value
+      );
+
+      if (principal.completo.length < 8) {
+        mostrarMsg("Revisá la característica y el número de teléfono principal.", "err");
+        return;
+      }
+
+      const alt = normalizarTelefonoArgentina(
+        document.getElementById("areaCodeAlt").value,
+        document.getElementById("phoneNumberAlt").value
+      );
+
+      const btn = document.getElementById("btnGuardar");
+      btn.disabled = true;
+      btn.textContent = "Guardando...";
+
+      const payload = {
+        status: "activada",
+        estado: "activada",
+        nombreMascota: document.getElementById("nombreMascota").value.trim(),
+        raza: document.getElementById("raza").value.trim(),
+        areaCode: principal.area,
+        phoneNumber: principal.num,
+        telefono: principal.completo,
+        areaCodeAlt: alt.num ? alt.area : "",
+        phoneNumberAlt: alt.num ? alt.num : "",
+        telefonoAlt: alt.num ? alt.completo : "",
+        nota: document.getElementById("nota").value.trim(),
+        foto: fotoBase64Actual || "",
+        duenoUid: datosActuales?.duenoUid || usuarioActual.uid,
+        duenoEmail: datosActuales?.duenoEmail || usuarioActual.email || "",
+        actualizadaEn: serverTimestamp()
+      };
+
+      if (!modoEdicion) {
+        payload.fechaActivacion = serverTimestamp();
+      }
+
+      try {
+        await updateDoc(doc(db, "chapitasInventario", chapitaId), payload);
+        datosActuales = { ...datosActuales, ...payload };
+        modoEdicion = false;
+        mostrarVistaRescate(datosActuales);
+        mostrarMsg("Datos guardados.", "ok");
+      } catch (err) {
+        console.error(err);
+        mostrarMsg("No se pudo guardar. Revisá tu conexión o permisos.", "err");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Guardar y activar";
+      }
+    });
+
+    verificarChapita();
+  </script>
+</body>
+</html>
