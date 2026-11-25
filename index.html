@@ -86,7 +86,6 @@
       color: #991b1b;
     }
 
-    /* FICHA DE RESCATE (POV QUIEN ENCUENTRA LA MASCOTA) */
     .rescue-card {
       padding: 0;
       overflow: hidden;
@@ -248,7 +247,6 @@
       margin: 0;
     }
 
-    /* BARRA DUEÑO */
     .owner-bar {
       background: #ecfdf5;
       border: 1px solid #a7f3d0;
@@ -267,7 +265,6 @@
       color: #065f46;
     }
 
-    /* FORMULARIO ACTIVACIÓN / EDICIÓN */
     .user-bar {
       display: flex;
       align-items: center;
@@ -393,7 +390,6 @@
 </head>
 <body>
   <div class="app">
-    <!-- Encabezado (se oculta automáticamente en la vista de rescate) -->
     <div id="barraSuperior" class="card" style="padding: 14px 16px;">
       <div class="topbar">
         <h1 class="brand">🐾 Patitas Seguras Salta</h1>
@@ -401,27 +397,23 @@
       </div>
     </div>
 
-    <!-- Vista 1: Cargando -->
     <div id="vistaCargando" class="card">
-      <p style="margin:0; color: var(--muted);">Consultando información de la chapita...</p>
+      <p style="margin:0; color: var(--muted);">Consultando información...</p>
     </div>
 
-    <!-- Vista 2: Sin código o inexistente -->
     <div id="vistaError" class="card hidden">
-      <h2 id="errorTitulo" style="margin:0 0 6px; font-size:1.15rem;">Chapita no disponible</h2>
-      <p id="errorTexto" style="margin:0; color: var(--muted);">Escaneá el QR o acercá tu celular al chip NFC de la chapita.</p>
+      <h2 id="errorTitulo" style="margin:0 0 6px; font-size:1.15rem;">No disponible</h2>
+      <p id="errorTexto" style="margin:0; color: var(--muted);">Escaneá el QR o acercá tu celular al chip NFC.</p>
     </div>
 
-    <!-- Vista 3: POV QUIEN ENCUENTRA LA MASCOTA -->
+    <!-- Vista quien encuentra la mascota -->
     <div id="vistaRescate" class="hidden">
-      <!-- Barra exclusiva si quien mira es el dueño logueado -->
       <div id="barraDueno" class="owner-bar hidden">
         <span>👋 Es tu mascota</span>
         <button id="btnEditarDueno" type="button" class="btn btn-primary btn-mini">Editar datos</button>
       </div>
 
       <div class="card rescue-card">
-        <!-- Solo la foto grande arriba -->
         <div class="pet-photo-wrap">
           <img id="rescateFoto" class="pet-photo-large hidden" alt="Foto de la mascota" />
           <div id="rescateSinFoto" class="pet-photo-placeholder">
@@ -434,13 +426,11 @@
           <h2 id="rescateNombre" class="pet-title">—</h2>
           <div id="rescateRaza" class="pet-subtitle">—</div>
 
-          <!-- Aviso vital / salud / comportamiento -->
           <div id="rescateCajaNota" class="alert-box hidden">
             <div class="alert-box-title">⚠️ Datos importantes para cuidarlo</div>
             <p id="rescateNota" class="alert-box-text">—</p>
           </div>
 
-          <!-- Menú de contacto sin repetir el número en texto -->
           <div class="contact-section">
             <span class="contact-label">Contacto de su familia</span>
 
@@ -456,7 +446,6 @@
               📍 Enviar mi ubicación por WhatsApp
             </button>
 
-            <!-- Botones de contacto alternativo si existe -->
             <div id="bloqueRespaldo" class="backup-actions hidden">
               <a id="btnWaAlt" href="#" target="_blank" rel="noopener" class="btn btn-wa">💬 WhatsApp 2</a>
               <a id="btnCallAlt" href="#" class="btn btn-call">📞 Llamar 2</a>
@@ -466,9 +455,8 @@
       </div>
     </div>
 
-    <!-- Vista 4: Login con Google (solo chapita virgen) -->
     <div id="vistaLogin" class="card hidden">
-      <h2 style="margin:0 0 6px; font-size:1.2rem;">¡Chapita lista para activar!</h2>
+      <h2 style="margin:0 0 6px; font-size:1.2rem;">¡Lista para activar!</h2>
       <p style="margin:0 0 14px; color: var(--muted); font-size:0.95rem;">
         Iniciá sesión con tu cuenta de Google para cargar la foto y los datos de tu mascota.
       </p>
@@ -477,7 +465,6 @@
       </button>
     </div>
 
-    <!-- Vista 5: Formulario Dueño (Activar o Editar) -->
     <div id="vistaFormulario" class="card hidden">
       <div class="user-bar">
         <span id="txtUsuario">—</span>
@@ -491,7 +478,7 @@
           <label for="inputFoto">Foto de tu mascota (recomendado)</label>
           <div class="photo-upload-box">
             <input id="inputFoto" type="file" accept="image/*" style="width:100%; font-size:0.88rem;" />
-            <div class="helper">Se verá bien grande si alguien la encuentra, para que la reconozca al toque.</div>
+            <div class="helper">Se verá bien grande para reconocerla al instante.</div>
             <img id="previewFoto" class="photo-preview" alt="Vista previa" />
           </div>
         </div>
@@ -503,7 +490,7 @@
 
         <div class="form-group">
           <label for="raza">Raza / Tamaño / Color</label>
-          <input id="raza" type="text" placeholder="Ej: Mestizo mediano, marrón claro con collar azul" />
+          <input id="raza" type="text" placeholder="Ej: Mestizo mediano, marrón claro" />
         </div>
 
         <div class="form-group">
@@ -532,11 +519,11 @@
             <button type="button" class="chip" data-chip="Toma medicación diaria.">+ Toma medicación</button>
             <button type="button" class="chip" data-chip="Tiene chip / castrado.">+ Castrado</button>
           </div>
-          <textarea id="nota" placeholder="Ej: Toma medicación, es muy asustadizo, responde a su nombre..."></textarea>
+          <textarea id="nota" placeholder="Ej: Toma medicación, es muy asustadizo..."></textarea>
         </div>
 
         <button id="btnGuardar" type="submit" class="btn btn-primary">
-          Guardar y activar chapita
+          Guardar y activar
         </button>
 
         <button id="btnCancelarEdicion" type="button" class="btn btn-secondary hidden" style="margin-top:8px;">
@@ -677,7 +664,7 @@
       barraSuperior.classList.add("hidden");
 
       document.getElementById("rescateNombre").textContent = data.nombreMascota || "Mascota";
-      document.getElementById("rescateRaza").textContent = data.raza || "Mascota registrada";
+      document.getElementById("rescateRaza").textContent = data.raza || "";
 
       const imgEl = document.getElementById("rescateFoto");
       const sinFotoEl = document.getElementById("rescateSinFoto");
@@ -699,7 +686,7 @@
       }
 
       const telLimpio = (data.telefono || "").replace(/\D+/g, "");
-      const mensajeBase = `¡Hola! Encontré a ${data.nombreMascota || "tu mascota"} (chapita #${chapitaId}). ¿Cómo hacemos para entregártelo?`;
+      const mensajeBase = `¡Hola! Encontré a ${data.nombreMascota || "tu mascota"}. ¿Cómo hacemos para entregártelo?`;
       document.getElementById("btnWhatsapp").href = armarLinkWhatsapp(telLimpio, mensajeBase);
       document.getElementById("btnLlamar").href = telLimpio ? `tel:${telLimpio}` : "#";
 
@@ -715,7 +702,7 @@
           (pos) => {
             const { latitude, longitude } = pos.coords;
             const mapsUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
-            const msgLoc = `¡Hola! Encontré a ${data.nombreMascota || "tu mascota"} (chapita #${chapitaId}). Acá está mi ubicación actual: ${mapsUrl}`;
+            const msgLoc = `¡Hola! Encontré a ${data.nombreMascota || "tu mascota"}. Acá está mi ubicación actual: ${mapsUrl}`;
             btnLoc.disabled = false;
             btnLoc.textContent = "📍 Enviar mi ubicación por WhatsApp";
             window.open(armarLinkWhatsapp(telLimpio, msgLoc), "_blank");
@@ -758,10 +745,10 @@
       document.getElementById("txtUsuario").textContent = usuarioActual?.email || "Sesión iniciada";
       document.getElementById("tituloForm").textContent = esEdicion
         ? `Editar datos de ${datosActuales?.nombreMascota || "tu mascota"}`
-        : "Activá la chapita de tu mascota";
+        : "Datos de tu mascota";
       document.getElementById("btnGuardar").textContent = esEdicion
         ? "Guardar cambios"
-        : "Guardar y activar chapita";
+        : "Guardar y activar";
 
       const btnCancelar = document.getElementById("btnCancelarEdicion");
       if (esEdicion) {
@@ -805,7 +792,7 @@
           badgeChapita.className = "tag-pill error";
           ocultarVistas();
           document.getElementById("errorTitulo").textContent = "Código no registrado";
-          document.getElementById("errorTexto").textContent = `La chapita "${chapitaId}" no figura en el sistema.`;
+          document.getElementById("errorTexto").textContent = "Este código no figura en el sistema.";
           vistaError.classList.remove("hidden");
           return;
         }
@@ -818,7 +805,7 @@
           return;
         }
 
-        badgeChapita.textContent = `Chapita #${chapitaId} · Virgen`;
+        badgeChapita.textContent = "Disponible";
         badgeChapita.className = "tag-pill virgin";
         if (usuarioActual) {
           abrirFormularioDueno(false);
@@ -831,7 +818,7 @@
         badgeChapita.textContent = "Error";
         badgeChapita.className = "tag-pill error";
         ocultarVistas();
-        document.getElementById("errorTitulo").textContent = "No se pudo cargar la chapita";
+        document.getElementById("errorTitulo").textContent = "No se pudo cargar";
         document.getElementById("errorTexto").textContent = "Revisá tu conexión e intentá nuevamente.";
         vistaError.classList.remove("hidden");
       }
@@ -951,16 +938,13 @@
         datosActuales = { ...datosActuales, ...payload };
         modoEdicion = false;
         mostrarVistaRescate(datosActuales);
-        mostrarMsg(
-          modoEdicion ? "¡Datos actualizados!" : `¡Listo! La chapita #${chapitaId} ya está activa para ${payload.nombreMascota}.`,
-          "ok"
-        );
+        mostrarMsg("¡Datos guardados!", "ok");
       } catch (err) {
         console.error(err);
         mostrarMsg("No se pudo guardar. Revisá tu conexión o permisos.", "err");
       } finally {
         btn.disabled = false;
-        btn.textContent = "Guardar y activar chapita";
+        btn.textContent = "Guardar y activar";
       }
     });
 
