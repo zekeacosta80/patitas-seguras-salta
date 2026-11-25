@@ -153,9 +153,15 @@
       border-color: #0f766e;
       box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
     }
-    textarea {
-      min-height: 76px;
+    .textarea-raza {
+      min-height: 105px;
       resize: vertical;
+      line-height: 1.4;
+    }
+    .textarea-nota {
+      min-height: 85px;
+      resize: vertical;
+      line-height: 1.4;
     }
     .tel-grid {
       display: grid;
@@ -165,23 +171,29 @@
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
+      gap: 7px;
+      margin-top: 10px;
     }
     .chip {
       background: #ffffff;
       border: 1px solid #cbd5e1;
       color: #334155;
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      padding: 5px 9px;
+      padding: 6px 10px;
       border-radius: 999px;
       cursor: pointer;
+      transition: all 0.15s ease;
     }
     .chip:hover {
       background: #f0fdfa;
       border-color: #0f766e;
       color: #0f766e;
+    }
+    .chip.selected {
+      background: #0f766e;
+      border-color: #0f766e;
+      color: #ffffff;
     }
     .foto-wrap {
       display: flex;
@@ -286,6 +298,7 @@
       font-size: 0.88rem;
       color: #334155;
       margin: 4px 0;
+      white-space: pre-line;
     }
     .msg {
       margin-top: 14px;
@@ -362,7 +375,12 @@
           <input id="nombreMascota" type="text" required maxlength="60" placeholder="Ej: Paco" />
 
           <label for="raza">Raza o descripción física</label>
-          <input id="raza" type="text" maxlength="100" placeholder="Ej: Mestizo mediano, negro con pecho blanco" />
+          <textarea
+            id="raza"
+            class="textarea-raza"
+            maxlength="300"
+            placeholder="Contanos su raza, color, tamaño, manchas, si usa collar o cualquier detalle que ayude a identificarlo..."
+          ></textarea>
         </div>
 
         <div class="seccion-box">
@@ -385,15 +403,29 @@
         </div>
 
         <div class="seccion-box">
-          <p class="seccion-titulo">Cuidados o avisos importantes</p>
-          <textarea id="nota" maxlength="400" placeholder="Ej: Toma medicación diaria, se asusta con ruidos fuertes..."></textarea>
+          <p class="seccion-titulo">Características, cuidados o avisos</p>
+          <p class="ayuda">Tocá los botones que correspondan para sumarlos rápido y escribí lo que quieras abajo.</p>
 
-          <div class="chips" aria-label="Sugerencias rápidas">
-            <button type="button" class="chip" data-chip="Toma medicación.">+ Toma medicación</button>
-            <button type="button" class="chip" data-chip="Es asustadizo/a, acercarse con calma.">+ Asustadizo/a</button>
-            <button type="button" class="chip" data-chip="Tiene alergias alimentarias.">+ Alergias</button>
-            <button type="button" class="chip" data-chip="Amigable con personas y otros animales.">+ Muy amigable</button>
+          <div class="chips" aria-label="Características rápidas">
+            <button type="button" class="chip" data-chip="Es amigable.">Es amigable</button>
+            <button type="button" class="chip" data-chip="Asustadizo/a, acercarse con calma.">Asustadizo/a</button>
+            <button type="button" class="chip" data-chip="Toma medicación.">Toma medicación</button>
+            <button type="button" class="chip" data-chip="Tiene alergias.">Tiene alergias</button>
+            <button type="button" class="chip" data-chip="Se lleva bien con perros.">Se lleva bien con perros</button>
+            <button type="button" class="chip" data-chip="Se lleva bien con gatos.">Se lleva bien con gatos</button>
+            <button type="button" class="chip" data-chip="Trato calmo y paciente.">Trato calmo</button>
+            <button type="button" class="chip" data-chip="Castrado/a.">Castrado/a</button>
+            <button type="button" class="chip" data-chip="Chipeado/a.">Chipeado/a</button>
+            <button type="button" class="chip" data-chip="Se escapa fácil.">Se escapa fácil</button>
           </div>
+
+          <label for="nota">Detalle o aviso adicional</label>
+          <textarea
+            id="nota"
+            class="textarea-nota"
+            maxlength="400"
+            placeholder="Ej: Si lo encontrás, avisar por WhatsApp; necesita su pastilla a la noche..."
+          ></textarea>
         </div>
 
         <button id="btnGuardar" class="btn-principal" type="submit">Guardar y activar chapita</button>
@@ -477,6 +509,7 @@
     const btnQuitarFoto = document.getElementById("btnQuitarFoto");
     const btnGuardar = document.getElementById("btnGuardar");
     const btnEditarDatos = document.getElementById("btnEditarDatos");
+    const notaEl = document.getElementById("nota");
 
     let usuarioActual = null;
     let datosChapitaActual = null;
@@ -491,6 +524,18 @@
     function limpiarMsg() {
       msg.textContent = "";
       msg.className = "msg";
+    }
+
+    function sincronizarChipsConNota() {
+      const textoNota = notaEl.value;
+      document.querySelectorAll(".chip").forEach((chipBtn) => {
+        const textoChip = chipBtn.getAttribute("data-chip") || "";
+        if (textoChip && textoNota.includes(textoChip)) {
+          chipBtn.classList.add("selected");
+        } else {
+          chipBtn.classList.remove("selected");
+        }
+      });
     }
 
     function actualizarFotoFormulario(dataUrl) {
@@ -516,7 +561,6 @@
       let area = limpiarDigitos(areaRaw).replace(/^0+/, "");
       let local = limpiarDigitos(localRaw);
 
-      // Si el usuario escribió un "15" pegado al inicio del número local (ej: 15447953 -> 447953)
       if (local.length > 7 && local.startsWith("15")) {
         local = local.slice(2);
       }
@@ -549,7 +593,8 @@
       document.getElementById("caracteristica").value = data?.areaCode || "";
       document.getElementById("numeroLocal").value = data?.phoneNumber || data?.telefono || "";
       document.getElementById("telefonoAlternativo").value = data?.telefonoAlternativo || "";
-      document.getElementById("nota").value = data?.nota || "";
+      notaEl.value = data?.nota || "";
+      sincronizarChipsConNota();
       actualizarFotoFormulario(data?.foto || "");
       btnGuardar.textContent = modoEdicion ? "Guardar cambios" : "Guardar y activar chapita";
     }
@@ -571,7 +616,7 @@
       }
 
       document.getElementById("resumenNombre").textContent = data.nombreMascota || "Mascota registrada";
-      document.getElementById("resumenRaza").textContent = data.raza ? `Raza / descripción: ${data.raza}` : "";
+      document.getElementById("resumenRaza").textContent = data.raza ? `Descripción: ${data.raza}` : "";
 
       const telMostrar = data.areaCode && data.phoneNumber
         ? `(${data.areaCode}) ${data.phoneNumber}`
@@ -581,8 +626,8 @@
       const telAltEl = document.getElementById("resumenTelAlt");
       telAltEl.textContent = data.telefonoAlternativo ? `Contacto alternativo: ${data.telefonoAlternativo}` : "";
 
-      const notaEl = document.getElementById("resumenNota");
-      notaEl.textContent = data.nota ? `Aviso: ${data.nota}` : "";
+      const notaResumenEl = document.getElementById("resumenNota");
+      notaResumenEl.textContent = data.nota ? `Características y avisos: ${data.nota}` : "";
 
       const accionesDueno = document.getElementById("accionesDueno");
       const esDueno = Boolean(usuarioActual && data.duenoUid && usuarioActual.uid === data.duenoUid);
@@ -598,7 +643,6 @@
       if (!chapitaId || !datosChapitaActual) return;
 
       const estaActivada = datosChapitaActual.status === "activada" || datosChapitaActual.estado === "activada";
-      const esDueno = Boolean(usuarioActual && datosChapitaActual.duenoUid && usuarioActual.uid === datosChapitaActual.duenoUid);
 
       if (estaActivada && !modoEdicion) {
         renderizarResumenActivada(datosChapitaActual);
@@ -638,7 +682,7 @@
 
         if (!invSnap.exists()) {
           subtextoHeader.textContent = "Código no encontrado.";
-          mostrarMsg(`La chapita "${chapitaId}" no figura registrada en el inventario.`, "err");
+          mostrarMsg("No se encontró esta chapita en el sistema.", "err");
           return;
         }
 
@@ -652,7 +696,6 @@
       }
     }
 
-    // Comprimir imagen a JPEG liviano en el navegador
     function comprimirImagen(file, maxAncho = 600, calidad = 0.75) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -703,16 +746,25 @@
 
     document.querySelectorAll(".chip").forEach((chipBtn) => {
       chipBtn.addEventListener("click", () => {
-        const textoChip = chipBtn.getAttribute("data-chip") || "";
-        const notaEl = document.getElementById("nota");
+        const textoChip = (chipBtn.getAttribute("data-chip") || "").trim();
+        if (!textoChip) return;
+
         const actual = notaEl.value.trim();
-        if (!actual) {
-          notaEl.value = textoChip;
-        } else if (!actual.includes(textoChip)) {
-          notaEl.value = `${actual} ${textoChip}`;
+        if (actual.includes(textoChip)) {
+          // Si ya estaba agregado, lo quita al volver a tocarlo
+          const limpiado = actual
+            .replace(textoChip, "")
+            .replace(/\s{2,}/g, " ")
+            .trim();
+          notaEl.value = limpiado;
+        } else {
+          notaEl.value = actual ? `${actual} ${textoChip}` : textoChip;
         }
+        sincronizarChipsConNota();
       });
     });
+
+    notaEl.addEventListener("input", sincronizarChipsConNota);
 
     btnEditarDatos.addEventListener("click", () => {
       limpiarMsg();
@@ -754,7 +806,7 @@
         document.getElementById("numeroLocal").value
       );
       const telefonoAlternativo = limpiarDigitos(document.getElementById("telefonoAlternativo").value);
-      const nota = document.getElementById("nota").value.trim();
+      const nota = notaEl.value.trim();
 
       if (!nombreMascota) {
         mostrarMsg("Por favor ingresá el nombre de tu mascota.", "err");
@@ -802,13 +854,13 @@
         renderizarResumenActivada(datosChapitaActual);
         mostrarMsg(
           esPrimeraActivacion
-            ? `¡Listo! Activaste la chapita ${chapitaId} para ${nombreMascota}.`
-            : `¡Listo! Se actualizaron los datos de ${nombreMascota}.`,
+            ? `Listo, activaste la chapita para ${nombreMascota}.`
+            : `Listo, se actualizaron los datos para ${nombreMascota}.`,
           "ok"
         );
       } catch (err) {
         console.error(err);
-        mostrarMsg("No se pudieron guardar los datos. Revisá los permisos de la cuenta en Firestore.", "err");
+        mostrarMsg("No se pudieron guardar los datos. Revisá los permisos de la cuenta.", "err");
       } finally {
         btnGuardar.disabled = false;
         btnGuardar.textContent = modoEdicion ? "Guardar cambios" : "Guardar y activar chapita";
