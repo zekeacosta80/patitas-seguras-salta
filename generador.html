@@ -8,11 +8,11 @@
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { margin: 0; background: #f3f4f6; color: #111827; padding: 16px; }
-    .container { max-width: 740px; margin: 0 auto; }
+    .container { max-width: 760px; margin: 0 auto; }
     .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); margin-bottom: 16px; }
     h1 { margin: 0 0 6px; font-size: 22px; }
     p.sub { margin: 0 0 16px; color: #6b7280; font-size: 14px; }
-    .field { margin-bottom: 14px; max-width: 240px; }
+    .field { margin-bottom: 14px; max-width: 260px; }
     label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
     input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
     button { border: none; border-radius: 10px; padding: 11px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
@@ -22,8 +22,9 @@
     .btn-dl { background: #16a34a; color: #fff; }
     .btn-danger { background: #dc2626; color: #fff; }
     .status { font-size: 13px; color: #374151; margin-top: 10px; min-height: 18px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
     .tag-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; text-align: center; background: #fafafa; }
+    .qr-index { display: inline-block; background: #111827; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; margin-bottom: 6px; }
     .tag-num { font-weight: 800; font-size: 15px; margin-bottom: 8px; }
     .qr-box { display: flex; justify-content: center; margin: 8px auto; min-height: 128px; }
     .tag-url { font-size: 11px; color: #6b7280; word-break: break-all; margin: 6px 0 10px; }
@@ -49,25 +50,25 @@
       <div class="top-bar">
         <div>
           <h1>Generador de IDs Aleatorios</h1>
-          <p class="sub" style="margin:0;">Crea códigos alfanuméricos no secuenciales en <strong>chapitasInventario</strong>.</p>
+          <p class="sub" style="margin:0;">Numeración interna visible (QR #1, #2...) con ID aleatorio en el enlace.</p>
         </div>
         <button id="btn-logout" class="btn-small">Cerrar sesión</button>
       </div>
 
       <div class="field">
-        <label for="inp-qty">Cantidad de IDs de prueba (ej. 3)</label>
-        <input id="inp-qty" type="number" min="1" max="100" step="1" value="3" />
+        <label for="inp-qty">Cantidad de QR a generar</label>
+        <input id="inp-qty" type="number" min="1" max="200" step="1" value="3" />
       </div>
 
-      <button id="btn-generate" class="btn-primary">Generar IDs aleatorios (disponible)</button>
+      <button id="btn-generate" class="btn-primary">Generar QR con ID aleatorio (disponible)</button>
       <div id="gen-status" class="status"></div>
     </div>
 
     <div class="card">
       <div class="top-bar">
-        <h2 style="margin:0; font-size:18px;">Chapitas generadas (<span id="tags-count">0</span>)</h2>
+        <h2 style="margin:0; font-size:18px;">QR generados (<span id="tags-count">0</span>)</h2>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="btn-delete-all" class="btn-small btn-danger">Borrar todas las de prueba</button>
+          <button id="btn-delete-all" class="btn-small btn-danger">Borrar todos</button>
           <button id="btn-refresh" class="btn-small">Actualizar lista</button>
         </div>
       </div>
@@ -153,15 +154,19 @@
     }
   }
 
-  function renderTagCard(docId, code, estado = "disponible") {
+  function renderTagCard(qrNumber, docId, code, estado = "disponible") {
     const estadoVisible = formatearEstadoVisible(estado);
     const url = buildTagUrl(code);
     const card = document.createElement("div");
     card.className = "tag-card";
 
+    const indexBadge = document.createElement("div");
+    indexBadge.className = "qr-index";
+    indexBadge.textContent = `QR #${qrNumber}`;
+
     const numEl = document.createElement("div");
     numEl.className = "tag-num";
-    numEl.textContent = `${code} (${estadoVisible})`;
+    numEl.textContent = `ID ${code} (${estadoVisible})`;
 
     const qrDiv = document.createElement("div");
     qrDiv.className = "qr-box";
@@ -198,7 +203,7 @@
       if (!href) return;
       const a = document.createElement("a");
       a.href = href;
-      a.download = `chapita-${code}.png`;
+      a.download = `qr-${qrNumber}-${code}.png`;
       a.click();
     };
 
@@ -208,7 +213,7 @@
     btnDel.onclick = () => deleteTag(docId, code);
 
     actions.append(btnCopy, btnDl, btnDel);
-    card.append(numEl, qrDiv, urlEl, actions);
+    card.append(indexBadge, numEl, qrDiv, urlEl, actions);
     tagsGrid.appendChild(card);
   }
 
@@ -228,9 +233,10 @@
         });
       });
       docs.sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
-      for (const item of docs) {
+      for (let i = 0; i < docs.length; i++) {
+        const item = docs[i];
         total += 1;
-        renderTagCard(item.id, item.code, item.estado);
+        renderTagCard(i + 1, item.id, item.code, item.estado);
       }
       tagsCount.textContent = String(total);
     } catch (e) {
@@ -251,7 +257,7 @@
   document.getElementById("btn-refresh").onclick = loadTags;
 
   document.getElementById("btn-delete-all").onclick = async () => {
-    genStatus.textContent = "Borrando chapitas de prueba...";
+    genStatus.textContent = "Borrando chapitas...";
     try {
       const snap = await getDocs(collection(db, "chapitasInventario"));
       let borradas = 0;
@@ -259,7 +265,7 @@
         await deleteDoc(doc(db, "chapitasInventario", docSnap.id));
         borradas += 1;
       }
-      genStatus.textContent = `Listo: se borraron ${borradas} chapitas de prueba.`;
+      genStatus.textContent = `Listo: se borraron ${borradas} chapitas.`;
       await loadTags();
     } catch (e) {
       genStatus.textContent = "Error al borrar en Firestore: revisá que tu usuario tenga permiso de borrado.";
@@ -268,12 +274,12 @@
 
   document.getElementById("btn-generate").onclick = async () => {
     const qty = parseInt(document.getElementById("inp-qty").value, 10);
-    if (isNaN(qty) || qty < 1 || qty > 100) {
-      genStatus.textContent = "Ingresá una cantidad entre 1 y 100 para probar.";
+    if (isNaN(qty) || qty < 1 || qty > 200) {
+      genStatus.textContent = "Ingresá una cantidad entre 1 y 200.";
       return;
     }
 
-    genStatus.textContent = `Generando ${qty} IDs aleatorios...`;
+    genStatus.textContent = `Generando ${qty} QR con ID aleatorio...`;
     try {
       const usedInBatch = new Set();
       const createdIds = [];
@@ -288,7 +294,7 @@
         });
         createdIds.push(code);
       }
-      genStatus.textContent = `Listo: creados ${createdIds.length} IDs (${createdIds.join(", ")}).`;
+      genStatus.textContent = `Listo: se generaron ${createdIds.length} QR (${createdIds.join(", ")}).`;
       await loadTags();
     } catch (e) {
       genStatus.textContent = "Error al guardar en Firestore: revisá que tu usuario tenga permiso de escritura.";
