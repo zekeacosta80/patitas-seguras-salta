@@ -8,12 +8,11 @@
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { margin: 0; background: #f3f4f6; color: #111827; padding: 16px; }
-    .container { max-width: 720px; margin: 0 auto; }
+    .container { max-width: 740px; margin: 0 auto; }
     .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); margin-bottom: 16px; }
     h1 { margin: 0 0 6px; font-size: 22px; }
     p.sub { margin: 0 0 16px; color: #6b7280; font-size: 14px; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .field { flex: 1; min-width: 140px; margin-bottom: 12px; }
+    .field { margin-bottom: 14px; max-width: 240px; }
     label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
     input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
     button { border: none; border-radius: 10px; padding: 11px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
@@ -23,9 +22,9 @@
     .btn-dl { background: #16a34a; color: #fff; }
     .btn-danger { background: #dc2626; color: #fff; }
     .status { font-size: 13px; color: #374151; margin-top: 10px; min-height: 18px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
     .tag-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; text-align: center; background: #fafafa; }
-    .tag-num { font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+    .tag-num { font-weight: 800; font-size: 15px; margin-bottom: 8px; }
     .qr-box { display: flex; justify-content: center; margin: 8px auto; min-height: 128px; }
     .tag-url { font-size: 11px; color: #6b7280; word-break: break-all; margin: 6px 0 10px; }
     .actions { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
@@ -39,7 +38,7 @@
   <!-- LOGIN -->
   <div id="auth-box" class="card" style="text-align:center;">
     <h1>Generador de QR — Chapitas</h1>
-    <p class="sub">Iniciá sesión con tu cuenta de Google para crear y probar chapitas.</p>
+    <p class="sub">Iniciá sesión con tu cuenta de Google para crear y probar chapitas con ID aleatorio.</p>
     <button id="btn-google-login" class="btn-google">Ingresar con Google</button>
     <div id="auth-status" class="status"></div>
   </div>
@@ -49,24 +48,18 @@
     <div class="card">
       <div class="top-bar">
         <div>
-          <h1>Generador de Lotes de Prueba</h1>
-          <p class="sub" style="margin:0;">Numeración desde 1 (sin máximo fijo) en formato de 3 dígitos (001, 002...).</p>
+          <h1>Generador de IDs Aleatorios</h1>
+          <p class="sub" style="margin:0;">Crea códigos alfanuméricos no secuenciales en <strong>chapitasInventario</strong>.</p>
         </div>
         <button id="btn-logout" class="btn-small">Cerrar sesión</button>
       </div>
 
-      <div class="row">
-        <div class="field">
-          <label for="inp-from">Desde número (mínimo 1)</label>
-          <input id="inp-from" type="number" min="1" step="1" value="1" />
-        </div>
-        <div class="field">
-          <label for="inp-to">Hasta número (sin tope fijo)</label>
-          <input id="inp-to" type="number" min="1" step="1" value="10" />
-        </div>
+      <div class="field">
+        <label for="inp-qty">Cantidad de IDs de prueba (ej. 3)</label>
+        <input id="inp-qty" type="number" min="1" max="100" step="1" value="3" />
       </div>
 
-      <button id="btn-generate" class="btn-primary">Generar lote y guardar como disponible</button>
+      <button id="btn-generate" class="btn-primary">Generar IDs aleatorios (disponible)</button>
       <div id="gen-status" class="status"></div>
     </div>
 
@@ -86,7 +79,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, setDoc, deleteDoc, getDocs, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -103,7 +96,8 @@
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
-  const DIGITS_PREDETERMINADOS = 3;
+  const ID_LENGTH = 6;
+  const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
   const authBox = document.getElementById("auth-box");
   const panelBox = document.getElementById("panel-box");
@@ -111,8 +105,6 @@
   const genStatus = document.getElementById("gen-status");
   const tagsGrid = document.getElementById("tags-grid");
   const tagsCount = document.getElementById("tags-count");
-  const inpFrom = document.getElementById("inp-from");
-  const inpTo = document.getElementById("inp-to");
 
   function buildTagUrl(code) {
     const base = window.location.href.replace(/generador\.html.*$/i, "index.html");
@@ -120,8 +112,27 @@
     return `${cleanBase}?id=${encodeURIComponent(code)}`;
   }
 
-  function formatCode(num) {
-    return String(num).padStart(DIGITS_PREDETERMINADOS, "0");
+  function generateCandidateId(length = ID_LENGTH) {
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    let out = "";
+    for (let i = 0; i < length; i++) {
+      out += ALPHABET[bytes[i] % ALPHABET.length];
+    }
+    return out;
+  }
+
+  async function generateUniqueId(usedInBatch) {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const candidate = generateCandidateId(ID_LENGTH);
+      if (usedInBatch.has(candidate)) continue;
+      const snap = await getDoc(doc(db, "chapitasInventario", candidate));
+      if (!snap.exists()) {
+        usedInBatch.add(candidate);
+        return candidate;
+      }
+    }
+    throw new Error("No se pudo generar un ID único tras varios intentos.");
   }
 
   function formatearEstadoVisible(estadoRaw) {
@@ -132,22 +143,13 @@
     return estadoRaw;
   }
 
-  function actualizarSugerenciaRango(maxNumeroExistente) {
-    const proximoDesde = Math.max(1, maxNumeroExistente + 1);
-    inpFrom.value = String(proximoDesde);
-    const hastaActual = parseInt(inpTo.value, 10);
-    if (isNaN(hastaActual) || hastaActual < proximoDesde) {
-      inpTo.value = String(proximoDesde + 4);
-    }
-  }
-
   async function deleteTag(docId, code) {
     try {
       await deleteDoc(doc(db, "chapitasInventario", docId));
-      genStatus.textContent = `Chapita #${code} borrada.`;
+      genStatus.textContent = `Chapita ${code} borrada.`;
       await loadTags();
     } catch (e) {
-      genStatus.textContent = `No se pudo borrar #${code}: revisá permisos en Firestore.`;
+      genStatus.textContent = `No se pudo borrar ${code}: revisá permisos en Firestore.`;
     }
   }
 
@@ -159,7 +161,7 @@
 
     const numEl = document.createElement("div");
     numEl.className = "tag-num";
-    numEl.textContent = `#${code} (${estadoVisible})`;
+    numEl.textContent = `${code} (${estadoVisible})`;
 
     const qrDiv = document.createElement("div");
     qrDiv.className = "qr-box";
@@ -213,22 +215,24 @@
   async function loadTags() {
     tagsGrid.innerHTML = "";
     let total = 0;
-    let maxNum = 0;
     try {
-      const q = query(collection(db, "chapitasInventario"), orderBy("code", "asc"));
-      const snap = await getDocs(q);
+      const snap = await getDocs(collection(db, "chapitasInventario"));
+      const docs = [];
       snap.forEach((docSnap) => {
-        total += 1;
         const d = docSnap.data();
-        const code = d.code || docSnap.id;
-        const numParsed = parseInt(String(code).replace(/\D+/g, ""), 10);
-        if (!isNaN(numParsed) && numParsed > maxNum) {
-          maxNum = numParsed;
-        }
-        renderTagCard(docSnap.id, code, d.status || d.estado || "disponible");
+        docs.push({
+          id: docSnap.id,
+          code: d.code || docSnap.id,
+          estado: d.status || d.estado || "disponible",
+          createdAt: d.createdAt || ""
+        });
       });
+      docs.sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+      for (const item of docs) {
+        total += 1;
+        renderTagCard(item.id, item.code, item.estado);
+      }
       tagsCount.textContent = String(total);
-      actualizarSugerenciaRango(maxNum);
     } catch (e) {
       genStatus.textContent = "No se pudo cargar la lista desde Firebase (revisá las reglas de Firestore).";
     }
@@ -263,40 +267,28 @@
   };
 
   document.getElementById("btn-generate").onclick = async () => {
-    const from = parseInt(inpFrom.value, 10);
-    const to = parseInt(inpTo.value, 10);
-
-    if (isNaN(from) || isNaN(to) || from < 1 || to < from) {
-      genStatus.textContent = "Ingresá números desde 1 en adelante (y 'Hasta' mayor o igual que 'Desde').";
+    const qty = parseInt(document.getElementById("inp-qty").value, 10);
+    if (isNaN(qty) || qty < 1 || qty > 100) {
+      genStatus.textContent = "Ingresá una cantidad entre 1 y 100 para probar.";
       return;
     }
 
-    genStatus.textContent = "Generando lote...";
+    genStatus.textContent = `Generando ${qty} IDs aleatorios...`;
     try {
-      const existentesSnap = await getDocs(collection(db, "chapitasInventario"));
-      const idsExistentes = new Set(existentesSnap.docs.map((d) => d.id));
-
-      let creadas = 0;
-      let yaExistian = 0;
-
-      for (let i = from; i <= to; i++) {
-        const code = formatCode(i);
-        if (idsExistentes.has(code)) {
-          yaExistian += 1;
-        } else {
-          creadas += 1;
-        }
+      const usedInBatch = new Set();
+      const createdIds = [];
+      for (let i = 0; i < qty; i++) {
+        const code = await generateUniqueId(usedInBatch);
         await setDoc(doc(db, "chapitasInventario", code), {
           code,
           status: "disponible",
           estado: "disponible",
           createdAt: new Date().toISOString(),
           createdBy: auth.currentUser?.uid || ""
-        }, { merge: true });
+        });
+        createdIds.push(code);
       }
-
-      const detalleExistentes = yaExistian > 0 ? ` (${yaExistian} ya existían)` : "";
-      genStatus.textContent = `Listo: ${creadas} chapitas nuevas del #${formatCode(from)} al #${formatCode(to)}${detalleExistentes}.`;
+      genStatus.textContent = `Listo: creados ${createdIds.length} IDs (${createdIds.join(", ")}).`;
       await loadTags();
     } catch (e) {
       genStatus.textContent = "Error al guardar en Firestore: revisá que tu usuario tenga permiso de escritura.";
