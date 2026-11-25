@@ -8,12 +8,12 @@
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body { margin: 0; background: #f3f4f6; color: #111827; padding: 16px; }
-    .container { max-width: 680px; margin: 0 auto; }
+    .container { max-width: 720px; margin: 0 auto; }
     .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); margin-bottom: 16px; }
     h1 { margin: 0 0 6px; font-size: 22px; }
     p.sub { margin: 0 0 16px; color: #6b7280; font-size: 14px; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .field { flex: 1; min-width: 120px; margin-bottom: 12px; }
+    .field { flex: 1; min-width: 140px; margin-bottom: 12px; }
     label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
     input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
     button { border: none; border-radius: 10px; padding: 11px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
@@ -21,8 +21,9 @@
     .btn-google { background: #111827; color: #fff; width: 100%; }
     .btn-small { padding: 7px 10px; font-size: 12px; background: #e5e7eb; color: #111827; }
     .btn-dl { background: #16a34a; color: #fff; }
+    .btn-danger { background: #dc2626; color: #fff; }
     .status { font-size: 13px; color: #374151; margin-top: 10px; min-height: 18px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
     .tag-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; text-align: center; background: #fafafa; }
     .tag-num { font-weight: 800; font-size: 16px; margin-bottom: 8px; }
     .qr-box { display: flex; justify-content: center; margin: 8px auto; min-height: 128px; }
@@ -38,7 +39,7 @@
   <!-- LOGIN -->
   <div id="auth-box" class="card" style="text-align:center;">
     <h1>Generador de QR — Chapitas</h1>
-    <p class="sub">Iniciá sesión con tu cuenta de Google para crear y administrar lotes vírgenes.</p>
+    <p class="sub">Iniciá sesión con tu cuenta de Google para crear y probar chapitas.</p>
     <button id="btn-google-login" class="btn-google">Ingresar con Google</button>
     <div id="auth-status" class="status"></div>
   </div>
@@ -48,24 +49,20 @@
     <div class="card">
       <div class="top-bar">
         <div>
-          <h1>Generador de Lotes Vírgenes</h1>
-          <p class="sub" style="margin:0;">Creá códigos numerados (ej. del 1 al 10) para imprimir QR y grabar NFC.</p>
+          <h1>Generador de Lotes de Prueba</h1>
+          <p class="sub" style="margin:0;">Numeración desde 1 (sin máximo fijo) en formato de 3 dígitos (001, 002...).</p>
         </div>
         <button id="btn-logout" class="btn-small">Cerrar sesión</button>
       </div>
 
       <div class="row">
         <div class="field">
-          <label for="inp-from">Desde número</label>
-          <input id="inp-from" type="number" min="1" value="1" />
+          <label for="inp-from">Desde número (mínimo 1)</label>
+          <input id="inp-from" type="number" min="1" step="1" value="1" />
         </div>
         <div class="field">
-          <label for="inp-to">Hasta número</label>
-          <input id="inp-to" type="number" min="1" value="10" />
-        </div>
-        <div class="field">
-          <label for="inp-digits">Dígitos (ej. 3 = 001)</label>
-          <input id="inp-digits" type="number" min="1" max="6" value="3" />
+          <label for="inp-to">Hasta número (sin tope fijo)</label>
+          <input id="inp-to" type="number" min="1" step="1" value="10" />
         </div>
       </div>
 
@@ -75,8 +72,11 @@
 
     <div class="card">
       <div class="top-bar">
-        <h2 style="margin:0; font-size:18px;">Chapitas generadas</h2>
-        <button id="btn-refresh" class="btn-small">Actualizar lista</button>
+        <h2 style="margin:0; font-size:18px;">Chapitas generadas (<span id="tags-count">0</span>)</h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="btn-delete-all" class="btn-small btn-danger">Borrar todas las de prueba</button>
+          <button id="btn-refresh" class="btn-small">Actualizar lista</button>
+        </div>
       </div>
       <div id="tags-grid" class="grid"></div>
     </div>
@@ -86,7 +86,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, deleteDoc, getDocs, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -103,24 +103,36 @@
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
+  const DIGITS_PREDETERMINADOS = 3;
+
   const authBox = document.getElementById("auth-box");
   const panelBox = document.getElementById("panel-box");
   const authStatus = document.getElementById("auth-status");
   const genStatus = document.getElementById("gen-status");
   const tagsGrid = document.getElementById("tags-grid");
+  const tagsCount = document.getElementById("tags-count");
 
-  // Apunta a tu index.html de la ficha con ?id=XXX
   function buildTagUrl(code) {
     const base = window.location.href.replace(/generador\.html.*$/i, "index.html");
     const cleanBase = base.endsWith("/") ? base + "index.html" : base;
     return `${cleanBase}?id=${encodeURIComponent(code)}`;
   }
 
-  function formatCode(num, digits) {
-    return String(num).padStart(digits, "0");
+  function formatCode(num) {
+    return String(num).padStart(DIGITS_PREDETERMINADOS, "0");
   }
 
-  function renderTagCard(code, estado = "virgen") {
+  async function deleteTag(docId, code) {
+    try {
+      await deleteDoc(doc(db, "chapitasInventario", docId));
+      genStatus.textContent = `Chapita #${code} borrada.`;
+      await loadTags();
+    } catch (e) {
+      genStatus.textContent = `No se pudo borrar #${code}: revisá permisos en Firestore.`;
+    }
+  }
+
+  function renderTagCard(docId, code, estado = "virgen") {
     const url = buildTagUrl(code);
     const card = document.createElement("div");
     card.className = "tag-card";
@@ -168,20 +180,28 @@
       a.click();
     };
 
-    actions.append(btnCopy, btnDl);
+    const btnDel = document.createElement("button");
+    btnDel.className = "btn-small btn-danger";
+    btnDel.textContent = "Borrar";
+    btnDel.onclick = () => deleteTag(docId, code);
+
+    actions.append(btnCopy, btnDl, btnDel);
     card.append(numEl, qrDiv, urlEl, actions);
     tagsGrid.appendChild(card);
   }
 
   async function loadTags() {
     tagsGrid.innerHTML = "";
+    let total = 0;
     try {
       const q = query(collection(db, "chapitasInventario"), orderBy("code", "asc"));
       const snap = await getDocs(q);
       snap.forEach((docSnap) => {
+        total += 1;
         const d = docSnap.data();
-        renderTagCard(d.code || docSnap.id, d.status || "virgen");
+        renderTagCard(docSnap.id, d.code || docSnap.id, d.status || "virgen");
       });
+      tagsCount.textContent = String(total);
     } catch (e) {
       genStatus.textContent = "No se pudo cargar la lista desde Firebase (revisá las reglas de Firestore).";
     }
@@ -199,20 +219,35 @@
   document.getElementById("btn-logout").onclick = () => signOut(auth);
   document.getElementById("btn-refresh").onclick = loadTags;
 
+  document.getElementById("btn-delete-all").onclick = async () => {
+    genStatus.textContent = "Borrando chapitas de prueba...";
+    try {
+      const snap = await getDocs(collection(db, "chapitasInventario"));
+      let borradas = 0;
+      for (const docSnap of snap.docs) {
+        await deleteDoc(doc(db, "chapitasInventario", docSnap.id));
+        borradas += 1;
+      }
+      genStatus.textContent = `Listo: se borraron ${borradas} chapitas de prueba.`;
+      await loadTags();
+    } catch (e) {
+      genStatus.textContent = "Error al borrar en Firestore: revisá que tu usuario tenga permiso de borrado.";
+    }
+  };
+
   document.getElementById("btn-generate").onclick = async () => {
     const from = parseInt(document.getElementById("inp-from").value, 10);
     const to = parseInt(document.getElementById("inp-to").value, 10);
-    const digits = Math.min(6, Math.max(1, parseInt(document.getElementById("inp-digits").value, 10) || 3));
 
-    if (isNaN(from) || isNaN(to) || from < 1 || to < from || (to - from) > 100) {
-      genStatus.textContent = "Ingresá un rango válido (máximo 100 chapitas por tanda).";
+    if (isNaN(from) || isNaN(to) || from < 1 || to < from) {
+      genStatus.textContent = "Ingresá números desde 1 en adelante (y 'Hasta' mayor o igual que 'Desde').";
       return;
     }
 
     genStatus.textContent = "Generando lote...";
     try {
       for (let i = from; i <= to; i++) {
-        const code = formatCode(i, digits);
+        const code = formatCode(i);
         await setDoc(doc(db, "chapitasInventario", code), {
           code,
           status: "virgen",
@@ -220,7 +255,7 @@
           createdBy: auth.currentUser?.uid || ""
         }, { merge: true });
       }
-      genStatus.textContent = `Listo: lote del #${formatCode(from, digits)} al #${formatCode(to, digits)} guardado.`;
+      genStatus.textContent = `Listo: lote del #${formatCode(from)} al #${formatCode(to)} guardado.`;
       await loadTags();
     } catch (e) {
       genStatus.textContent = "Error al guardar en Firestore: revisá que tu usuario tenga permiso de escritura.";
