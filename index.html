@@ -126,9 +126,9 @@
       </form>
     </div>
 
-    <!-- 3. Si ya estaba registrada -->
+    <!-- 3. Si ya estaba activada -->
     <div id="vistaYaRegistrada" class="hidden">
-      <h2 style="margin:0 0 6px; font-size:1.1rem;">¡Chapita registrada!</h2>
+      <h2 style="margin:0 0 6px; font-size:1.1rem;">¡Chapita activada!</h2>
       <p id="resumenPerrito">—</p>
     </div>
 
@@ -148,19 +148,18 @@
       getFirestore,
       doc,
       getDoc,
-      setDoc,
       updateDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-     const firebaseConfig = {
-    apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
-    authDomain: "patitas-seguras-salta.firebaseapp.com",
-    projectId: "patitas-seguras-salta",
-    storageBucket: "patitas-seguras-salta.firebasestorage.app",
-    messagingSenderId: "311814224464",
-    appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
+      authDomain: "patitas-seguras-salta.firebaseapp.com",
+      projectId: "patitas-seguras-salta",
+      storageBucket: "patitas-seguras-salta.firebasestorage.app",
+      messagingSenderId: "311814224464",
+      appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -207,20 +206,19 @@
       txtCodigo.textContent = `Chapita: ${chapitaId}`;
 
       try {
-        // 1. Ver si ya tiene un perrito registrado
-        const chapitaSnap = await getDoc(doc(db, "chapitas", chapitaId));
-        if (chapitaSnap.exists()) {
-          const data = chapitaSnap.data();
-          vistaYaRegistrada.classList.remove("hidden");
-          document.getElementById("resumenPerrito").textContent =
-            `Esta chapita ya pertenece a ${data.nombreMascota || "una mascota"} (Contacto: ${data.telefono || "—"}).`;
+        const invRef = doc(db, "chapitasInventario", chapitaId);
+        const invSnap = await getDoc(invRef);
+
+        if (!invSnap.exists()) {
+          mostrarMsg(`El código "${chapitaId}" no existe en chapitasInventario.`, "err");
           return;
         }
 
-        // 2. Ver si existe en el inventario
-        const invSnap = await getDoc(doc(db, "chapitasInventario", chapitaId));
-        if (!invSnap.exists()) {
-          mostrarMsg(`El código "${chapitaId}" no existe en tu inventario.`, "err");
+        const data = invSnap.data();
+        if (data.status === "activada" || data.estado === "activada") {
+          vistaYaRegistrada.classList.remove("hidden");
+          document.getElementById("resumenPerrito").textContent =
+            `Esta chapita ya está activada para ${data.nombreMascota || "una mascota"} (Contacto: ${data.telefono || "—"}).`;
           return;
         }
 
@@ -237,9 +235,9 @@
       try {
         await signInWithPopup(auth, provider);
       } catch (e) {
-  console.error(e);
-  mostrarMsg(`Error (${e.code || "sin código"}): ${e.message} | URL: ${window.location.href}`, "err");
-}
+        console.error(e);
+        mostrarMsg(`Error (${e.code || "sin código"}): ${e.message}`, "err");
+      }
     });
 
     document.getElementById("btnSalir").addEventListener("click", async () => {
@@ -259,36 +257,30 @@
       btn.disabled = true;
       btn.textContent = "Guardando...";
 
-      const datos = {
-        codigo: chapitaId,
+      const datosActivacion = {
+        status: "activada",
+        estado: "activada",
         nombreMascota: document.getElementById("nombreMascota").value.trim(),
         raza: document.getElementById("raza").value.trim(),
         telefono: document.getElementById("telefono").value.trim(),
         nota: document.getElementById("nota").value.trim(),
         duenoUid: usuarioActual.uid,
         duenoEmail: usuarioActual.email || "",
-        activa: true,
-        creadaEn: serverTimestamp()
+        fechaActivacion: serverTimestamp()
       };
 
       try {
-        await setDoc(doc(db, "chapitas", chapitaId), datos);
-        await updateDoc(doc(db, "chapitasInventario", chapitaId), {
-          estado: "activada",
-          duenoUid: usuarioActual.uid,
-          duenoEmail: usuarioActual.email || "",
-          fechaActivacion: serverTimestamp()
-        });
+        await updateDoc(doc(db, "chapitasInventario", chapitaId), datosActivacion);
 
         chapitaListaParaActivar = false;
         vistaRegistro.classList.add("hidden");
         vistaYaRegistrada.classList.remove("hidden");
         document.getElementById("resumenPerrito").textContent =
-          `¡Listo! Registraste a ${datos.nombreMascota} con tu cuenta (${usuarioActual.email}).`;
-        mostrarMsg("Chapita activada correctamente.", "ok");
+          `¡Listo! Activaste la chapita ${chapitaId} para ${datosActivacion.nombreMascota} con tu cuenta (${usuarioActual.email}).`;
+        mostrarMsg("Chapita guardada en chapitasInventario.", "ok");
       } catch (err) {
         console.error(err);
-        mostrarMsg("Error al guardar. Revisá los permisos de Firestore.", "err");
+        mostrarMsg(`Error al guardar: ${err.code || err.message || "revisá permisos"}`, "err");
       } finally {
         btn.disabled = false;
         btn.textContent = "Guardar y activar chapita";
