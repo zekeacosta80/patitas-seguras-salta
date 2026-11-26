@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Patitas Seguras Salta</title>
+  <title>Patitas Seguras Salta | Chapitas QR + NFC</title>
   <style>
     :root {
-      --bg: #f1f3f5;
+      --bg: #faf7f2;
       --card: #ffffff;
       --text: #18181b;
       --muted: #52525b;
-      --primary: #1e4d48;
-      --primary-hover: #163b37;
+      --primary: #e85d04;
+      --primary-hover: #cf5102;
+      --accent: #f48c06;
+      --navy: #1d3557;
       --wa: #1f6f50;
       --wa-hover: #17563e;
       --call: #244c6b;
       --call-hover: #1a384f;
       --loc: #7c5821;
       --loc-hover: #614418;
-      --border: #dfe3e8;
+      --border: #eadfd3;
       --radius: 16px;
     }
 
@@ -44,6 +46,15 @@
       padding-bottom: 24px;
     }
 
+    .home-wrap {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding-bottom: 36px;
+    }
+
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -62,7 +73,7 @@
     .brand {
       font-size: 1.05rem;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--navy);
       margin: 0;
     }
 
@@ -71,14 +82,14 @@
       font-weight: 600;
       padding: 4px 10px;
       border-radius: 999px;
-      background: #e6f0ee;
+      background: #fff0e5;
       color: var(--primary);
       white-space: nowrap;
     }
 
     .tag-pill.virgin {
-      background: #f5efe3;
-      color: #6e4f1d;
+      background: #fff4d6;
+      color: #8a5200;
     }
 
     .tag-pill.error {
@@ -86,6 +97,170 @@
       color: #8b2626;
     }
 
+    /* Página principal (sin ?id=) */
+    .home-nav {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .home-logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin: 0;
+    }
+
+    .home-logo span {
+      color: var(--primary);
+    }
+
+    .home-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .home-nav-links a {
+      color: var(--navy);
+      text-decoration: none;
+    }
+
+    .home-nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .hero-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    @media (max-width: 760px) {
+      .hero-card {
+        grid-template-columns: 1fr;
+        padding: 18px;
+      }
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #fff0e5;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 2rem;
+      line-height: 1.15;
+      margin: 0 0 12px;
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .hero-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .product-box {
+      background: #fffaf4;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .product-img {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      background: #f3ece2;
+    }
+
+    .price-tag {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 6px 0 4px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 760px) {
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .step-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .home-footer {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* Vista rescate / activación */
     .rescue-card {
       padding: 0;
       overflow: hidden;
@@ -230,6 +405,10 @@
       transition: transform 0.08s ease, background 0.15s ease, opacity 0.15s ease;
     }
 
+    .btn-inline {
+      width: auto;
+    }
+
     .btn:active { transform: scale(0.99); }
     .btn:disabled { opacity: 0.65; cursor: not-allowed; }
 
@@ -263,6 +442,11 @@
     }
     .btn-primary:hover { background: var(--primary-hover); }
 
+    .btn-navy {
+      background: var(--navy);
+      color: #fff;
+    }
+
     .btn-secondary {
       background: #e4e6e9;
       color: var(--text);
@@ -282,8 +466,8 @@
     }
 
     .owner-bar {
-      background: #edf5f3;
-      border: 1px solid #c3ddd7;
+      background: #fff0e5;
+      border: 1px solid #f5c9a8;
       border-radius: 12px;
       padding: 11px 14px;
       display: flex;
@@ -428,7 +612,99 @@
   </style>
 </head>
 <body>
-  <div class="app">
+  <!-- Página principal cuando se entra sin ?id= -->
+  <div id="vistaPrincipal" class="home-wrap hidden">
+    <header class="home-nav">
+      <h1 class="home-logo">Patitas <span>Seguras</span> Salta</h1>
+      <nav class="home-nav-links">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#chapita">La chapita</a>
+        <a href="https://www.instagram.com/patitasseguras.ok" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://wa.me/5493873447953" target="_blank" rel="noopener">WhatsApp</a>
+      </nav>
+    </header>
+
+    <section class="hero-card">
+      <div>
+        <span class="hero-badge">Salta · QR + NFC · Sin abono mensual</span>
+        <h2 class="hero-title">Si se pierde, que puedan devolvértelo al toque.</h2>
+        <p class="hero-sub">
+          Chapita inteligente con código QR y chip NFC para perros y gatos. Quien lo encuentre acerca
+          su celular o escanea el código y ve al instante su foto, cuidados y contacto directo.
+        </p>
+        <div class="hero-actions">
+          <a
+            href="https://wa.me/5493873447953?text=Hola%20Patitas%20Seguras%2C%20quiero%20pedir%20una%20chapita%20QR%20%2B%20NFC."
+            target="_blank"
+            rel="noopener"
+            class="btn btn-primary btn-inline"
+          >
+            Pedir por WhatsApp
+          </a>
+          <a
+            href="https://www.instagram.com/patitasseguras.ok"
+            target="_blank"
+            rel="noopener"
+            class="btn btn-navy btn-inline"
+          >
+            Ver Instagram
+          </a>
+        </div>
+      </div>
+
+      <div id="chapita" class="product-box">
+        <img
+          src="chapita-huella.jpg"
+          alt="Chapita Patitas Seguras con QR y NFC"
+          class="product-img"
+        />
+        <div style="font-weight: 700; color: var(--navy);">Chapita Huella QR + NFC</div>
+        <div class="helper">Sin pilas · Sin cuotas mensuales · Activación rápida</div>
+        <div class="price-tag">$10.000</div>
+        <a
+          href="https://wa.me/5493873447953?text=Hola!%20Quiero%20encargar%20la%20chapita%20de%20%2410.000."
+          target="_blank"
+          rel="noopener"
+          class="btn btn-primary"
+          style="margin-top: 10px;"
+        >
+          Consultar disponibilidad
+        </a>
+      </div>
+    </section>
+
+    <section id="como-funciona" class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3 style="margin: 0 0 6px; font-size: 1.02rem; color: var(--navy);">Activás en segundos</h3>
+        <p style="margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.45;">
+          Escaneás tu chapita nueva, entrás con Google y cargás foto, nombre, señas, cuidados y teléfono.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3 style="margin: 0 0 6px; font-size: 1.02rem; color: var(--navy);">QR + NFC en el collar</h3>
+        <p style="margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.45;">
+          Funciona con cámara QR o acercando un celular con NFC, sin que nadie tenga que descargar apps.
+        </p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3 style="margin: 0 0 6px; font-size: 1.02rem; color: var(--navy);">Aviso y ubicación</h3>
+        <p style="margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.45;">
+          Quien encuentre a tu mascota puede mandarte WhatsApp, llamarte o compartir su ubicación al instante.
+        </p>
+      </div>
+    </section>
+
+    <footer class="home-footer">
+      <div><strong>Patitas Seguras Salta</strong> · patitasseguras.com.ar</div>
+      <div>WhatsApp: <strong>3873447953</strong> · IG: <strong>@patitasseguras.ok</strong></div>
+    </footer>
+  </div>
+
+  <!-- Flujo de chapita cuando se entra con ?id= -->
+  <div id="flujoChapita" class="app hidden">
     <div id="barraSuperior" class="card" style="padding: 14px 16px;">
       <div class="topbar">
         <h1 class="brand">Patitas Seguras Salta</h1>
@@ -646,446 +922,10 @@
     const chapitaId = (params.get("id") || params.get("c") || params.get("codigo") || "").trim();
     const origenEscaneo = (params.get("src") || "directo").trim();
 
+    const vistaPrincipal = document.getElementById("vistaPrincipal");
+    const flujoChapita = document.getElementById("flujoChapita");
     const barraSuperior = document.getElementById("barraSuperior");
     const badgeChapita = document.getElementById("badgeChapita");
     const vistaCargando = document.getElementById("vistaCargando");
     const vistaError = document.getElementById("vistaError");
-    const vistaRescate = document.getElementById("vistaRescate");
-    const vistaLogin = document.getElementById("vistaLogin");
-    const vistaFormulario = document.getElementById("vistaFormulario");
-    const msg = document.getElementById("msg");
-
-    let usuarioActual = null;
-    let datosActuales = null;
-    let modoEdicion = false;
-    let fotoBase64Actual = "";
-
-    function ocultarVistas() {
-      [vistaCargando, vistaError, vistaRescate, vistaLogin, vistaFormulario].forEach((v) =>
-        v.classList.add("hidden")
-      );
-    }
-
-    function mostrarMsg(texto, tipo = "ok") {
-      msg.textContent = texto;
-      msg.className = `msg ${tipo}`;
-    }
-
-    function limpiarMsg() {
-      msg.className = "msg";
-      msg.textContent = "";
-    }
-
-    function normalizarTelefonoArgentina(areaRaw, numRaw) {
-      let area = (areaRaw || "").replace(/\D+/g, "").replace(/^0+/, "");
-      let num = (numRaw || "").replace(/\D+/g, "");
-      if (num.startsWith("15") && num.length >= 8) {
-        num = num.slice(2);
-      }
-      const completo = `${area}${num}`;
-      return { area, num, completo };
-    }
-
-    function armarLinkWhatsapp(telefonoLimpio, textoMensaje) {
-      if (!telefonoLimpio) return "#";
-      const waNum = telefonoLimpio.startsWith("54") ? telefonoLimpio : `549${telefonoLimpio}`;
-      return `https://wa.me/${waNum}?text=${encodeURIComponent(textoMensaje)}`;
-    }
-
-    function comprimirImagen(file, maxWidth = 850, quality = 0.78) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            let width = img.width;
-            let height = img.height;
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL("image/jpeg", quality));
-          };
-          img.onerror = reject;
-          img.src = ev.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function registrarEscaneoSilencioso(id) {
-      const key = `ps_scan_${id}`;
-      if (sessionStorage.getItem(key)) return;
-      try {
-        await addDoc(collection(db, "chapitasEscaneos"), {
-          chapitaId: id,
-          origen: origenEscaneo,
-          fecha: serverTimestamp(),
-          userAgent: navigator.userAgent || ""
-        });
-        sessionStorage.setItem(key, "1");
-      } catch (_) {}
-    }
-
-    function mostrarVistaRescate(data) {
-      ocultarVistas();
-      barraSuperior.classList.add("hidden");
-
-      const nombreMascota = (data.nombreMascota || "Mascota").trim();
-      document.getElementById("rescateNombre").textContent = nombreMascota;
-
-      const razaEl = document.getElementById("rescateRaza");
-      if (data.raza && data.raza.trim()) {
-        razaEl.textContent = data.raza.trim();
-        razaEl.classList.remove("hidden");
-      } else {
-        razaEl.textContent = "";
-        razaEl.classList.add("hidden");
-      }
-
-      const cajaEdadTamano = document.getElementById("cajaEdadTamano");
-      const edadTamanoVal = (data.edadTamano || "").trim();
-      if (edadTamanoVal) {
-        document.getElementById("rescateEdadTamano").textContent = edadTamanoVal;
-        cajaEdadTamano.classList.remove("hidden");
-      } else {
-        cajaEdadTamano.classList.add("hidden");
-      }
-
-      const cajaSenias = document.getElementById("cajaSenias");
-      const seniasVal = (data.senias || "").trim();
-      if (seniasVal) {
-        document.getElementById("rescateSenias").textContent = seniasVal;
-        cajaSenias.classList.remove("hidden");
-      } else {
-        cajaSenias.classList.add("hidden");
-      }
-
-      const extraMetaEl = document.getElementById("rescateExtraMeta");
-      if (edadTamanoVal || seniasVal) {
-        extraMetaEl.classList.remove("hidden");
-      } else {
-        extraMetaEl.classList.add("hidden");
-      }
-
-      const imgEl = document.getElementById("rescateFoto");
-      const sinFotoEl = document.getElementById("rescateSinFoto");
-      if (data.foto && data.foto.startsWith("data:image")) {
-        imgEl.src = data.foto;
-        imgEl.classList.remove("hidden");
-        sinFotoEl.classList.add("hidden");
-      } else {
-        imgEl.classList.add("hidden");
-        sinFotoEl.classList.remove("hidden");
-      }
-
-      const cajaNota = document.getElementById("rescateCajaNota");
-      if (data.nota && data.nota.trim()) {
-        document.getElementById("rescateNota").textContent = data.nota.trim();
-        cajaNota.classList.remove("hidden");
-      } else {
-        cajaNota.classList.add("hidden");
-      }
-
-      const telLimpio = (data.telefono || "").replace(/\D+/g, "");
-      const mensajeBase = `Encontré a "${nombreMascota}", ¿puedes comunicarte conmigo por favor?`;
-      document.getElementById("btnWhatsapp").href = armarLinkWhatsapp(telLimpio, mensajeBase);
-      document.getElementById("btnLlamar").href = telLimpio ? `tel:${telLimpio}` : "#";
-
-      const btnLoc = document.getElementById("btnEnviarUbicacion");
-      btnLoc.onclick = () => {
-        if (!navigator.geolocation) {
-          window.open(armarLinkWhatsapp(telLimpio, `${mensajeBase} Estoy en: `), "_blank");
-          return;
-        }
-        btnLoc.disabled = true;
-        btnLoc.textContent = "Obteniendo ubicación...";
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const { latitude, longitude } = pos.coords;
-            const mapsUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
-            const msgLoc = `${mensajeBase} Esta es mi ubicación actual: ${mapsUrl}`;
-            btnLoc.disabled = false;
-            btnLoc.textContent = "Enviar mi ubicación por WhatsApp";
-            window.open(armarLinkWhatsapp(telLimpio, msgLoc), "_blank");
-          },
-          () => {
-            btnLoc.disabled = false;
-            btnLoc.textContent = "Enviar mi ubicación por WhatsApp";
-            alert("No se pudo obtener la ubicación automática. Se abrirá WhatsApp para compartirla manualmente.");
-            window.open(armarLinkWhatsapp(telLimpio, mensajeBase), "_blank");
-          },
-          { enableHighAccuracy: true, timeout: 8000 }
-        );
-      };
-
-      const telAltLimpio = (data.telefonoAlt || "").replace(/\D+/g, "");
-      const bloqueRespaldo = document.getElementById("bloqueRespaldo");
-      if (telAltLimpio) {
-        document.getElementById("btnWaAlt").href = armarLinkWhatsapp(telAltLimpio, mensajeBase);
-        document.getElementById("btnCallAlt").href = `tel:${telAltLimpio}`;
-        bloqueRespaldo.classList.remove("hidden");
-      } else {
-        bloqueRespaldo.classList.add("hidden");
-      }
-
-      const barraDueno = document.getElementById("barraDueno");
-      if (usuarioActual && data.duenoUid && usuarioActual.uid === data.duenoUid) {
-        barraDueno.classList.remove("hidden");
-      } else {
-        barraDueno.classList.add("hidden");
-      }
-
-      vistaRescate.classList.remove("hidden");
-      registrarEscaneoSilencioso(chapitaId);
-    }
-
-    function abrirFormularioDueno(esEdicion = false) {
-      ocultarVistas();
-      barraSuperior.classList.remove("hidden");
-      modoEdicion = esEdicion;
-      document.getElementById("txtUsuario").textContent = usuarioActual?.email || "Sesión iniciada";
-      document.getElementById("tituloForm").textContent = esEdicion
-        ? `Editar datos de ${datosActuales?.nombreMascota || "tu mascota"}`
-        : "Datos de tu mascota";
-      document.getElementById("btnGuardar").textContent = esEdicion
-        ? "Guardar cambios"
-        : "Guardar y activar";
-
-      const btnCancelar = document.getElementById("btnCancelarEdicion");
-      if (esEdicion) {
-        btnCancelar.classList.remove("hidden");
-        document.getElementById("nombreMascota").value = datosActuales.nombreMascota || "";
-        document.getElementById("raza").value = datosActuales.raza || "";
-        document.getElementById("edadTamano").value = datosActuales.edadTamano || "";
-        document.getElementById("senias").value = datosActuales.senias || "";
-        document.getElementById("areaCode").value = datosActuales.areaCode || "387";
-        document.getElementById("phoneNumber").value = datosActuales.phoneNumber || "";
-        document.getElementById("areaCodeAlt").value = datosActuales.areaCodeAlt || "";
-        document.getElementById("phoneNumberAlt").value = datosActuales.phoneNumberAlt || "";
-        document.getElementById("nota").value = datosActuales.nota || "";
-        fotoBase64Actual = datosActuales.foto || "";
-        const prev = document.getElementById("previewFoto");
-        if (fotoBase64Actual) {
-          prev.src = fotoBase64Actual;
-          prev.classList.add("show");
-        } else {
-          prev.classList.remove("show");
-        }
-      } else {
-        btnCancelar.classList.add("hidden");
-      }
-
-      vistaFormulario.classList.remove("hidden");
-    }
-
-    async function verificarChapita() {
-      barraSuperior.classList.remove("hidden");
-      if (!chapitaId) {
-        badgeChapita.textContent = "Sin código";
-        badgeChapita.className = "tag-pill error";
-        ocultarVistas();
-        vistaError.classList.remove("hidden");
-        return;
-      }
-
-      const avisoLento = setTimeout(() => {
-        const pCargando = vistaCargando.querySelector("p");
-        if (pCargando && !vistaCargando.classList.contains("hidden")) {
-          pCargando.textContent = `Está tardando más de lo normal al consultar "${chapitaId}". Revisá tu conexión o probá recargar.`;
-        }
-      }, 5000);
-
-      try {
-        const invSnap = await getDoc(doc(db, "chapitasInventario", chapitaId));
-        clearTimeout(avisoLento);
-
-        if (!invSnap.exists()) {
-          badgeChapita.textContent = "No encontrada";
-          badgeChapita.className = "tag-pill error";
-          ocultarVistas();
-          document.getElementById("errorTitulo").textContent = "Código no registrado";
-          document.getElementById("errorTexto").textContent = `El código "${chapitaId}" no existe en chapitasInventario.`;
-          vistaError.classList.remove("hidden");
-          return;
-        }
-
-        datosActuales = invSnap.data();
-        const activada = datosActuales.status === "activada" || datosActuales.estado === "activada";
-
-        if (activada) {
-          mostrarVistaRescate(datosActuales);
-          return;
-        }
-
-        badgeChapita.textContent = "Disponible";
-        badgeChapita.className = "tag-pill virgin";
-        if (usuarioActual) {
-          abrirFormularioDueno(false);
-        } else {
-          ocultarVistas();
-          vistaLogin.classList.remove("hidden");
-        }
-      } catch (e) {
-        clearTimeout(avisoLento);
-        console.error(e);
-        badgeChapita.textContent = "Error";
-        badgeChapita.className = "tag-pill error";
-        ocultarVistas();
-        document.getElementById("errorTitulo").textContent = "No se pudo cargar";
-        document.getElementById("errorTexto").textContent = `${e.code || "Error"}: ${e.message || "Revisá tu conexión o reglas de Firestore."}`;
-        vistaError.classList.remove("hidden");
-      }
-    }
-
-    document.getElementById("btnGoogle").addEventListener("click", async () => {
-      limpiarMsg();
-      try {
-        await signInWithPopup(auth, provider);
-      } catch (e) {
-        mostrarMsg("No se pudo iniciar sesión con Google.", "err");
-      }
-    });
-
-    document.getElementById("btnSalir").addEventListener("click", async () => {
-      await signOut(auth);
-    });
-
-    document.getElementById("btnEditarDueno").addEventListener("click", () => {
-      limpiarMsg();
-      abrirFormularioDueno(true);
-    });
-
-    document.getElementById("btnCancelarEdicion").addEventListener("click", () => {
-      limpiarMsg();
-      if (datosActuales) mostrarVistaRescate(datosActuales);
-    });
-
-    document.querySelectorAll(".chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        const notaEl = document.getElementById("nota");
-        const textoChip = chip.getAttribute("data-chip");
-        const actual = notaEl.value.trim();
-        if (actual.includes(textoChip)) {
-          notaEl.value = actual
-            .split(textoChip)
-            .join("")
-            .replace(/\s{2,}/g, " ")
-            .trim();
-        } else {
-          notaEl.value = actual ? `${actual} ${textoChip}` : textoChip;
-        }
-      });
-    });
-
-    document.getElementById("inputFoto").addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        fotoBase64Actual = await comprimirImagen(file, 850, 0.78);
-        const prev = document.getElementById("previewFoto");
-        prev.src = fotoBase64Actual;
-        prev.classList.add("show");
-      } catch (err) {
-        mostrarMsg("No se pudo procesar la foto. Probá con otra imagen.", "err");
-      }
-    });
-
-    onAuthStateChanged(auth, (user) => {
-      usuarioActual = user;
-      if (!datosActuales) return;
-      const activada = datosActuales.status === "activada" || datosActuales.estado === "activada";
-      if (activada) {
-        if (!modoEdicion) mostrarVistaRescate(datosActuales);
-      } else {
-        if (user) {
-          abrirFormularioDueno(false);
-        } else {
-          ocultarVistas();
-          barraSuperior.classList.remove("hidden");
-          vistaLogin.classList.remove("hidden");
-        }
-      }
-    });
-
-    document.getElementById("formMascota").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      limpiarMsg();
-      if (!usuarioActual || !chapitaId) return;
-
-      const principal = normalizarTelefonoArgentina(
-        document.getElementById("areaCode").value,
-        document.getElementById("phoneNumber").value
-      );
-
-      if (principal.completo.length < 8) {
-        mostrarMsg("Revisá la característica y el número de teléfono principal.", "err");
-        return;
-      }
-
-      const alt = normalizarTelefonoArgentina(
-        document.getElementById("areaCodeAlt").value,
-        document.getElementById("phoneNumberAlt").value
-      );
-
-      const btn = document.getElementById("btnGuardar");
-      btn.disabled = true;
-      btn.textContent = "Guardando...";
-
-      const nombreLimpio = document.getElementById("nombreMascota").value.trim();
-
-      const payload = {
-        status: "activada",
-        estado: "activada",
-        nombreMascota: nombreLimpio,
-        raza: document.getElementById("raza").value.trim(),
-        edadTamano: document.getElementById("edadTamano").value.trim(),
-        senias: document.getElementById("senias").value.trim(),
-        areaCode: principal.area,
-        phoneNumber: principal.num,
-        telefono: principal.completo,
-        areaCodeAlt: alt.num ? alt.area : "",
-        phoneNumberAlt: alt.num ? alt.num : "",
-        telefonoAlt: alt.num ? alt.completo : "",
-        nota: document.getElementById("nota").value.trim(),
-        foto: fotoBase64Actual || "",
-        duenoUid: datosActuales?.duenoUid || usuarioActual.uid,
-        duenoEmail: datosActuales?.duenoEmail || usuarioActual.email || "",
-        actualizadaEn: serverTimestamp()
-      };
-
-      const eraEdicion = modoEdicion;
-      if (!eraEdicion) {
-        payload.fechaActivacion = serverTimestamp();
-      }
-
-      try {
-        await updateDoc(doc(db, "chapitasInventario", chapitaId), payload);
-        datosActuales = { ...datosActuales, ...payload };
-        modoEdicion = false;
-        mostrarVistaRescate(datosActuales);
-        mostrarMsg(
-          eraEdicion
-            ? `¡Listo! Se actualizaron los datos de ${nombreLimpio}.`
-            : `¡Listo! Activaste la chapita para ${nombreLimpio}.`,
-          "ok"
-        );
-      } catch (err) {
-        console.error(err);
-        mostrarMsg("No se pudo guardar. Revisá tu conexión o permisos.", "err");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Guardar y activar";
-      }
-    });
-
-    verificarChapita();
-  </script>
-</body>
-</html>
+    const vistaRescate =
