@@ -3,315 +3,818 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generador de QR - Patitas Seguras Salta</title>
+  <title>Generador de QR — Patitas Seguras Salta</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { margin: 0; background: #f3f4f6; color: #111827; padding: 16px; }
-    .container { max-width: 760px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); margin-bottom: 16px; }
-    h1 { margin: 0 0 6px; font-size: 22px; }
-    p.sub { margin: 0 0 16px; color: #6b7280; font-size: 14px; }
-    .field { margin-bottom: 14px; max-width: 260px; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #374151; }
-    input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 15px; }
-    button { border: none; border-radius: 10px; padding: 11px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
-    .btn-primary { background: #f97316; color: #fff; width: 100%; }
-    .btn-google { background: #111827; color: #fff; width: 100%; }
-    .btn-small { padding: 7px 10px; font-size: 12px; background: #e5e7eb; color: #111827; }
-    .btn-dl { background: #16a34a; color: #fff; }
-    .btn-danger { background: #dc2626; color: #fff; }
-    .status { font-size: 13px; color: #374151; margin-top: 10px; min-height: 18px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
-    .tag-card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; text-align: center; background: #fafafa; }
-    .qr-index { display: inline-block; background: #111827; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; margin-bottom: 6px; }
-    .tag-num { font-weight: 800; font-size: 15px; margin-bottom: 8px; }
-    .qr-box { display: flex; justify-content: center; margin: 8px auto; min-height: 128px; }
-    .tag-url { font-size: 11px; color: #6b7280; word-break: break-all; margin: 6px 0 10px; }
-    .actions { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-    .hidden { display: none; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f3f4f6;
+      color: #111827;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .box {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .hidden { display: none !important; }
+    .login-box {
+      max-width: 440px;
+      margin: 48px auto;
+      text-align: center;
+    }
+    h1 { margin: 0 0 6px; font-size: 1.45rem; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    .muted { color: #6b7280; font-size: 0.9rem; margin: 0 0 14px; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .panel {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .grid-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: #fff;
+      color: #111827;
+    }
+    button {
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: opacity 0.15s ease;
+    }
+    button:hover { opacity: 0.92; }
+    .btn-primary { background: #111827; color: #fff; }
+    .btn-accent { background: #1f5c52; color: #fff; }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .btn-outline { background: #fff; color: #111827; border: 1px solid #d1d5db; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .stat-num { font-size: 1.35rem; font-weight: 800; color: #111827; }
+    .stat-lbl { font-size: 0.78rem; color: #6b7280; margin-top: 2px; }
+
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .channel-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+      background: #ffffff;
+    }
+    .channel-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; color: #111827; }
+    .channel-meta { font-size: 0.8rem; color: #4b5563; line-height: 1.4; }
+
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .filters-bar input, .filters-bar select {
+      width: auto;
+      min-width: 180px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .badge-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .b-disp { background: #fef3c7; color: #92400e; }
+    .b-act { background: #dcfce7; color: #166534; }
+    .b-dest { background: #e0f2fe; color: #075985; }
+    .num-label {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+    .code {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .qr-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 6px 0;
+      padding: 6px;
+      background: #fff;
+      border: 1px solid #f3f4f6;
+      border-radius: 8px;
+    }
+    .url-txt {
+      font-size: 0.72rem;
+      color: #4b5563;
+      word-break: break-all;
+      margin: 6px 0 8px;
+    }
+    .dest-txt {
+      font-size: 0.78rem;
+      color: #1f2937;
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 6px 8px;
+      width: 100%;
+      margin-bottom: 8px;
+      text-align: left;
+      line-height: 1.35;
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      margin-top: auto;
+    }
+    .actions button {
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      flex: 1 1 auto;
+    }
+    .msg {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      min-height: 20px;
+    }
+    .ok { color: #15803d; }
+    .err { color: #b91c1c; }
   </style>
 </head>
 <body>
-<div class="container">
-
-  <!-- LOGIN -->
-  <div id="auth-box" class="card" style="text-align:center;">
+  <div id="vistaLogin" class="box login-box">
     <h1>Generador de QR — Chapitas</h1>
-    <p class="sub">Iniciá sesión con tu cuenta de Google para crear y probar chapitas con ID aleatorio.</p>
-    <button id="btn-google-login" class="btn-google">Ingresar con Google</button>
-    <div id="auth-status" class="status"></div>
+    <p class="muted">Iniciá sesión con tu cuenta administradora de Google para gestionar lotes y chapitas.</p>
+    <button id="btnGoogle" class="btn-primary" type="button" style="width:100%;">Ingresar con Google</button>
+    <div id="msgLogin" class="msg"></div>
   </div>
 
-  <!-- PANEL PRINCIPAL -->
-  <div id="panel-box" class="hidden">
-    <div class="card">
-      <div class="top-bar">
+  <div id="vistaApp" class="box hidden">
+    <div class="topbar">
+      <div>
+        <h1>Patitas Seguras Salta · Panel de QR y Lotes</h1>
+        <p class="muted" id="txtUser" style="margin:0;"></p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button id="btnRefrescar" class="btn-outline" type="button">Actualizar lista</button>
+        <button id="btnSalir" class="btn-secondary" type="button">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-lbl">Total generadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statDisp">0</div>
+        <div class="stat-lbl">Disponibles</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statAct">0</div>
+        <div class="stat-lbl">Activadas por dueños</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statAsignadas">0</div>
+        <div class="stat-lbl">Asignadas a canal/local</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>1. Generar nueva tanda con ID aleatorio (URL corta + QR limpio)</h2>
+      <div class="grid-controls">
         <div>
-          <h1>Generador de IDs Aleatorios</h1>
-          <p class="sub" style="margin:0;">Numeración interna visible (QR #1, #2...) con ID aleatorio en el enlace.</p>
+          <label for="cantCrear">Cantidad a crear</label>
+          <input id="cantCrear" type="number" min="1" max="500" value="10" />
         </div>
-        <button id="btn-logout" class="btn-small">Cerrar sesión</button>
-      </div>
-
-      <div class="field">
-        <label for="inp-qty">Cantidad de QR a generar</label>
-        <input id="inp-qty" type="number" min="1" max="200" step="1" value="3" />
-      </div>
-
-      <button id="btn-generate" class="btn-primary">Generar QR con ID aleatorio (disponible)</button>
-      <div id="gen-status" class="status"></div>
-    </div>
-
-    <div class="card">
-      <div class="top-bar">
-        <h2 style="margin:0; font-size:18px;">QR generados (<span id="tags-count">0</span>)</h2>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="btn-delete-all" class="btn-small btn-danger">Borrar todos</button>
-          <button id="btn-refresh" class="btn-small">Actualizar lista</button>
+        <div>
+          <label for="canalInicial">Destino / Canal inicial</label>
+          <input id="canalInicial" type="text" placeholder="Ej: Stock general o Venta directa" />
+        </div>
+        <div>
+          <button id="btnCrear" class="btn-primary" type="button" style="width:100%;">Generar tanda</button>
         </div>
       </div>
-      <div id="tags-grid" class="grid"></div>
+      <div id="msgGen" class="msg"></div>
     </div>
+
+    <div class="panel">
+      <h2>2. Asignar rango a veterinaria, pet shop o venta directa</h2>
+      <div class="grid-controls">
+        <div>
+          <label for="rangoDesde">Desde QR #</label>
+          <input id="rangoDesde" type="number" min="1" placeholder="Ej: 30" />
+        </div>
+        <div>
+          <label for="rangoHasta">Hasta QR #</label>
+          <input id="rangoHasta" type="number" min="1" placeholder="Ej: 50" />
+        </div>
+        <div>
+          <label for="rangoDestino">Veterinaria / Local / Canal</label>
+          <input id="rangoDestino" type="text" placeholder="Ej: Vet. San Bernardo" />
+        </div>
+        <div>
+          <label for="rangoTipo">Modalidad</label>
+          <select id="rangoTipo">
+            <option value="Venta mayorista">Venta mayorista</option>
+            <option value="Consignación">Consignación</option>
+            <option value="Venta directa">Venta directa</option>
+            <option value="Stock en mano">Stock en mano</option>
+          </select>
+        </div>
+        <div>
+          <label for="rangoNota">Nota o fecha (opcional)</label>
+          <input id="rangoNota" type="text" placeholder="Ej: Entregado 28/11" />
+        </div>
+        <div>
+          <button id="btnAsignar" class="btn-accent" type="button" style="width:100%;">Asignar rango</button>
+        </div>
+      </div>
+      <div id="msgAsig" class="msg"></div>
+    </div>
+
+    <div class="panel">
+      <h2>3. Descargar lote de QR numerados (PNG con numeración abajo)</h2>
+      <div class="grid-controls">
+        <div>
+          <label for="bajarDesde">Desde QR #</label>
+          <input id="bajarDesde" type="number" min="1" placeholder="Ej: 1" />
+        </div>
+        <div>
+          <label for="bajarHasta">Hasta QR #</label>
+          <input id="bajarHasta" type="number" min="1" placeholder="Ej: 20" />
+        </div>
+        <div>
+          <button id="btnBajarLote" class="btn-secondary" type="button" style="width:100%;">Descargar rango PNG</button>
+        </div>
+      </div>
+      <div id="msgBajar" class="msg"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Seguimiento por veterinaria / canal</h2>
+      <div id="channelsSummary" class="channels-grid"></div>
+    </div>
+
+    <div class="filters-bar">
+      <select id="filtroEstado">
+        <option value="todas">Todos los estados</option>
+        <option value="disponible">Solo disponibles</option>
+        <option value="activada">Solo activadas</option>
+        <option value="sin-asignar">Sin destino asignado</option>
+      </select>
+      <select id="filtroCanal">
+        <option value="">Todos los destinos / canales</option>
+      </select>
+      <input id="buscarTexto" type="text" placeholder="Buscar por # número, ID o destino..." />
+    </div>
+
+    <div id="lista" class="grid"></div>
   </div>
 
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "patitas-seguras-salta.firebaseapp.com",
+      projectId: "patitas-seguras-salta",
+      storageBucket: "patitas-seguras-salta.firebasestorage.app",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBfs9FUMFCMYGprhVSRj2vYx_kko0sbrHY",
-    authDomain: "patitas-seguras-salta.firebaseapp.com",
-    projectId: "patitas-seguras-salta",
-    storageBucket: "patitas-seguras-salta.firebasestorage.app",
-    messagingSenderId: "311814224464",
-    appId: "1:311814224464:web:6cd643e607fbb90c3b6f55"
-  };
+    const ADMIN_EMAIL = "zekeacosta80@gmail.com";
+    const BASE_URL = "https://patitasseguras.com.ar/?id=";
+    const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-  const ID_LENGTH = 6;
-  const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const vistaLogin = document.getElementById("vistaLogin");
+    const vistaApp = document.getElementById("vistaApp");
+    const btnGoogle = document.getElementById("btnGoogle");
+    const btnSalir = document.getElementById("btnSalir");
+    const btnRefrescar = document.getElementById("btnRefrescar");
+    const btnCrear = document.getElementById("btnCrear");
+    const btnAsignar = document.getElementById("btnAsignar");
+    const btnBajarLote = document.getElementById("btnBajarLote");
+    const msgLogin = document.getElementById("msgLogin");
+    const msgGen = document.getElementById("msgGen");
+    const msgAsig = document.getElementById("msgAsig");
+    const msgBajar = document.getElementById("msgBajar");
+    const txtUser = document.getElementById("txtUser");
+    const lista = document.getElementById("lista");
+    const channelsSummary = document.getElementById("channelsSummary");
+    const filtroEstado = document.getElementById("filtroEstado");
+    const filtroCanal = document.getElementById("filtroCanal");
+    const buscarTexto = document.getElementById("buscarTexto");
 
-  const authBox = document.getElementById("auth-box");
-  const panelBox = document.getElementById("panel-box");
-  const authStatus = document.getElementById("auth-status");
-  const genStatus = document.getElementById("gen-status");
-  const tagsGrid = document.getElementById("tags-grid");
-  const tagsCount = document.getElementById("tags-count");
+    let itemsCache = [];
 
-  function buildTagUrl(code) {
-    const base = window.location.href.replace(/generador\.html.*$/i, "index.html");
-    const cleanBase = base.endsWith("/") ? base + "index.html" : base;
-    return `${cleanBase}?id=${encodeURIComponent(code)}`;
-  }
-
-  function generateCandidateId(length = ID_LENGTH) {
-    const bytes = new Uint8Array(length);
-    crypto.getRandomValues(bytes);
-    let out = "";
-    for (let i = 0; i < length; i++) {
-      out += ALPHABET[bytes[i] % ALPHABET.length];
+    function randomId(len = 6) {
+      let out = "";
+      for (let i = 0; i < len; i++) {
+        out += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+      }
+      return out;
     }
-    return out;
-  }
 
-  async function generateUniqueId(usedInBatch) {
-    for (let attempt = 0; attempt < 20; attempt++) {
-      const candidate = generateCandidateId(ID_LENGTH);
-      if (usedInBatch.has(candidate)) continue;
-      const snap = await getDoc(doc(db, "chapitasInventario", candidate));
-      if (!snap.exists()) {
-        usedInBatch.add(candidate);
-        return candidate;
+    function padNum(n) {
+      return String(n || 0).padStart(3, "0");
+    }
+
+    function buildUrl(id) {
+      return `${BASE_URL}${encodeURIComponent(id)}`;
+    }
+
+    function setMsg(el, text, type = "ok") {
+      el.textContent = text;
+      el.className = `msg ${type}`;
+    }
+
+    function isActivada(d) {
+      return d.estado === "activada" || d.status === "activada" || d.activada === true;
+    }
+
+    async function generarIdUnico() {
+      for (let intento = 0; intento < 30; intento++) {
+        const candidate = randomId(6);
+        const snap = await getDoc(doc(db, "chapitasInventario", candidate));
+        if (!snap.exists()) return candidate;
+      }
+      throw new Error("No se pudo generar un ID único.");
+    }
+
+    function crearCanvasNumerado(sourceCanvas, numeroStr, codigoStr) {
+      const qrSize = 300;
+      const footerHeight = 46;
+      const out = document.createElement("canvas");
+      out.width = qrSize;
+      out.height = qrSize + footerHeight;
+      const ctx = out.getContext("2d");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, out.width, out.height);
+      ctx.drawImage(sourceCanvas, 0, 0, qrSize, qrSize);
+
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 17px system-ui, -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`QR #${numeroStr} · ${codigoStr}`, qrSize / 2, qrSize + footerHeight / 2);
+      return out;
+    }
+
+    function descargarPngDesdeContenedor(qrContainerId, numeroStr, codigoStr) {
+      const wrap = document.getElementById(qrContainerId);
+      if (!wrap) return;
+      const canvas = wrap.querySelector("canvas");
+      const img = wrap.querySelector("img");
+
+      const finish = (srcCanvas) => {
+        const composed = crearCanvasNumerado(srcCanvas, numeroStr, codigoStr);
+        const a = document.createElement("a");
+        a.download = `qr-${numeroStr}-${codigoStr}.png`;
+        a.href = composed.toDataURL("image/png");
+        a.click();
+      };
+
+      if (canvas) {
+        finish(canvas);
+      } else if (img) {
+        const temp = document.createElement("canvas");
+        temp.width = 300;
+        temp.height = 300;
+        temp.getContext("2d").drawImage(img, 0, 0, 300, 300);
+        finish(temp);
       }
     }
-    throw new Error("No se pudo generar un ID único tras varios intentos.");
-  }
 
-  function formatearEstadoVisible(estadoRaw) {
-    const limpio = String(estadoRaw || "").trim().toLowerCase();
-    if (!limpio || limpio === "virgen" || limpio === "disponible") {
-      return "disponible";
+    async function copiarTexto(texto, feedbackMsg) {
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert(feedbackMsg || `Copiado: ${texto}`);
+      } catch {
+        prompt("Copiá manualmente:", texto);
+      }
     }
-    return estadoRaw;
-  }
 
-  async function deleteTag(docId, code) {
-    try {
-      await deleteDoc(doc(db, "chapitasInventario", docId));
-      genStatus.textContent = `Chapita ${code} borrada.`;
-      await loadTags();
-    } catch (e) {
-      genStatus.textContent = `No se pudo borrar ${code}: revisá permisos en Firestore.`;
+    function actualizarStatsYCanales(items) {
+      const total = items.length;
+      const act = items.filter((x) => isActivada(x)).length;
+      const disp = total - act;
+      const asignadas = items.filter((x) => (x.canalDestino || "").trim() !== "").length;
+
+      document.getElementById("statTotal").textContent = total;
+      document.getElementById("statDisp").textContent = disp;
+      document.getElementById("statAct").textContent = act;
+      document.getElementById("statAsignadas").textContent = asignadas;
+
+      const map = new Map();
+      const canalesSet = new Set();
+
+      for (const item of items) {
+        const destino = (item.canalDestino || "Sin asignar").trim();
+        if (item.canalDestino && item.canalDestino.trim()) {
+          canalesSet.add(item.canalDestino.trim());
+        }
+        if (!map.has(destino)) {
+          map.set(destino, { total: 0, disp: 0, act: 0, tipo: item.tipoEntrega || "" });
+        }
+        const entry = map.get(destino);
+        entry.total += 1;
+        if (isActivada(item)) entry.act += 1;
+        else entry.disp += 1;
+        if (item.tipoEntrega) entry.tipo = item.tipoEntrega;
+      }
+
+      const prevCanal = filtroCanal.value;
+      filtroCanal.innerHTML = `<option value="">Todos los destinos / canales</option>`;
+      [...canalesSet].sort((a, b) => a.localeCompare(b)).forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        filtroCanal.appendChild(opt);
+      });
+      if ([...canalesSet].includes(prevCanal)) {
+        filtroCanal.value = prevCanal;
+      }
+
+      channelsSummary.innerHTML = "";
+      for (const [nombre, info] of map.entries()) {
+        const card = document.createElement("div");
+        card.className = "channel-card";
+        card.innerHTML = `
+          <div class="channel-name">${nombre}</div>
+          <div class="channel-meta">
+            Total: <strong>${info.total}</strong> · Libres: <strong>${info.disp}</strong> · Activadas: <strong>${info.act}</strong>
+            ${info.tipo ? `<br>Modalidad: ${info.tipo}` : ""}
+          </div>
+        `;
+        channelsSummary.appendChild(card);
+      }
     }
-  }
 
-  function renderTagCard(qrNumber, docId, code, estado = "disponible") {
-    const estadoVisible = formatearEstadoVisible(estado);
-    const url = buildTagUrl(code);
-    const card = document.createElement("div");
-    card.className = "tag-card";
+    function renderLista() {
+      const estadoVal = filtroEstado.value;
+      const canalVal = filtroCanal.value;
+      const q = (buscarTexto.value || "").trim().toLowerCase();
 
-    const indexBadge = document.createElement("div");
-    indexBadge.className = "qr-index";
-    indexBadge.textContent = `QR #${qrNumber}`;
+      const filtrados = itemsCache.filter((item) => {
+        const num = Number(item.numeroInterno || 0);
+        const id = String(item.id || "").toLowerCase();
+        const dest = String(item.canalDestino || "").trim();
+        const act = isActivada(item);
 
-    const numEl = document.createElement("div");
-    numEl.className = "tag-num";
-    numEl.textContent = `ID ${code} (${estadoVisible})`;
+        if (estadoVal === "disponible" && act) return false;
+        if (estadoVal === "activada" && !act) return false;
+        if (estadoVal === "sin-asignar" && dest !== "") return false;
+        if (canalVal && dest !== canalVal) return false;
 
-    const qrDiv = document.createElement("div");
-    qrDiv.className = "qr-box";
-    new QRCode(qrDiv, {
-      text: url,
-      width: 124,
-      height: 124,
-      correctLevel: QRCode.CorrectLevel.M
+        if (q) {
+          const matchNum = String(num).includes(q) || padNum(num).includes(q);
+          const matchId = id.includes(q);
+          const matchDest = dest.toLowerCase().includes(q);
+          if (!matchNum && !matchId && !matchDest) return false;
+        }
+        return true;
+      });
+
+      lista.innerHTML = "";
+
+      if (!filtrados.length) {
+        lista.innerHTML = `<p class="muted">No hay chapitas que coincidan con el filtro.</p>`;
+        return;
+      }
+
+      for (const item of filtrados) {
+        const id = item.id;
+        const num = Number(item.numeroInterno || 0);
+        const numStr = padNum(num);
+        const act = isActivada(item);
+        const url = buildUrl(id);
+        const qrId = `qr-${id}`;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const badges = `
+          <span class="badge ${act ? "b-act" : "b-disp"}">${act ? "activada" : "disponible"}</span>
+          ${item.canalDestino ? `<span class="badge b-dest">${item.canalDestino}</span>` : ""}
+        `;
+
+        const destInfo = item.canalDestino
+          ? `<div class="dest-txt"><strong>Destino:</strong> ${item.canalDestino}${item.tipoEntrega ? ` (${item.tipoEntrega})` : ""}${item.notaEntrega ? `<br>${item.notaEntrega}` : ""}</div>`
+          : `<div class="dest-txt">Sin destino asignado</div>`;
+
+        card.innerHTML = `
+          <div class="badge-row">${badges}</div>
+          <div class="num-label">QR #${numStr}</div>
+          <div class="code">ID: ${id}</div>
+          <div class="qr-box" id="${qrId}"></div>
+          <div class="url-txt">${url}</div>
+          ${destInfo}
+          <div class="actions"></div>
+        `;
+
+        lista.appendChild(card);
+
+        new QRCode(document.getElementById(qrId), {
+          text: url,
+          width: 140,
+          height: 140,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+
+        const actionsEl = card.querySelector(".actions");
+
+        const btnPng = document.createElement("button");
+        btnPng.className = "btn-primary";
+        btnPng.type = "button";
+        btnPng.textContent = "Bajar QR #";
+        btnPng.onclick = () => descargarPngDesdeContenedor(qrId, numStr, id);
+
+        const btnNfc = document.createElement("button");
+        btnNfc.className = "btn-secondary";
+        btnNfc.type = "button";
+        btnNfc.textContent = "Link NFC";
+        btnNfc.onclick = () => copiarTexto(url, `Link NFC copiado:\n${url}`);
+
+        const btnMin = document.createElement("button");
+        btnMin.className = "btn-outline";
+        btnMin.type = "button";
+        btnMin.textContent = "id minúscula";
+        btnMin.onclick = () => copiarTexto(id.toLowerCase(), `ID en minúscula copiado: ${id.toLowerCase()}`);
+
+        actionsEl.append(btnPng, btnNfc, btnMin);
+      }
+    }
+
+    async function cargarInventario() {
+      const snap = await getDocs(collection(db, "chapitasInventario"));
+      const arr = [];
+      let maxNum = 0;
+
+      snap.forEach((docSnap) => {
+        const data = docSnap.data() || {};
+        const n = Number(data.numeroInterno || 0);
+        if (n > maxNum) maxNum = n;
+        arr.push({ id: docSnap.id, ...data });
+      });
+
+      // Asigna numeroInterno correlativo interno solo si algún documento viejo no lo tenía
+      let nextFallback = maxNum + 1;
+      for (const item of arr) {
+        if (!item.numeroInterno) {
+          item.numeroInterno = nextFallback++;
+        }
+      }
+
+      arr.sort((a, b) => Number(a.numeroInterno) - Number(b.numeroInterno));
+      itemsCache = arr;
+      actualizarStatsYCanales(itemsCache);
+      renderLista();
+    }
+
+    btnGoogle.addEventListener("click", async () => {
+      setMsg(msgLogin, "");
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        setMsg(msgLogin, "No se pudo iniciar sesión con Google.", "err");
+      }
     });
 
-    const urlEl = document.createElement("div");
-    urlEl.className = "tag-url";
-    urlEl.textContent = url;
+    btnSalir.addEventListener("click", async () => {
+      await signOut(auth);
+    });
 
-    const actions = document.createElement("div");
-    actions.className = "actions";
+    btnRefrescar.addEventListener("click", async () => {
+      await cargarInventario();
+    });
 
-    const btnCopy = document.createElement("button");
-    btnCopy.className = "btn-small";
-    btnCopy.textContent = "Copiar link NFC";
-    btnCopy.onclick = async () => {
-      await navigator.clipboard.writeText(url);
-      btnCopy.textContent = "¡Copiado!";
-      setTimeout(() => (btnCopy.textContent = "Copiar link NFC"), 1200);
-    };
+    btnCrear.addEventListener("click", async () => {
+      const cant = Math.max(1, Math.min(500, Number(document.getElementById("cantCrear").value || 1)));
+      const canalInicial = (document.getElementById("canalInicial").value || "").trim();
 
-    const btnDl = document.createElement("button");
-    btnDl.className = "btn-small btn-dl";
-    btnDl.textContent = "Bajar QR";
-    btnDl.onclick = () => {
-      const canvas = qrDiv.querySelector("canvas");
-      const img = qrDiv.querySelector("img");
-      const href = canvas ? canvas.toDataURL("image/png") : img?.src;
-      if (!href) return;
-      const a = document.createElement("a");
-      a.href = href;
-      a.download = `qr-${qrNumber}-${code}.png`;
-      a.click();
-    };
+      btnCrear.disabled = true;
+      setMsg(msgGen, `Generando ${cant} chapitas con ID aleatorio...`);
 
-    const btnDel = document.createElement("button");
-    btnDel.className = "btn-small btn-danger";
-    btnDel.textContent = "Borrar";
-    btnDel.onclick = () => deleteTag(docId, code);
+      try {
+        const currentMax = itemsCache.reduce((m, x) => Math.max(m, Number(x.numeroInterno || 0)), 0);
+        let creadas = 0;
 
-    actions.append(btnCopy, btnDl, btnDel);
-    card.append(indexBadge, numEl, qrDiv, urlEl, actions);
-    tagsGrid.appendChild(card);
-  }
+        for (let i = 0; i < cant; i++) {
+          const id = await generarIdUnico();
+          const numInterno = currentMax + i + 1;
+          await setDoc(doc(db, "chapitasInventario", id), {
+            codigo: id,
+            numeroInterno: numInterno,
+            estado: "disponible",
+            status: "disponible",
+            activada: false,
+            canalDestino: canalInicial,
+            tipoEntrega: canalInicial ? "Stock inicial" : "",
+            notaEntrega: "",
+            fechaCreacion: serverTimestamp()
+          });
+          creadas++;
+        }
 
-  async function loadTags() {
-    tagsGrid.innerHTML = "";
-    let total = 0;
-    try {
-      const snap = await getDocs(collection(db, "chapitasInventario"));
-      const docs = [];
-      snap.forEach((docSnap) => {
-        const d = docSnap.data();
-        docs.push({
-          id: docSnap.id,
-          code: d.code || docSnap.id,
-          estado: d.status || d.estado || "disponible",
-          createdAt: d.createdAt || ""
-        });
+        setMsg(msgGen, `Listo: se crearon ${creadas} chapitas nuevas con ID aleatorio.`, "ok");
+        await cargarInventario();
+      } catch (e) {
+        setMsg(msgGen, `Error al generar: ${e.message || e}`, "err");
+      } finally {
+        btnCrear.disabled = false;
+      }
+    });
+
+    btnAsignar.addEventListener("click", async () => {
+      const desde = Number(document.getElementById("rangoDesde").value);
+      const hasta = Number(document.getElementById("rangoHasta").value);
+      const destino = (document.getElementById("rangoDestino").value || "").trim();
+      const tipo = document.getElementById("rangoTipo").value;
+      const nota = (document.getElementById("rangoNota").value || "").trim();
+
+      if (!desde || !hasta || desde > hasta) {
+        setMsg(msgAsig, "Revisá el rango 'Desde QR #' y 'Hasta QR #'.", "err");
+        return;
+      }
+      if (!destino) {
+        setMsg(msgAsig, "Ingresá el nombre de la veterinaria, local o canal.", "err");
+        return;
+      }
+
+      const targets = itemsCache.filter((item) => {
+        const n = Number(item.numeroInterno || 0);
+        return n >= desde && n <= hasta;
       });
-      docs.sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
-      for (let i = 0; i < docs.length; i++) {
-        const item = docs[i];
-        total += 1;
-        renderTagCard(i + 1, item.id, item.code, item.estado);
+
+      if (!targets.length) {
+        setMsg(msgAsig, `No se encontraron chapitas entre #${desde} y #${hasta}.`, "err");
+        return;
       }
-      tagsCount.textContent = String(total);
-    } catch (e) {
-      genStatus.textContent = "No se pudo cargar la lista desde Firebase (revisá las reglas de Firestore).";
-    }
-  }
 
-  document.getElementById("btn-google-login").onclick = async () => {
-    authStatus.textContent = "Abriendo Google...";
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (e) {
-      authStatus.textContent = "No se pudo iniciar sesión con Google.";
-    }
-  };
+      btnAsignar.disabled = true;
+      setMsg(msgAsig, `Asignando ${targets.length} chapitas a "${destino}"...`);
 
-  document.getElementById("btn-logout").onclick = () => signOut(auth);
-  document.getElementById("btn-refresh").onclick = loadTags;
-
-  document.getElementById("btn-delete-all").onclick = async () => {
-    genStatus.textContent = "Borrando chapitas...";
-    try {
-      const snap = await getDocs(collection(db, "chapitasInventario"));
-      let borradas = 0;
-      for (const docSnap of snap.docs) {
-        await deleteDoc(doc(db, "chapitasInventario", docSnap.id));
-        borradas += 1;
+      try {
+        for (const item of targets) {
+          await updateDoc(doc(db, "chapitasInventario", item.id), {
+            canalDestino: destino,
+            tipoEntrega: tipo,
+            notaEntrega: nota,
+            fechaAsignacion: serverTimestamp()
+          });
+        }
+        setMsg(msgAsig, `Listo: ${targets.length} chapitas (#${desde} al #${hasta}) asignadas a "${destino}".`, "ok");
+        await cargarInventario();
+      } catch (e) {
+        setMsg(msgAsig, `Error al asignar rango: ${e.message || e}`, "err");
+      } finally {
+        btnAsignar.disabled = false;
       }
-      genStatus.textContent = `Listo: se borraron ${borradas} chapitas.`;
-      await loadTags();
-    } catch (e) {
-      genStatus.textContent = "Error al borrar en Firestore: revisá que tu usuario tenga permiso de borrado.";
-    }
-  };
+    });
 
-  document.getElementById("btn-generate").onclick = async () => {
-    const qty = parseInt(document.getElementById("inp-qty").value, 10);
-    if (isNaN(qty) || qty < 1 || qty > 200) {
-      genStatus.textContent = "Ingresá una cantidad entre 1 y 200.";
-      return;
-    }
+    btnBajarLote.addEventListener("click", async () => {
+      const desde = Number(document.getElementById("bajarDesde").value);
+      const hasta = Number(document.getElementById("bajarHasta").value);
 
-    genStatus.textContent = `Generando ${qty} QR con ID aleatorio...`;
-    try {
-      const usedInBatch = new Set();
-      const createdIds = [];
-      for (let i = 0; i < qty; i++) {
-        const code = await generateUniqueId(usedInBatch);
-        await setDoc(doc(db, "chapitasInventario", code), {
-          code,
-          status: "disponible",
-          estado: "disponible",
-          createdAt: new Date().toISOString(),
-          createdBy: auth.currentUser?.uid || ""
-        });
-        createdIds.push(code);
+      if (!desde || !hasta || desde > hasta) {
+        setMsg(msgBajar, "Indicá un rango válido para descargar.", "err");
+        return;
       }
-      genStatus.textContent = `Listo: se generaron ${createdIds.length} QR (${createdIds.join(", ")}).`;
-      await loadTags();
-    } catch (e) {
-      genStatus.textContent = "Error al guardar en Firestore: revisá que tu usuario tenga permiso de escritura.";
-    }
-  };
 
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      authBox.classList.add("hidden");
-      panelBox.classList.remove("hidden");
-      await loadTags();
-    } else {
-      panelBox.classList.add("hidden");
-      authBox.classList.remove("hidden");
-      authStatus.textContent = "";
-    }
-  });
-</script>
+      const targets = itemsCache.filter((item) => {
+        const n = Number(item.numeroInterno || 0);
+        return n >= desde && n <= hasta;
+      });
+
+      if (!targets.length) {
+        setMsg(msgBajar, "No hay chapitas en ese rango.", "err");
+        return;
+      }
+
+      setMsg(msgBajar, `Descargando ${targets.length} imágenes PNG numeradas...`);
+      for (let i = 0; i < targets.length; i++) {
+        const item = targets[i];
+        descargarPngDesdeContenedor(`qr-${item.id}`, padNum(item.numeroInterno), item.id);
+        await new Promise((r) => setTimeout(r, 140));
+      }
+      setMsg(msgBajar, `Descarga iniciada para ${targets.length} chapitas.`, "ok");
+    });
+
+    filtroEstado.addEventListener("change", renderLista);
+    filtroCanal.addEventListener("change", renderLista);
+    buscarTexto.addEventListener("input", renderLista);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        vistaApp.classList.add("hidden");
+        vistaLogin.classList.remove("hidden");
+        return;
+      }
+      if ((user.email || "").toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        setMsg(msgLogin, `La cuenta ${user.email} no está autorizada para este panel.`, "err");
+        await signOut(auth);
+        return;
+      }
+
+      vistaLogin.classList.add("hidden");
+      vistaApp.classList.remove("hidden");
+      txtUser.textContent = `Sesión iniciada como ${user.email}`;
+      await cargarInventario();
+    });
+  </script>
 </body>
 </html>
