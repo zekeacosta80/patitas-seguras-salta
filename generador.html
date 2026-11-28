@@ -264,8 +264,8 @@
       <h2>1. Generar nueva tanda con ID aleatorio (URL corta + QR limpio)</h2>
       <div class="grid-controls">
         <div>
-          <label for="cantCrear">Cantidad a crear</label>
-          <input id="cantCrear" type="number" min="1" max="500" value="10" />
+          <label for="cantCrear">Cantidad a crear (en tandas de hasta 100)</label>
+          <input id="cantCrear" type="number" min="1" max="100" value="20" />
         </div>
         <div>
           <label for="canalInicial">Destino / Canal inicial</label>
@@ -362,12 +362,12 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "TU_API_KEY",
+      apiKey: "AIzaSyBfs9FUMFCMYGp",
       authDomain: "patitas-seguras-salta.firebaseapp.com",
       projectId: "patitas-seguras-salta",
       storageBucket: "patitas-seguras-salta.firebasestorage.app",
-      messagingSenderId: "TU_MESSAGING_SENDER_ID",
-      appId: "TU_APP_ID"
+      messagingSenderId: "311814224464",
+      appId: "1:311814224464:web:patitassegurassalta"
     };
 
     const ADMIN_EMAIL = "zekeacosta80@gmail.com";
@@ -399,6 +399,7 @@
     const buscarTexto = document.getElementById("buscarTexto");
 
     let itemsCache = [];
+    const existingIdsCache = new Set();
 
     function randomId(len = 6) {
       let out = "";
@@ -428,8 +429,12 @@
     async function generarIdUnico() {
       for (let intento = 0; intento < 30; intento++) {
         const candidate = randomId(6);
+        if (existingIdsCache.has(candidate)) continue;
         const snap = await getDoc(doc(db, "chapitasInventario", candidate));
-        if (!snap.exists()) return candidate;
+        if (!snap.exists()) {
+          existingIdsCache.add(candidate);
+          return candidate;
+        }
       }
       throw new Error("No se pudo generar un ID único.");
     }
@@ -643,15 +648,16 @@
       const snap = await getDocs(collection(db, "chapitasInventario"));
       const arr = [];
       let maxNum = 0;
+      existingIdsCache.clear();
 
       snap.forEach((docSnap) => {
+        existingIdsCache.add(docSnap.id);
         const data = docSnap.data() || {};
         const n = Number(data.numeroInterno || 0);
         if (n > maxNum) maxNum = n;
         arr.push({ id: docSnap.id, ...data });
       });
 
-      // Asigna numeroInterno correlativo interno solo si algún documento viejo no lo tenía
       let nextFallback = maxNum + 1;
       for (const item of arr) {
         if (!item.numeroInterno) {
@@ -670,7 +676,7 @@
       try {
         await signInWithPopup(auth, provider);
       } catch (e) {
-        setMsg(msgLogin, "No se pudo iniciar sesión con Google.", "err");
+        setMsg(msgLogin, `No se pudo iniciar sesión (${e.code || e.message || e}).`, "err");
       }
     });
 
@@ -683,7 +689,7 @@
     });
 
     btnCrear.addEventListener("click", async () => {
-      const cant = Math.max(1, Math.min(500, Number(document.getElementById("cantCrear").value || 1)));
+      const cant = Math.max(1, Math.min(100, Number(document.getElementById("cantCrear").value || 1)));
       const canalInicial = (document.getElementById("canalInicial").value || "").trim();
 
       btnCrear.disabled = true;
@@ -708,6 +714,9 @@
             fechaCreacion: serverTimestamp()
           });
           creadas++;
+          if (creadas % 10 === 0 || creadas === cant) {
+            setMsg(msgGen, `Generando tanda: ${creadas} de ${cant}...`);
+          }
         }
 
         setMsg(msgGen, `Listo: se crearon ${creadas} chapitas nuevas con ID aleatorio.`, "ok");
